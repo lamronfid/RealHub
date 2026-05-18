@@ -38,7 +38,7 @@ export const STAGE_COLORS: Record<PipelineStage, string> = {
 // ─── Property Types ───
 export const PROPERTY_TYPES = [
   'casa', 'departamento', 'terreno', 'duplex', 'triplex',
-  'pozo', 'oficina', 'deposito', 'inmueble_productivo', 'casa_duplex',
+  'pozo', 'oficina', 'deposito', 'inmueble_productivo', 'casa_duplex', 'local_comercial',
 ] as const;
 
 export type PropertyType = typeof PROPERTY_TYPES[number];
@@ -48,19 +48,30 @@ export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
   duplex: 'Dúplex', triplex: 'Tríplex', pozo: 'Pozo',
   oficina: 'Oficina', deposito: 'Depósito',
   inmueble_productivo: 'Inmueble Productivo', casa_duplex: 'Casa Dúplex',
+  local_comercial: 'Local Comercial',
 };
 
 export const DETAILED_PROPERTY_TYPES: PropertyType[] = [
   'casa', 'departamento', 'duplex', 'triplex', 'pozo', 'casa_duplex',
 ];
 export const LAND_ONLY_TYPES: PropertyType[] = ['terreno'];
-export const COMMERCIAL_TYPES: PropertyType[] = ['oficina', 'deposito', 'inmueble_productivo'];
+export const COMMERCIAL_TYPES: PropertyType[] = ['oficina', 'deposito', 'inmueble_productivo', 'local_comercial'];
 
 export const TRANSACTION_TYPES = ['compra', 'alquiler', 'ambos'] as const;
 export type TransactionType = typeof TRANSACTION_TYPES[number];
 
 export const CURRENCIES = ['USD', 'PYG'] as const;
 export type Currency = typeof CURRENCIES[number];
+
+// ─── Property Detail Options ───
+export const CONSTRUCTION_TYPES = ['Antiguo', 'Medio', 'Semi-nuevo', 'Nuevo', 'Lujo'] as const;
+export const CONSERVATION_STATES = ['Malo', 'Regular', 'Bueno', 'Excelente', 'Lujo'] as const;
+export const LOT_SHAPES = ['Regular', 'Irregular', 'Esquina'] as const;
+export const TOPOGRAPHY_TYPES = ['Plano', 'Pendiente leve', 'Pronunciada'] as const;
+export const ACCESS_TYPES = ['Pavimentado', 'Empedrado', 'Tierra'] as const;
+export const SERVICES = ['Todos', 'Parciales', 'Sin servicios'] as const;
+export const ZONING_TYPES = ['Residencial', 'Comercial', 'Mixto', 'Industrial'] as const;
+export const FLOOR_LOCATIONS = ['Planta baja', 'Piso 1', 'Piso 2+', 'Subsuelo'] as const;
 
 // ─── Database Row Types ───
 export interface AgentProfile {
@@ -74,8 +85,20 @@ export interface AgentProfile {
   bio: string | null;
   specialties: string[];
   coverage_areas: string[];
+  role: string;
+  onboarding_completed: boolean;
+  company_name: string | null;
+  experience_years: number | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface FeatureRequest {
+  id: string;
+  user_id: string;
+  description: string;
+  status: string;
+  created_at: string;
 }
 
 export interface Property {
@@ -103,6 +126,19 @@ export interface Property {
   visibility: string;
   marketplace_shared_at: string | null;
   status: string;
+  construction_type: string | null;
+  conservation_state: string | null;
+  lot_shape: string | null;
+  topography: string | null;
+  access_type: string | null;
+  services: string | null;
+  zoning: string | null;
+  floor_number: number | null;
+  has_elevator: boolean;
+  front_meters: number | null;
+  floor_location: string | null;
+  latitude: number | null;
+  longitude: number | null;
   created_at: string;
   updated_at: string;
 }

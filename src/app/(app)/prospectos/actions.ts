@@ -24,8 +24,10 @@ export async function createProspect(formData: FormData) {
   const notes = formData.get('notes') as string;
   const propertyTypesRaw = formData.get('property_types') as string;
   const propertyTypes = propertyTypesRaw ? propertyTypesRaw.split(',').filter(Boolean) : [];
-  const departmentRaw = formData.get('department') as string;
-  const departments = departmentRaw ? [departmentRaw] : [];
+  const departmentsRaw = formData.get('departments') as string;
+  const departments = departmentsRaw ? departmentsRaw.split(',').filter(Boolean) : [];
+  const citiesRaw = formData.get('cities') as string;
+  const cities = citiesRaw ? citiesRaw.split(',').filter(Boolean) : [];
   const neighborhoodsRaw = formData.get('neighborhoods') as string;
   const neighborhoods = neighborhoodsRaw ? neighborhoodsRaw.split(',').filter(Boolean) : [];
 
@@ -36,7 +38,7 @@ export async function createProspect(formData: FormData) {
   const { data: prospect, error } = await supabase.from('prospects').insert({
     agent_id: user.id, full_name: fullName, phone, email,
     transaction_type: transactionType, price_min: priceMin, price_max: priceMax,
-    currency, notes, property_types: propertyTypes, departments, neighborhoods,
+    currency, notes, property_types: propertyTypes, departments, cities, neighborhoods,
     rooms_min: roomsMin, bathrooms_min: bathroomsMin, garages_min: garagesMin,
     stage: 'nuevo_contacto',
     visibility: 'marketplace'
@@ -104,8 +106,10 @@ export async function updateProspect(prospectId: string, formData: FormData) {
   const notes = formData.get('notes') as string;
   const propertyTypesRaw = formData.get('property_types') as string;
   const propertyTypes = propertyTypesRaw ? propertyTypesRaw.split(',').filter(Boolean) : [];
-  const departmentRaw = formData.get('department') as string;
-  const departments = departmentRaw ? [departmentRaw] : [];
+  const departmentsRaw = formData.get('departments') as string;
+  const departments = departmentsRaw ? departmentsRaw.split(',').filter(Boolean) : [];
+  const citiesRaw = formData.get('cities') as string;
+  const cities = citiesRaw ? citiesRaw.split(',').filter(Boolean) : [];
   const neighborhoodsRaw = formData.get('neighborhoods') as string;
   const neighborhoods = neighborhoodsRaw ? neighborhoodsRaw.split(',').filter(Boolean) : [];
   const roomsMin = formData.get('rooms_min') ? parseInt(formData.get('rooms_min') as string, 10) : null;
@@ -117,7 +121,7 @@ export async function updateProspect(prospectId: string, formData: FormData) {
     .update({
       full_name: fullName, phone, email,
       transaction_type: transactionType, price_min: priceMin, price_max: priceMax,
-      currency, notes, property_types: propertyTypes, departments, neighborhoods,
+      currency, notes, property_types: propertyTypes, departments, cities, neighborhoods,
       rooms_min: roomsMin, bathrooms_min: bathroomsMin, garages_min: garagesMin,
       updated_at: new Date().toISOString(),
     })

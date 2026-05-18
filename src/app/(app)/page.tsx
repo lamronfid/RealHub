@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { STAGE_LABELS, STAGE_COLORS, type PipelineStage } from '@/lib/types';
+import FeedbackButton from '@/components/FeedbackButton';
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -37,7 +38,7 @@ export default async function HomePage() {
     { label: 'En Marketplace', value: marketplaceProperties || 0, icon: 'storefront', bg: 'bg-violet-50', text: 'text-violet-600', href: '/marketplace' },
     { label: 'Prospectos', value: totalProspects || 0, icon: 'people', bg: 'bg-emerald-50', text: 'text-emerald-600', href: '/prospectos' },
     { label: 'Cierres del Mes', value: closedThisMonth || 0, icon: 'verified', bg: 'bg-blue-50', text: 'text-blue-600', href: '/prospectos' },
-    { label: 'Nuevos Matches', value: unreadMatches || 0, icon: 'favorite', bg: 'bg-rose-50', text: 'text-rose-600', href: '/propiedades' },
+    { label: 'Coincidencias', value: unreadMatches || 0, icon: 'compare_arrows', bg: 'bg-rose-50', text: 'text-rose-600', href: '/propiedades' },
     { label: 'Seguimientos', value: (pendingFollowUps || []).length, icon: 'schedule', bg: 'bg-amber-50', text: 'text-amber-600', href: '/agenda' },
   ];
 
@@ -155,6 +156,7 @@ export default async function HomePage() {
           </div>
         </Link>
       </div>
+      <FeedbackButton />
     </div>
   );
 }

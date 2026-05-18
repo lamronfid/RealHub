@@ -35,11 +35,24 @@ export async function createProperty(formData: FormData) {
   const constructionYear = formData.get('construction_year') ? parseInt(formData.get('construction_year') as string) : null;
   const furnished = formData.get('furnished') as string || null;
   const exclusive = formData.get('exclusive') === 'true';
+  const constructionType = formData.get('construction_type') as string || null;
+  const conservationState = formData.get('conservation_state') as string || null;
+  const lotShape = formData.get('lot_shape') as string || null;
+  const topography = formData.get('topography') as string || null;
+  const accessType = formData.get('access_type') as string || null;
+  const services = formData.get('services') as string || null;
+  const zoning = formData.get('zoning') as string || null;
+  const floorNumber = formData.get('floor_number') ? parseInt(formData.get('floor_number') as string) : null;
+  const hasElevator = formData.get('has_elevator') === 'true';
+  const frontMeters = formData.get('front_meters') ? parseFloat(formData.get('front_meters') as string) : null;
+  const floorLocation = formData.get('floor_location') as string || null;
   const amenitiesRaw = formData.get('amenities') as string;
   const amenities = amenitiesRaw ? amenitiesRaw.split(',').filter(Boolean) : [];
   const visibility = 'marketplace';
   const photosRaw = formData.get('photos') as string;
   const photos = photosRaw ? JSON.parse(photosRaw) : [];
+  const latitude = formData.get('latitude') ? parseFloat(formData.get('latitude') as string) : null;
+  const longitude = formData.get('longitude') ? parseFloat(formData.get('longitude') as string) : null;
 
   const status = transactionType === 'compra' ? 'En Venta' : 'En Alquiler';
 
@@ -49,6 +62,11 @@ export async function createProperty(formData: FormData) {
     bedrooms, bathrooms, garages, m2_terrain: m2Terrain, m2_built: m2Built,
     m2_balcony: m2Balcony, trees_count: treesCount, construction_year: constructionYear,
     furnished, exclusive, amenities, visibility,
+    construction_type: constructionType, conservation_state: conservationState,
+    lot_shape: lotShape, topography, access_type: accessType,
+    services, zoning, floor_number: floorNumber, has_elevator: hasElevator,
+    front_meters: frontMeters, floor_location: floorLocation,
+    latitude, longitude,
     marketplace_shared_at: new Date().toISOString(),
     status, agent_id: user.id, photos,
   });
@@ -125,10 +143,23 @@ export async function updateProperty(propertyId: string, formData: FormData) {
   const m2Built = formData.get('m2_built') ? parseFloat(formData.get('m2_built') as string) : null;
   const furnished = formData.get('furnished') as string || null;
   const exclusive = formData.get('exclusive') === 'true';
+  const constructionType = formData.get('construction_type') as string || null;
+  const conservationState = formData.get('conservation_state') as string || null;
+  const lotShape = formData.get('lot_shape') as string || null;
+  const topography = formData.get('topography') as string || null;
+  const accessType = formData.get('access_type') as string || null;
+  const services = formData.get('services') as string || null;
+  const zoning = formData.get('zoning') as string || null;
+  const floorNumber = formData.get('floor_number') ? parseInt(formData.get('floor_number') as string) : null;
+  const hasElevator = formData.get('has_elevator') === 'true';
+  const frontMeters = formData.get('front_meters') ? parseFloat(formData.get('front_meters') as string) : null;
+  const floorLocation = formData.get('floor_location') as string || null;
   const amenitiesRaw = formData.get('amenities') as string;
   const amenities = amenitiesRaw ? amenitiesRaw.split(',').filter(Boolean) : [];
   const photosRaw = formData.get('photos') as string;
   const photos = photosRaw ? JSON.parse(photosRaw) : [];
+  const latitude = formData.get('latitude') ? parseFloat(formData.get('latitude') as string) : null;
+  const longitude = formData.get('longitude') ? parseFloat(formData.get('longitude') as string) : null;
 
   const { error } = await supabase
     .from('properties')
@@ -137,6 +168,11 @@ export async function updateProperty(propertyId: string, formData: FormData) {
       sale_price: salePrice, rent_price: rentPrice, currency, department, city, neighborhood,
       bedrooms, bathrooms, garages, m2_terrain: m2Terrain, m2_built: m2Built,
       furnished, exclusive, amenities, photos,
+      construction_type: constructionType, conservation_state: conservationState,
+      lot_shape: lotShape, topography, access_type: accessType,
+      services, zoning, floor_number: floorNumber, has_elevator: hasElevator,
+      front_meters: frontMeters, floor_location: floorLocation,
+      latitude, longitude,
       updated_at: new Date().toISOString(),
     })
     .eq('id', propertyId)
