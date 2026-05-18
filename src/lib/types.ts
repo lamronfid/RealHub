@@ -242,7 +242,7 @@ export const DEPARTMENTS = [
   'Asunción', 'Central', 'Alto Paraná', 'Itapúa', 'Caaguazú',
   'San Pedro', 'Paraguarí', 'Cordillera', 'Guairá', 'Caazapá',
   'Misiones', 'Ñeembucú', 'Amambay', 'Canindeyú', 'Presidente Hayes',
-  'Boquerón', 'Alto Paraguay', 'Concepción',
+  'Boquerón', 'Alto Paraguay', 'Concepción', 'Otro',
 ] as const;
 
 export const CITIES: Record<string, string[]> = {

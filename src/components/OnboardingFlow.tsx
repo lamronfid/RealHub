@@ -66,7 +66,7 @@ export default function OnboardingFlow() {
     });
   };
 
-  const inputClass = "w-full bg-white/10 border border-white/20 rounded-xl py-3 px-4 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all";
+  const inputClass = "w-full bg-white/10 border border-white/30 rounded-xl py-3 px-4 text-sm text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all";
 
   return (
     <div className="fixed inset-0 z-[100] bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 flex items-center justify-center p-4">
@@ -76,24 +76,21 @@ export default function OnboardingFlow() {
       </div>
 
       <div className="w-full max-w-md">
-        {/* Step counter */}
         <div className="text-center mb-8">
-          <span className="text-white/40 text-xs font-bold uppercase tracking-widest">
+          <span className="text-white/80 text-xs font-bold uppercase tracking-widest">
             Paso {step + 1} de {STEPS.length}
           </span>
         </div>
 
-        {/* Icon */}
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur">
+          <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur">
             <span className="material-symbols-outlined text-white text-3xl">{current.icon}</span>
           </div>
         </div>
 
-        {/* Title */}
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-white mb-1">{current.title}</h2>
-          <p className="text-white/50 text-sm">{current.subtitle}</p>
+          <p className="text-white/90 text-sm font-medium">{current.subtitle}</p>
         </div>
 
         {/* Step Content */}
@@ -105,11 +102,11 @@ export default function OnboardingFlow() {
           {current.key === 'phone' && (
             <>
               <div>
-                <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">Teléfono</label>
+                <label className="block text-xs font-bold text-white/90 uppercase tracking-wider mb-2">Teléfono</label>
                 <input value={phone} onChange={e => setPhone(e.target.value)} className={inputClass} placeholder="+595 981 123 456" autoFocus />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">WhatsApp (si es diferente)</label>
+                <label className="block text-xs font-bold text-white/90 uppercase tracking-wider mb-2">WhatsApp (si es diferente)</label>
                 <input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} className={inputClass} placeholder="Mismo número o diferente" />
               </div>
             </>
@@ -119,7 +116,7 @@ export default function OnboardingFlow() {
             <>
               <button type="button" onClick={() => setIsIndependent(!isIndependent)}
                 className={`w-full py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
-                  isIndependent ? 'bg-white/20 border-white/40 text-white' : 'bg-transparent border-white/20 text-white/60 hover:border-white/30'
+                  isIndependent ? 'bg-white/30 border-white text-white' : 'bg-white/5 border-white/30 text-white hover:bg-white/10 hover:border-white/50'
                 }`}
               >
                 Soy Agente Independiente
@@ -135,8 +132,8 @@ export default function OnboardingFlow() {
               {DEPARTMENTS.map(dept => (
                 <button key={dept} type="button"
                   onClick={() => setCoverageAreas(prev => prev.includes(dept) ? prev.filter(d => d !== dept) : [...prev, dept])}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                    coverageAreas.includes(dept) ? 'bg-white/20 border-white/40 text-white' : 'bg-transparent border-white/20 text-white/60 hover:border-white/30'
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                    coverageAreas.includes(dept) ? 'bg-white border-white text-indigo-700' : 'bg-white/5 border-white/30 text-white hover:bg-white/10 hover:border-white/50'
                   }`}
                 >
                   {dept}
@@ -154,7 +151,7 @@ export default function OnboardingFlow() {
               ].map(opt => (
                 <button key={opt.value} type="button" onClick={() => setSpecialty(opt.value)}
                   className={`w-full flex items-center gap-3 py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
-                    specialty === opt.value ? 'bg-white/20 border-white/40 text-white' : 'bg-transparent border-white/20 text-white/60 hover:border-white/30'
+                    specialty === opt.value ? 'bg-white/30 border-white text-white' : 'bg-white/5 border-white/30 text-white hover:bg-white/10 hover:border-white/50'
                   }`}
                 >
                   <span className="material-symbols-outlined text-[18px]">{opt.icon}</span>
@@ -176,7 +173,7 @@ export default function OnboardingFlow() {
               ].map(opt => (
                 <button key={opt.value} type="button" onClick={() => setExperienceYears(opt.value)}
                   className={`py-3 px-4 rounded-xl text-xs font-medium border transition-all ${
-                    experienceYears === opt.value ? 'bg-white/20 border-white/40 text-white' : 'bg-transparent border-white/20 text-white/60 hover:border-white/30'
+                    experienceYears === opt.value ? 'bg-white/30 border-white text-white' : 'bg-white/5 border-white/30 text-white hover:bg-white/10 hover:border-white/50'
                   }`}
                 >
                   {opt.label}
@@ -190,7 +187,7 @@ export default function OnboardingFlow() {
         <div className="flex items-center gap-3 mt-8">
           {step > 0 && (
             <button onClick={() => setStep(s => s - 1)}
-              className="px-6 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white border border-white/20 hover:border-white/30 transition-all"
+              className="px-6 py-3 rounded-xl text-sm font-medium text-white hover:bg-white/10 border border-white/40 hover:border-white transition-all"
             >
               Atrás
             </button>
@@ -198,7 +195,7 @@ export default function OnboardingFlow() {
           <button
             onClick={isLastStep ? handleFinish : () => setStep(s => s + 1)}
             disabled={!canAdvance() || isPending}
-            className="flex-1 bg-white text-indigo-600 font-bold text-sm px-6 py-3 rounded-xl hover:bg-white/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 bg-white text-indigo-700 font-bold text-sm px-6 py-3 rounded-xl hover:bg-gray-100 transition-all disabled:opacity-50 disabled:bg-white/20 disabled:text-white disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isPending ? (
               <span className="w-4 h-4 border-2 border-indigo-600/30 border-t-indigo-600 rounded-full animate-spin"></span>
