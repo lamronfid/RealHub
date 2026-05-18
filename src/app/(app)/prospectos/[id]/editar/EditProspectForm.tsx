@@ -25,8 +25,21 @@ export default function EditProspectForm({ prospect }: EditProspectFormProps) {
 
   const formatPrice = (val: number | null) => {
     if (!val) return '';
-    return val.toLocaleString('es-PY');
+    return new Intl.NumberFormat('es-PY').format(val);
   };
+
+  const [priceMin, setPriceMin] = useState(formatPrice(prospect.price_min));
+  const [priceMax, setPriceMax] = useState(formatPrice(prospect.price_max));
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<string>>) => {
+    const sanitized = e.target.value.replace(/[^0-9]/g, '');
+    if (sanitized) {
+      setter(new Intl.NumberFormat('es-PY').format(Number(sanitized)));
+    } else {
+      setter('');
+    }
+  };
+
 
   const availableCities = Array.from(new Set(
     selectedDepartments.flatMap(d => CITIES[d] || [])
@@ -145,12 +158,12 @@ export default function EditProspectForm({ prospect }: EditProspectFormProps) {
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Mínimo</label>
-            <input name="price_min" defaultValue={formatPrice(prospect.price_min)}
+            <input name="price_min" value={priceMin} onChange={(e) => handlePriceChange(e, setPriceMin)}
               className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200" />
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Máximo</label>
-            <input name="price_max" defaultValue={formatPrice(prospect.price_max)}
+            <input name="price_max" value={priceMax} onChange={(e) => handlePriceChange(e, setPriceMax)}
               className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200" />
           </div>
         </div>

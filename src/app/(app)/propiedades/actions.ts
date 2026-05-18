@@ -3,6 +3,64 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { DEPARTMENTS, CITIES, NEIGHBORHOODS } from '@/lib/types';
+
+export async function getLocations() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from('properties').select('department, city, neighborhood');
+  
+  const dynamicDepartments = new Set<string>(DEPARTMENTS);
+  const dynamicCities: Record<string, Set<string>> = {};
+  const dynamicNeighborhoods: Record<string, Set<string>> = {};
+
+  // Initialize with static data
+  for (const dep of Object.keys(CITIES)) {
+    if (!dynamicCities[dep]) dynamicCities[dep] = new Set();
+    CITIES[dep].forEach(c => dynamicCities[dep].add(c));
+  }
+  for (const cit of Object.keys(NEIGHBORHOODS)) {
+    if (!dynamicNeighborhoods[cit]) dynamicNeighborhoods[cit] = new Set();
+    NEIGHBORHOODS[cit].forEach(n => dynamicNeighborhoods[cit].add(n));
+  }
+
+  if (!error && data) {
+    data.forEach(row => {
+      if (row.department) {
+        // Find existing department ignoring case/accents, or add new
+        const existingDep = Array.from(dynamicDepartments).find(d => d.toLowerCase().localeCompare(row.department.toLowerCase(), 'es', { sensitivity: 'base' }) === 0);
+        const dep = existingDep || row.department;
+        dynamicDepartments.add(dep);
+
+        if (row.city) {
+          if (!dynamicCities[dep]) dynamicCities[dep] = new Set();
+          const existingCity = Array.from(dynamicCities[dep]).find(c => c.toLowerCase().localeCompare(row.city.toLowerCase(), 'es', { sensitivity: 'base' }) === 0);
+          const city = existingCity || row.city;
+          dynamicCities[dep].add(city);
+
+          if (row.neighborhood) {
+            if (!dynamicNeighborhoods[city]) dynamicNeighborhoods[city] = new Set();
+            const existingNeigh = Array.from(dynamicNeighborhoods[city]).find(n => n.toLowerCase().localeCompare(row.neighborhood.toLowerCase(), 'es', { sensitivity: 'base' }) === 0);
+            const neigh = existingNeigh || row.neighborhood;
+            dynamicNeighborhoods[city].add(neigh);
+          }
+        }
+      }
+    });
+  }
+
+  // Convert Sets to Arrays
+  const finalDepartments = Array.from(dynamicDepartments).sort();
+  const finalCities: Record<string, string[]> = {};
+  for (const dep in dynamicCities) {
+    finalCities[dep] = Array.from(dynamicCities[dep]).sort();
+  }
+  const finalNeighborhoods: Record<string, string[]> = {};
+  for (const cit in dynamicNeighborhoods) {
+    finalNeighborhoods[cit] = Array.from(dynamicNeighborhoods[cit]).sort();
+  }
+
+  return { departments: finalDepartments, cities: finalCities, neighborhoods: finalNeighborhoods };
+}
 
 export async function createProperty(formData: FormData) {
   const supabase = await createClient();
@@ -56,7 +114,7 @@ export async function createProperty(formData: FormData) {
 
   const status = transactionType === 'compra' ? 'En Venta' : 'En Alquiler';
 
-  const { error } = await supabase.from('properties').insert({
+  const { data: newProperty, error } = await supabase.from('properties').insert({
     title, description, transaction_type: transactionType, property_type: propertyType,
     sale_price: salePrice, rent_price: rentPrice, currency, department, city, neighborhood,
     bedrooms, bathrooms, garages, m2_terrain: m2Terrain, m2_built: m2Built,
@@ -69,18 +127,24 @@ export async function createProperty(formData: FormData) {
     latitude, longitude,
     marketplace_shared_at: new Date().toISOString(),
     status, agent_id: user.id, photos,
-  });
+  }).select('id').single();
 
   if (error) {
     console.error('ERROR INSERTANDO PROPIEDAD:', error);
-    return { error: error.message };
+    let errorMessage = error.message;
+    if (errorMessage.includes('null value in column')) {
+      errorMessage = 'Faltan campos obligatorios por completar.';
+    } else if (errorMessage.includes('violates foreign key constraint')) {
+      errorMessage = 'Referencia a un dato inexistente.';
+    }
+    return { error: errorMessage };
   }
 
   revalidatePath('/propiedades');
   revalidatePath('/marketplace');
   revalidatePath('/');
   
-  return { success: true };
+  return { success: true, propertyId: newProperty?.id };
 }
 
 export async function toggleMarketplace(propertyId: string, share: boolean) {
@@ -144,6 +208,7 @@ export async function updateProperty(propertyId: string, formData: FormData) {
   const furnished = formData.get('furnished') as string || null;
   const exclusive = formData.get('exclusive') === 'true';
   const constructionType = formData.get('construction_type') as string || null;
+  const constructionYear = formData.get('construction_year') ? parseInt(formData.get('construction_year') as string) : null;
   const conservationState = formData.get('conservation_state') as string || null;
   const lotShape = formData.get('lot_shape') as string || null;
   const topography = formData.get('topography') as string || null;
@@ -168,7 +233,7 @@ export async function updateProperty(propertyId: string, formData: FormData) {
       sale_price: salePrice, rent_price: rentPrice, currency, department, city, neighborhood,
       bedrooms, bathrooms, garages, m2_terrain: m2Terrain, m2_built: m2Built,
       furnished, exclusive, amenities, photos,
-      construction_type: constructionType, conservation_state: conservationState,
+      construction_type: constructionType, construction_year: constructionYear, conservation_state: conservationState,
       lot_shape: lotShape, topography, access_type: accessType,
       services, zoning, floor_number: floorNumber, has_elevator: hasElevator,
       front_meters: frontMeters, floor_location: floorLocation,
@@ -178,7 +243,16 @@ export async function updateProperty(propertyId: string, formData: FormData) {
     .eq('id', propertyId)
     .eq('agent_id', user.id);
 
-  if (error) return { error: error.message };
+  if (error) {
+    console.error('ERROR ACTUALIZANDO PROPIEDAD:', error);
+    let errorMessage = error.message;
+    if (errorMessage.includes('null value in column')) {
+      errorMessage = 'Faltan campos obligatorios por completar.';
+    } else if (errorMessage.includes('violates foreign key constraint')) {
+      errorMessage = 'Referencia a un dato inexistente.';
+    }
+    return { error: errorMessage };
+  }
 
   revalidatePath('/propiedades');
   revalidatePath(`/propiedades/${propertyId}`);

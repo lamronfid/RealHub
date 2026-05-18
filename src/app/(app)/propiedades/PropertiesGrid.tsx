@@ -3,6 +3,7 @@
 import { PROPERTY_TYPE_LABELS, type PropertyType } from '@/lib/types';
 import PropertyFilterBar from '@/components/PropertyFilterBar';
 import ToggleMarketplace from '@/components/ToggleMarketplace';
+import Link from 'next/link';
 
 export default function PropertiesGrid({ properties }: { properties: any[] }) {
   return (
@@ -11,7 +12,7 @@ export default function PropertiesGrid({ properties }: { properties: any[] }) {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filtered.map((p) => (
             <div key={p.id} className="group bg-white rounded-3xl border border-slate-100 overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:border-slate-200 transition-all duration-500">
-              <div className="relative aspect-[16/10] bg-slate-50 overflow-hidden">
+              <Link href={`/propiedades/${p.id}`} className="block relative aspect-[16/10] bg-slate-50 overflow-hidden">
                 {p.photos && p.photos.length > 0 ? (
                   <img src={p.photos[0]} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out" />
                 ) : (
@@ -30,10 +31,12 @@ export default function PropertiesGrid({ properties }: { properties: any[] }) {
                     <span className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-sm bg-violet-500/90 backdrop-blur text-white">Marketplace</span>
                   )}
                 </div>
-              </div>
+              </Link>
               <div className="p-5 space-y-4">
                 <div>
-                  <h3 className="font-bold text-lg text-slate-900 line-clamp-1">{p.title}</h3>
+                  <Link href={`/propiedades/${p.id}`} className="hover:text-indigo-600 transition-colors">
+                    <h3 className="font-bold text-lg text-slate-900 line-clamp-1">{p.title}</h3>
+                  </Link>
                   <p className="text-sm text-slate-400 mt-0.5 line-clamp-1">
                     {[p.neighborhood, p.city, p.department].filter(Boolean).join(', ')}
                   </p>
@@ -60,7 +63,14 @@ export default function PropertiesGrid({ properties }: { properties: any[] }) {
                   {p.bedrooms && <div className="flex items-center gap-1.5"><span className="material-symbols-outlined text-slate-300 text-base">bed</span><span className="text-xs font-medium text-slate-600">{p.bedrooms}</span></div>}
                   {p.bathrooms && <div className="flex items-center gap-1.5"><span className="material-symbols-outlined text-slate-300 text-base">bathtub</span><span className="text-xs font-medium text-slate-600">{p.bathrooms}</span></div>}
                   {p.m2_built && <div className="flex items-center gap-1.5"><span className="material-symbols-outlined text-slate-300 text-base">square_foot</span><span className="text-xs font-medium text-slate-600">{p.m2_built} m²</span></div>}
-                  <div className="ml-auto">
+                  <div className="ml-auto flex items-center gap-2">
+                    <Link
+                      href={`/propiedades/${p.id}/editar`}
+                      title="Editar propiedad"
+                      className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">edit</span>
+                    </Link>
                     <ToggleMarketplace propertyId={p.id} isMarketplace={p.visibility === 'marketplace'} />
                   </div>
                 </div>

@@ -61,7 +61,7 @@ export async function createProspect(formData: FormData) {
 
   revalidatePath('/prospectos');
   revalidatePath('/');
-  redirect(`/prospectos/${prospect.id}/matches`);
+  return { success: true, prospectId: prospect.id };
 }
 
 export async function updateProspectStage(prospectId: string, newStage: string) {
@@ -133,5 +133,5 @@ export async function updateProspect(prospectId: string, formData: FormData) {
   revalidatePath('/prospectos');
   revalidatePath('/marketplace');
   revalidatePath('/');
-  redirect(`/prospectos`);
+  return { success: true };
 }

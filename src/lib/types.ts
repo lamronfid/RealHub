@@ -239,32 +239,31 @@ export const AGENT_NAV_ITEMS: NavItem[] = [
 
 // ─── Paraguay Locations ───
 export const DEPARTMENTS = [
-  'Asunción', 'Central', 'Alto Paraná', 'Itapúa', 'Caaguazú',
-  'San Pedro', 'Paraguarí', 'Cordillera', 'Guairá', 'Caazapá',
-  'Misiones', 'Ñeembucú', 'Amambay', 'Canindeyú', 'Presidente Hayes',
-  'Boquerón', 'Alto Paraguay', 'Concepción', 'Otro',
+  'Alto Paraguay', 'Alto Paraná', 'Amambay', 'Asunción', 'Boquerón',
+  'Caaguazú', 'Caazapá', 'Canindeyú', 'Central', 'Concepción',
+  'Cordillera', 'Guairá', 'Itapúa', 'Misiones', 'Ñeembucú',
+  'Paraguarí', 'Presidente Hayes', 'San Pedro'
 ] as const;
 
 export const CITIES: Record<string, string[]> = {
+  'Alto Paraguay': ['Bahía Negra', 'Carmelo Peralta', 'Fuerte Olimpo', 'Puerto Casado'],
+  'Alto Paraná': ['Ciudad del Este', 'Doctor Juan León Mallorquín', 'Domingo Martínez de Irala', 'Hernandarias', 'Iruña', 'Itakyry', 'Juan Emilio O\'Leary', 'Los Cedrales', 'Mbaracayú', 'Minga Guazú', 'Minga Porã', 'Naranjal', 'Ñacunday', 'Presidente Franco', 'San Alberto', 'San Cristóbal', 'Santa Fe del Paraná', 'Santa Rita', 'Santa Rosa del Monday', 'Tavapy'],
+  'Amambay': ['Bella Vista Norte', 'Capitán Bado', 'Cerro Corá', 'Karapaí', 'Pedro Juan Caballero', 'Zanja Pytã'],
   'Asunción': ['Asunción'],
-  'Central': ['Luque', 'San Lorenzo', 'Lambaré', 'Fernando de la Mora', 'Capiatá', 'Mariano Roque Alonso', 'Ñemby', 'Limpio', 'San Antonio', 'Villa Elisa', 'Itauguá', 'Areguá', 'Ypacaraí'],
-  'Alto Paraná': ['Ciudad del Este', 'Hernandarias', 'Presidente Franco', 'Minga Guazú', 'Santa Rita', 'Otro'],
-  'Itapúa': ['Encarnación', 'Hohenau', 'Obligado', 'Capitán Miranda', 'San Juan del Paraná', 'Otro'],
-  'Caaguazú': ['Coronel Oviedo', 'Caaguazú', 'J. Eulogio Estigarribia', 'Repatriación', 'San José de los Arroyos', 'Otro'],
-  'San Pedro': ['San Pedro de Ycuamandiyú', 'San Estanislao', 'Santa Rosa del Aguaray', 'Choré', 'Capiibary', 'Otro'],
-  'Paraguarí': ['Paraguarí', 'Carapeguá', 'Yaguarón', 'Ybycuí', 'Quiindy', 'Otro'],
-  'Cordillera': ['Caacupé', 'San Bernardino', 'Altos', 'Tobatí', 'Eusebio Ayala', 'Otro'],
-  'Guairá': ['Villarrica', 'Independencia', 'Mbocayaty', 'Yataity', 'Mauricio José Troche', 'Otro'],
-  'Caazapá': ['Caazapá', 'San Juan Nepomuceno', 'Yuty', 'Abaí', 'Buena Vista', 'Otro'],
-  'Misiones': ['San Juan Bautista', 'San Ignacio', 'Ayolas', 'Santa Rosa', 'Santiago', 'Otro'],
-  'Ñeembucú': ['Pilar', 'Alberdi', 'Cerrito', 'General Díaz', 'Paso de Patria', 'Otro'],
-  'Amambay': ['Pedro Juan Caballero', 'Capitán Bado', 'Bella Vista Norte', 'Zanja Pytã', 'Karapaí', 'Otro'],
-  'Canindeyú': ['Salto del Guairá', 'Curuguaty', 'Katueté', 'La Paloma', 'Yasy Cañy', 'Otro'],
-  'Presidente Hayes': ['Villa Hayes', 'Benjamín Aceval', 'Pozo Colorado', 'Puerto Pinasco', 'Nanawa', 'Otro'],
-  'Boquerón': ['Filadelfia', 'Loma Plata', 'Mariscal Estigarribia', 'Neuland', 'Villa Choferes', 'Otro'],
-  'Alto Paraguay': ['Fuerte Olimpo', 'Carmelo Peralta', 'Puerto Casado', 'Bahía Negra', 'Puerto Guaraní', 'Otro'],
-  'Concepción': ['Concepción', 'Horqueta', 'Yby Yaú', 'Loreto', 'Belén', 'Otro'],
-  'Otro': ['Otro'],
+  'Boquerón': ['Boquerón', 'Filadelfia', 'Loma Plata', 'Mariscal Estigarribia'],
+  'Caaguazú': ['Caaguazú', 'Carayaó', 'Coronel Oviedo', 'Doctor Cecilio Báez', 'Doctor J. Eulogio Estigarribia', 'Doctor Juan Manuel Frutos', 'José Domingo Ocampos', 'La Pastora', 'Mcal. Francisco S. López', 'Nueva Londres', 'Nueva Toledo', 'R. I. 3 Corrales', 'Repatriación', 'San Joaquín', 'San José de los Arroyos', 'Santa Rosa del Mbutuy', 'Simón Bolívar', 'Tembiaporá', 'Tres de Febrero', 'Vaquería', 'Yhú'],
+  'Caazapá': ['Abaí', 'Buena Vista', 'Caazapá', 'Coronel Maciel', 'Doctor Moisés S. Bertoni', 'Fulgencio Yegros', 'General Higinio Morínigo', 'San Juan Nepomuceno', 'Tavai', 'Yuty'],
+  'Canindeyú': ['Corpus Christi', 'Curuguaty', 'General Francisco Caballero Álvarez', 'Itanará', 'Katueté', 'La Paloma', 'Maracaná', 'Nueva Esperanza', 'Puerto Adela', 'Salto del Guairá', 'Villa Ygatimí', 'Yasy Cañy', 'Yby Pytá', 'Ybyrarobaná'],
+  'Central': ['Areguá', 'Capiatá', 'Fernando de la Mora', 'Guarambaré', 'Itá', 'Itauguá', 'J. Augusto Saldívar', 'Lambaré', 'Limpio', 'Luque', 'Mariano Roque Alonso', 'Nueva Italia', 'Ñemby', 'San Antonio', 'San Lorenzo', 'Villa Elisa', 'Villeta', 'Ypacaraí', 'Ypané'],
+  'Concepción': ['Azotey', 'Belén', 'Concepción', 'Horqueta', 'Loreto', 'Paso Barreto', 'San Carlos del Apa', 'San Lázaro', 'Sargento José Félix López', 'Yby Yaú'],
+  'Cordillera': ['Altos', 'Arroyos y Esteros', 'Atyrá', 'Caacupé', 'Caraguatay', 'Emboscada', 'Eusebio Ayala', 'Isla Pucú', 'Itacurubí de la Cordillera', 'Juan de Mena', 'Loma Grande', 'Mbocayaty del Yhaguy', 'Nueva Colombia', 'Piribebuy', 'Primero de Marzo', 'San Bernardino', 'San José Obrero', 'Santa Elena', 'Tobatí', 'Valenzuela'],
+  'Guairá': ['Borja', 'Capitán Mauricio José Troche', 'Coronel Martínez', 'Doctor Botrell', 'Félix Pérez Cardozo', 'General Eugenio A. Garay', 'Independencia', 'Itapé', 'Iturbe', 'José Fassardi', 'Mbocayaty', 'Natalicio Talavera', 'Ñumí', 'Paso Yobái', 'San Salvador', 'Tebicuary', 'Villarrica', 'Yataity'],
+  'Itapúa': ['Alto Verá', 'Bella Vista', 'Cambyretá', 'Capitán Meza', 'Capitán Miranda', 'Carlos Antonio López', 'Carmen del Paraná', 'Coronel Bogado', 'Edelira', 'Encarnación', 'Fram', 'General Artigas', 'General Delgado', 'Hohenau', 'Itapúa Poty', 'Jesús', 'La Paz', 'Leandro Oviedo', 'Mayor Otaño', 'Natalio', 'Nueva Alborada', 'Obligado', 'Pirapó', 'San Cosme y Damián', 'San Juan del Paraná', 'San Pedro del Paraná', 'San Rafael del Paraná', 'Tomás Romero Pereira', 'Trinidad', 'Yatytay'],
+  'Misiones': ['Ayolas', 'San Ignacio', 'San Juan Bautista', 'San Miguel', 'San Patricio', 'Santa María', 'Santa Rosa', 'Santiago', 'Villa Florida', 'Yabebyry'],
+  'Ñeembucú': ['Alberdi', 'Cerrito', 'Desmochados', 'General Díaz', 'Guazú Cuá', 'Humaitá', 'Isla Umbú', 'Laureles', 'Mayor José J. Martinez', 'Paso de Patria', 'Pilar', 'San Juan Bautista del Ñeembucú', 'Tacuaras', 'Villa Franca', 'Villa Oliva', 'Villalbín'],
+  'Paraguarí': ['Acahay', 'Caapucú', 'Carapeguá', 'Escobar', 'General Bernardino Caballero', 'La Colmena', 'Mbuyapey', 'Paraguarí', 'Pirayú', 'Quiindy', 'Quyquyhó', 'San Roque González de Santa Cruz', 'Sapucai', 'Tebicuarymí', 'Yaguarón', 'Ybycuí', 'Ybytymí'],
+  'Presidente Hayes': ['Benjamín Aceval', 'Campo Aceval', 'General José María Bruguez', 'Nanawa', 'Nueva Asunción', 'Puerto Pinasco', 'Teniente Irala Fernández', 'Teniente Esteban Martínez', 'Villa Hayes'],
+  'San Pedro': ['25 de Diciembre', 'Antequera', 'Capiibary', 'Choré', 'General Elizardo Aquino', 'General Isidoro Resquín', 'Guayaibí', 'Itacurubí del Rosario', 'Liberación', 'Lima', 'Nueva Germania', 'San Estanislao', 'San Pablo', 'San Pedro de Ycuamandiyú', 'San Vicente Pancholo', 'Santa Rosa del Aguaray', 'Tacuatí', 'Unión', 'Villa del Rosario', 'Yataity del Norte', 'Yrybucuá']
 };
 
 export const NEIGHBORHOODS: Record<string, string[]> = {
@@ -298,5 +297,32 @@ export const NEIGHBORHOODS: Record<string, string[]> = {
 export const AMENITIES = [
   'Piscina', 'Quincho', 'Jardín', 'Seguridad 24hs', 'Portería',
   'Gimnasio', 'Salón de fiestas', 'Área de juegos', 'Estacionamiento visitantes',
-  'Generador', 'Cisterna', 'Cancha deportiva', 'Lavadero', 'Ascensor', 'Balcón', 'Terraza',
+  'Generador', 'Cisterna', 'Cancha deportiva', 'Lavadero', 'Balcón', 'Terraza',
 ] as const;
+
+export type Amenity = typeof AMENITIES[number];
+
+export interface AmenityDef {
+  id: Amenity;
+  label: string;
+  emoji: string;
+  validFor?: PropertyType[];
+}
+
+export const AMENITY_DATA: AmenityDef[] = [
+  { id: 'Piscina', label: 'Piscina', emoji: '🏊‍♂️' },
+  { id: 'Quincho', label: 'Quincho / Parrilla', emoji: '🥩' },
+  { id: 'Jardín', label: 'Jardín', emoji: '🌳', validFor: ['casa', 'duplex', 'triplex', 'casa_duplex'] },
+  { id: 'Seguridad 24hs', label: 'Seguridad 24hs', emoji: '🛡️' },
+  { id: 'Portería', label: 'Portería', emoji: '👮', validFor: ['departamento', 'oficina', 'pozo', 'casa_duplex'] },
+  { id: 'Gimnasio', label: 'Gimnasio', emoji: '🏋️‍♂️', validFor: ['departamento', 'pozo', 'oficina'] },
+  { id: 'Salón de fiestas', label: 'Salón de Eventos', emoji: '🎉', validFor: ['departamento', 'pozo'] },
+  { id: 'Área de juegos', label: 'Área de Niños', emoji: '🛝', validFor: ['departamento', 'pozo', 'casa_duplex'] },
+  { id: 'Estacionamiento visitantes', label: 'Estac. Visitas', emoji: '🚗' },
+  { id: 'Generador', label: 'Generador 100%', emoji: '⚡' },
+  { id: 'Cisterna', label: 'Tanque / Cisterna', emoji: '💧' },
+  { id: 'Cancha deportiva', label: 'Cancha Dep.', emoji: '⚽' },
+  { id: 'Lavadero', label: 'Área de Lavado', emoji: '🧺' },
+  { id: 'Balcón', label: 'Balcón', emoji: '🌇', validFor: ['departamento', 'pozo', 'oficina'] },
+  { id: 'Terraza', label: 'Terraza', emoji: '🌅' },
+];

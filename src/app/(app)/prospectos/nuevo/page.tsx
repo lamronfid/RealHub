@@ -17,10 +17,23 @@ export default function NuevoProspecto() {
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<string[]>([]);
+  const [customDepartment, setCustomDepartment] = useState('');
+  const [customCity, setCustomCity] = useState('');
   const [customNeighborhood, setCustomNeighborhood] = useState('');
   const [transactionType, setTransactionType] = useState('compra');
   const [showAllNeighborhoods, setShowAllNeighborhoods] = useState(false);
   const [showAllCities, setShowAllCities] = useState(false);
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<string>>) => {
+    const sanitized = e.target.value.replace(/[^0-9]/g, '');
+    if (sanitized) {
+      setter(new Intl.NumberFormat('es-PY').format(Number(sanitized)));
+    } else {
+      setter('');
+    }
+  };
 
   const togglePropertyType = (type: string) => {
     setSelectedPropertyTypes(prev =>
@@ -80,13 +93,19 @@ export default function NuevoProspecto() {
     const formData = new FormData(form);
 
     // Merge custom neighborhood if provided
+    const finalDepartments = customDepartment.trim()
+      ? [...selectedDepartments, customDepartment.trim()]
+      : selectedDepartments;
+    const finalCities = customCity.trim()
+      ? [...selectedCities, customCity.trim()]
+      : selectedCities;
     const finalNeighborhoods = customNeighborhood.trim()
       ? [...selectedNeighborhoods, customNeighborhood.trim()]
       : selectedNeighborhoods;
 
     formData.set('property_types', selectedPropertyTypes.join(','));
-    formData.set('departments', selectedDepartments.join(','));
-    formData.set('cities', selectedCities.join(','));
+    formData.set('departments', finalDepartments.join(','));
+    formData.set('cities', finalCities.join(','));
     formData.set('neighborhoods', finalNeighborhoods.join(','));
 
     startTransition(async () => {
@@ -165,11 +184,17 @@ export default function NuevoProspecto() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Presupuesto Mínimo</label>
-              <input name="price_min" type="text" className={inputClass} placeholder="Ej: 80.000" />
+              <input name="price_min" type="text" className={inputClass} placeholder="Ej: 80.000" 
+                value={priceMin}
+                onChange={(e) => handlePriceChange(e, setPriceMin)}
+              />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Presupuesto Máximo</label>
-              <input name="price_max" type="text" className={inputClass} placeholder="Ej: 150.000" />
+              <input name="price_max" type="text" className={inputClass} placeholder="Ej: 150.000" 
+                value={priceMax}
+                onChange={(e) => handlePriceChange(e, setPriceMax)}
+              />
             </div>
           </div>
 
@@ -214,6 +239,14 @@ export default function NuevoProspecto() {
                 </button>
               ))}
             </div>
+            <div className="mt-3">
+              <input
+                value={customDepartment}
+                onChange={e => setCustomDepartment(e.target.value)}
+                className={inputClass}
+                placeholder="✏️ Otro departamento no listado..."
+              />
+            </div>
           </div>
 
           {/* Cities — show if departments selected */}
@@ -239,6 +272,14 @@ export default function NuevoProspecto() {
                     Ver +{availableCities.length - 12} ciudades
                   </button>
                 )}
+              </div>
+              <div className="mt-3">
+                <input
+                  value={customCity}
+                  onChange={e => setCustomCity(e.target.value)}
+                  className={inputClass}
+                  placeholder="✏️ Otra ciudad no listada..."
+                />
               </div>
             </div>
           )}
@@ -281,7 +322,7 @@ export default function NuevoProspecto() {
                   value={customNeighborhood}
                   onChange={e => setCustomNeighborhood(e.target.value)}
                   className={inputClass}
-                  placeholder="✏️ Otro barrio no listado (escribir manualmente)..."
+                  placeholder="✏️ Otro barrio no listado..."
                 />
               </div>
             </div>

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import ImageGallery from '@/components/property/ImageGallery';
 import PropertyMap from '@/components/property/PropertyMap';
 import MatchesList from '@/components/property/MatchesList';
+import AmenitiesList from '@/components/property/AmenitiesList';
 
 export default async function PropertyDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -131,6 +132,8 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
               </div>
             )}
           </div>
+
+          <AmenitiesList amenities={property.amenities || []} />
 
           {/* Description Box */}
           <div>

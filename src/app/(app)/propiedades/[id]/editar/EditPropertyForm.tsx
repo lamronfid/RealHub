@@ -5,8 +5,8 @@ import { createClient } from '@/lib/supabase/client';
 import imageCompression from 'browser-image-compression';
 import { updateProperty } from '@/app/(app)/propiedades/actions';
 import {
-  PROPERTY_TYPES, PROPERTY_TYPE_LABELS, DETAILED_PROPERTY_TYPES, LAND_ONLY_TYPES,
-  TRANSACTION_TYPES, CURRENCIES, DEPARTMENTS, CITIES, NEIGHBORHOODS, AMENITIES,
+  TRANSACTION_TYPES, CURRENCIES, DEPARTMENTS, CITIES, NEIGHBORHOODS, AMENITIES, AMENITY_DATA,
+  DETAILED_PROPERTY_TYPES, LAND_ONLY_TYPES, PROPERTY_TYPES, PROPERTY_TYPE_LABELS
 } from '@/lib/types';
 
 const galleryCompressionOptions = {
@@ -37,7 +37,19 @@ export default function EditPropertyForm({ property }: EditPropertyFormProps) {
 
   const formatPrice = (val: number | null) => {
     if (!val) return '';
-    return val.toLocaleString('es-PY');
+    return new Intl.NumberFormat('es-PY').format(val);
+  };
+
+  const [salePrice, setSalePrice] = useState(formatPrice(property.sale_price));
+  const [rentPrice, setRentPrice] = useState(formatPrice(property.rent_price));
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<string>>) => {
+    const sanitized = e.target.value.replace(/[^0-9]/g, '');
+    if (sanitized) {
+      setter(new Intl.NumberFormat('es-PY').format(Number(sanitized)));
+    } else {
+      setter('');
+    }
   };
 
   const handleAddPhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,7 +148,7 @@ export default function EditPropertyForm({ property }: EditPropertyFormProps) {
         {(transactionType === 'compra' || transactionType === 'ambos') && (
           <div>
             <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Precio de Venta</label>
-            <input name="sale_price" defaultValue={formatPrice(property.sale_price)}
+            <input name="sale_price" value={salePrice} onChange={(e) => handlePriceChange(e, setSalePrice)}
               className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
               placeholder="180.000" />
           </div>
@@ -144,7 +156,7 @@ export default function EditPropertyForm({ property }: EditPropertyFormProps) {
         {(transactionType === 'alquiler' || transactionType === 'ambos') && (
           <div>
             <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Precio de Alquiler</label>
-            <input name="rent_price" defaultValue={formatPrice(property.rent_price)}
+            <input name="rent_price" value={rentPrice} onChange={(e) => handlePriceChange(e, setRentPrice)}
               className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
               placeholder="1.200" />
           </div>
@@ -231,19 +243,13 @@ export default function EditPropertyForm({ property }: EditPropertyFormProps) {
       {/* Amenities */}
       <div className="space-y-4 pt-4 border-t border-slate-100">
         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Amenities</h3>
-        <div className="flex flex-wrap gap-2">
-          {AMENITIES.map(a => (
-            <button key={a} type="button"
-              onClick={() => setSelectedAmenities(prev =>
-                prev.includes(a) ? prev.filter(x => x !== a) : [...prev, a]
-              )}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                selectedAmenities.includes(a)
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-              }`}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {AMENITY_DATA.filter(a => !a.validFor || a.validFor.includes(propertyType as any)).map(amenity => (
+            <button key={amenity.id} type="button" onClick={() => setSelectedAmenities(prev => prev.includes(amenity.id) ? prev.filter(x => x !== amenity.id) : [...prev, amenity.id])}
+              className={`flex flex-col items-start gap-3 p-5 rounded-2xl border transition-all text-left w-full hover:shadow-md ${selectedAmenities.includes(amenity.id) ? 'bg-indigo-50 border-indigo-300 ring-2 ring-indigo-300 text-indigo-800' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-200 hover:bg-slate-50'}`}
             >
-              {a}
+              <span className="text-4xl leading-none drop-shadow-sm">{amenity.emoji}</span>
+              <span className="text-base font-bold">{amenity.label}</span>
             </button>
           ))}
         </div>
