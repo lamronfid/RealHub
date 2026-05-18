@@ -66,7 +66,14 @@ export default function NuevaPropiedad() {
   };
 
   const canAdvance = () => {
-    if (step === 0) return propertyType !== '';
+    if (step === 0) {
+      if (!propertyType) return false;
+      if (department) {
+        if (!city) return false;
+        if (!neighborhood) return false;
+        if (neighborhood === '__otro__' && !customNeighborhood.trim()) return false;
+      }
+    }
     return true;
   };
 
@@ -118,13 +125,13 @@ export default function NuevaPropiedad() {
               {['compra', 'ambos'].includes(transactionType) && (
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Precio Venta</label>
-                  <input name="sale_price" type="text" className={ic} placeholder="Ej: 150.000" />
+                  <input name="sale_price" type="number" min="0" step="any" className={ic} placeholder="Ej: 150000" />
                 </div>
               )}
               {['alquiler', 'ambos'].includes(transactionType) && (
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Precio Alquiler</label>
-                  <input name="rent_price" type="text" className={ic} placeholder="Ej: 1.000" />
+                  <input name="rent_price" type="number" min="0" step="any" className={ic} placeholder="Ej: 1000" />
                 </div>
               )}
               <div>
