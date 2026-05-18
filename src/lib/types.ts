@@ -248,9 +248,23 @@ export const DEPARTMENTS = [
 export const CITIES: Record<string, string[]> = {
   'Asunción': ['Asunción'],
   'Central': ['Luque', 'San Lorenzo', 'Lambaré', 'Fernando de la Mora', 'Capiatá', 'Mariano Roque Alonso', 'Ñemby', 'Limpio', 'San Antonio', 'Villa Elisa', 'Itauguá', 'Areguá', 'Ypacaraí'],
-  'Alto Paraná': ['Ciudad del Este', 'Hernandarias', 'Presidente Franco', 'Minga Guazú'],
-  'Itapúa': ['Encarnación', 'Hohenau', 'Obligado', 'Capitán Miranda'],
-  'Cordillera': ['Caacupé', 'San Bernardino', 'Altos'],
+  'Alto Paraná': ['Ciudad del Este', 'Hernandarias', 'Presidente Franco', 'Minga Guazú', 'Santa Rita', 'Otro'],
+  'Itapúa': ['Encarnación', 'Hohenau', 'Obligado', 'Capitán Miranda', 'San Juan del Paraná', 'Otro'],
+  'Caaguazú': ['Coronel Oviedo', 'Caaguazú', 'J. Eulogio Estigarribia', 'Repatriación', 'San José de los Arroyos', 'Otro'],
+  'San Pedro': ['San Pedro de Ycuamandiyú', 'San Estanislao', 'Santa Rosa del Aguaray', 'Choré', 'Capiibary', 'Otro'],
+  'Paraguarí': ['Paraguarí', 'Carapeguá', 'Yaguarón', 'Ybycuí', 'Quiindy', 'Otro'],
+  'Cordillera': ['Caacupé', 'San Bernardino', 'Altos', 'Tobatí', 'Eusebio Ayala', 'Otro'],
+  'Guairá': ['Villarrica', 'Independencia', 'Mbocayaty', 'Yataity', 'Mauricio José Troche', 'Otro'],
+  'Caazapá': ['Caazapá', 'San Juan Nepomuceno', 'Yuty', 'Abaí', 'Buena Vista', 'Otro'],
+  'Misiones': ['San Juan Bautista', 'San Ignacio', 'Ayolas', 'Santa Rosa', 'Santiago', 'Otro'],
+  'Ñeembucú': ['Pilar', 'Alberdi', 'Cerrito', 'General Díaz', 'Paso de Patria', 'Otro'],
+  'Amambay': ['Pedro Juan Caballero', 'Capitán Bado', 'Bella Vista Norte', 'Zanja Pytã', 'Karapaí', 'Otro'],
+  'Canindeyú': ['Salto del Guairá', 'Curuguaty', 'Katueté', 'La Paloma', 'Yasy Cañy', 'Otro'],
+  'Presidente Hayes': ['Villa Hayes', 'Benjamín Aceval', 'Pozo Colorado', 'Puerto Pinasco', 'Nanawa', 'Otro'],
+  'Boquerón': ['Filadelfia', 'Loma Plata', 'Mariscal Estigarribia', 'Neuland', 'Villa Choferes', 'Otro'],
+  'Alto Paraguay': ['Fuerte Olimpo', 'Carmelo Peralta', 'Puerto Casado', 'Bahía Negra', 'Puerto Guaraní', 'Otro'],
+  'Concepción': ['Concepción', 'Horqueta', 'Yby Yaú', 'Loreto', 'Belén', 'Otro'],
+  'Otro': ['Otro'],
 };
 
 export const NEIGHBORHOODS: Record<string, string[]> = {
