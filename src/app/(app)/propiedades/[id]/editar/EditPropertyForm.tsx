@@ -6,7 +6,8 @@ import imageCompression from 'browser-image-compression';
 import { updateProperty } from '@/app/(app)/propiedades/actions';
 import {
   TRANSACTION_TYPES, CURRENCIES, DEPARTMENTS, CITIES, NEIGHBORHOODS, AMENITIES, AMENITY_DATA,
-  DETAILED_PROPERTY_TYPES, LAND_ONLY_TYPES, PROPERTY_TYPES, PROPERTY_TYPE_LABELS
+  DETAILED_PROPERTY_TYPES, LAND_ONLY_TYPES, COMMERCIAL_TYPES, PROPERTY_TYPES, PROPERTY_TYPE_LABELS,
+  FLOOR_LOCATIONS
 } from '@/lib/types';
 
 const galleryCompressionOptions = {
@@ -34,6 +35,7 @@ export default function EditPropertyForm({ property }: EditPropertyFormProps) {
   const supabase = createClient();
   const isDetailed = DETAILED_PROPERTY_TYPES.includes(propertyType as any);
   const isLand = LAND_ONLY_TYPES.includes(propertyType as any);
+  const isCommercial = COMMERCIAL_TYPES.includes(propertyType as any);
 
   const formatPrice = (val: number | null) => {
     if (!val) return '';
@@ -195,7 +197,7 @@ export default function EditPropertyForm({ property }: EditPropertyFormProps) {
       </div>
 
       {/* Specs */}
-      {!isLand && isDetailed && (
+      {isDetailed && (
         <div className="space-y-4 pt-4 border-t border-slate-100">
           <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Especificaciones</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -237,6 +239,59 @@ export default function EditPropertyForm({ property }: EditPropertyFormProps) {
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200" />
             </div>
           </div>
+        </div>
+      )}
+
+      {isLand && (
+        <div className="space-y-4 pt-4 border-t border-slate-100">
+          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Especificaciones del Terreno</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">m² Terreno</label>
+              <input name="m2_terrain" type="number" min="0" defaultValue={property.m2_terrain || ''}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Frente (metros)</label>
+              <input name="front_meters" type="number" step="0.1" defaultValue={property.front_meters || ''}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isCommercial && (
+        <div className="space-y-4 pt-4 border-t border-slate-100">
+          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Especificaciones Comerciales</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">m² Construidos</label>
+              <input name="m2_built" type="number" min="0" defaultValue={property.m2_built || ''}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">m² Terreno</label>
+              <input name="m2_terrain" type="number" min="0" defaultValue={property.m2_terrain || ''}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200" />
+            </div>
+          </div>
+          {['local_comercial', 'salon_comercial', 'oficina'].includes(propertyType) && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Frente (metros)</label>
+                <input name="front_meters" type="number" step="0.1" defaultValue={property.front_meters || ''}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Ubicación de Piso</label>
+                <select name="floor_location" defaultValue={property.floor_location || ''}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                  <option value="">—</option>
+                  {FLOOR_LOCATIONS.map(f => <option key={f} value={f}>{f}</option>)}
+                </select>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

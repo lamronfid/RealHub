@@ -36,13 +36,13 @@ export default function LoginPage() {
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200">
             <span className="text-white font-black text-xl">R</span>
           </div>
-          <h1 className="font-[family-name:var(--font-outfit)] text-3xl font-bold text-slate-900 tracking-tight">RealHub</h1>
-          <p className="text-slate-500 text-sm mt-1">Plataforma de agentes inmobiliarios</p>
+          <h1 className="font-heading text-3xl font-extrabold text-slate-900 tracking-tight">RealHub</h1>
+          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mt-1">Plataforma de agentes inmobiliarios</p>
         </div>
 
         {/* Form */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/50 p-8">
-          <h2 className="font-[family-name:var(--font-outfit)] text-xl font-bold text-slate-900 mb-6">
+          <h2 className="font-heading text-xl font-bold text-slate-900 tracking-tight mb-6">
             Iniciar Sesión
           </h2>
 
@@ -54,7 +54,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Email</label>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
@@ -65,7 +65,7 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Contraseña</label>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Contraseña</label>
               <input
                 type="password"
                 value={password}
@@ -88,10 +88,10 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <Link
-              href="/registrar"
-              className="text-sm text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
+              href="/subscripcion/planes"
+              className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
             >
-              ¿No tienes cuenta? Regístrate
+              ¿No tienes cuenta? Ver planes de suscripción
             </Link>
           </div>
         </div>

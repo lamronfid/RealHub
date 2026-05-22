@@ -68,7 +68,7 @@ export default async function PublicPropertyPage({
       <main className="max-w-4xl mx-auto px-6 -mt-16 relative z-10">
         <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100">
           
-          <h1 className="font-[family-name:var(--font-outfit)] text-3xl md:text-5xl font-bold text-slate-900 leading-tight mb-4">
+          <h1 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight mb-4">
             {property.title}
           </h1>
           
@@ -83,13 +83,13 @@ export default async function PublicPropertyPage({
               <div className="flex flex-col gap-2">
                 <div>
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Precio de Venta</p>
-                  <p className="font-[family-name:var(--font-outfit)] text-3xl font-bold text-emerald-600">
+                  <p className="font-heading text-3xl font-bold text-emerald-600">
                     {property.currency} {Number(property.sale_price || 0).toLocaleString('es-PY')}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Precio de Alquiler</p>
-                  <p className="font-[family-name:var(--font-outfit)] text-2xl font-bold text-slate-600">
+                  <p className="font-heading text-2xl font-bold text-slate-600">
                     {property.currency} {Number(property.rent_price || 0).toLocaleString('es-PY')}/mes
                   </p>
                 </div>
@@ -97,7 +97,7 @@ export default async function PublicPropertyPage({
             ) : (
               <div>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Precio</p>
-                <p className="font-[family-name:var(--font-outfit)] text-4xl font-bold text-emerald-600">
+                <p className="font-heading text-4xl font-bold text-emerald-600">
                   {property.currency} {Number(property.transaction_type === 'alquiler' ? property.rent_price || 0 : property.sale_price || 0).toLocaleString('es-PY')}
                   {property.transaction_type === 'alquiler' && <span className="text-lg text-slate-400 font-normal">/mes</span>}
                 </p>
@@ -106,7 +106,7 @@ export default async function PublicPropertyPage({
             {property.expenses > 0 && (
               <div className="md:text-right">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Expensas</p>
-                <p className="font-[family-name:var(--font-outfit)] text-xl font-bold text-slate-700">
+                <p className="font-heading text-xl font-bold text-slate-700">
                   {property.currency} {Number(property.expenses || 0).toLocaleString('es-PY')}
                 </p>
               </div>
@@ -160,7 +160,7 @@ export default async function PublicPropertyPage({
           </div>
 
           <div className="prose prose-slate max-w-none">
-            <h3 className="font-[family-name:var(--font-outfit)] text-2xl font-bold mb-4">Descripción</h3>
+            <h3 className="text-2xl font-bold mb-4">Descripción</h3>
             <p className="whitespace-pre-wrap text-slate-600 leading-relaxed">
               {property.description || 'Sin descripción detallada.'}
             </p>

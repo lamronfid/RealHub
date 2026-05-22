@@ -6,12 +6,15 @@ import NotificationsDropdown from './NotificationsDropdown';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
+import VerifiedBadge from './VerifiedBadge';
+
 interface TopBarProps {
   agentName: string;
   agentAvatar?: string | null;
+  isVerified?: boolean;
 }
 
-export default function TopBar({ agentName, agentAvatar }: TopBarProps) {
+export default function TopBar({ agentName, agentAvatar, isVerified }: TopBarProps) {
   const { setMobileMenu } = useAgentUI();
   const pathname = usePathname();
   const router = useRouter();
@@ -56,7 +59,10 @@ export default function TopBar({ agentName, agentAvatar }: TopBarProps) {
             onClick={() => setIsProfileOpen(!isProfileOpen)}
             className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
           >
-            <span className="hidden md:block text-sm font-medium text-slate-700">{agentName.split(' ')[0]}</span>
+            <span className="hidden md:flex items-center gap-1 text-sm font-medium text-slate-700">
+              {agentName.split(' ')[0]}
+              {isVerified && <VerifiedBadge className="w-3.5 h-3.5 shrink-0" />}
+            </span>
             {agentAvatar ? (
               <img src={agentAvatar} alt={agentName} className="w-8 h-8 rounded-full object-cover" />
             ) : (
@@ -76,7 +82,10 @@ export default function TopBar({ agentName, agentAvatar }: TopBarProps) {
               <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)} />
               <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 py-1 z-50 overflow-hidden">
                 <div className="px-4 py-3 border-b border-slate-50 md:hidden">
-                   <p className="text-sm font-semibold text-slate-800 truncate">{agentName}</p>
+                   <div className="flex items-center gap-1 overflow-hidden">
+                     <p className="text-sm font-semibold text-slate-800 truncate">{agentName}</p>
+                     {isVerified && <VerifiedBadge className="w-3.5 h-3.5 shrink-0" />}
+                   </div>
                    <p className="text-xs text-slate-400">Agente</p>
                 </div>
                 

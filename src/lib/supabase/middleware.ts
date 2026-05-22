@@ -25,19 +25,23 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Protect all routes except login, registrar, and public assets
-  const isAuthPage = request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/registrar';
+  // Protect all routes except login, registrar, subscription simulator, and public assets
+  const isPublicPage = 
+    request.nextUrl.pathname === '/login' || 
+    request.nextUrl.pathname === '/registrar' ||
+    request.nextUrl.pathname.startsWith('/subscripcion');
+
   const isPublicAsset = request.nextUrl.pathname.startsWith('/_next') ||
     request.nextUrl.pathname.startsWith('/api') ||
     request.nextUrl.pathname.match(/\.(svg|png|jpg|jpeg|gif|webp|ico)$/);
 
-  if (!user && !isAuthPage && !isPublicAsset) {
+  if (!user && !isPublicPage && !isPublicAsset) {
     const url = request.nextUrl.clone();
-    url.pathname = '/login';
+    url.pathname = '/subscripcion/planes';
     return NextResponse.redirect(url);
   }
 
-  if (user && isAuthPage) {
+  if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/registrar')) {
     const url = request.nextUrl.clone();
     url.pathname = '/';
     return NextResponse.redirect(url);

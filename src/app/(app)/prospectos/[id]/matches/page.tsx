@@ -35,7 +35,7 @@ export default async function ProspectMatchesPage({ params }: { params: Promise<
           <Link href="/prospectos" className="text-sm font-bold text-indigo-600 hover:text-indigo-700 mb-2 inline-flex items-center gap-1">
             <span className="material-symbols-outlined text-[16px]">arrow_back</span> Volver
           </Link>
-          <h2 className="font-[family-name:var(--font-outfit)] text-2xl font-bold text-slate-900">
+          <h2 className="text-2xl font-bold text-slate-900">
             Matches para {prospect.client_name || prospect.full_name}
           </h2>
           <p className="text-slate-500 text-sm mt-1">Propiedades compatibles encontradas en el Marketplace</p>

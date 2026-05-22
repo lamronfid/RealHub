@@ -130,7 +130,7 @@ export default function NuevoProspecto() {
         <Link href="/prospectos" className="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-full text-slate-500 hover:text-slate-900 hover:border-slate-300 transition-colors">
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
         </Link>
-        <h2 className="font-[family-name:var(--font-outfit)] text-2xl font-bold text-slate-900">Nuevo Prospecto</h2>
+        <h2 className="font-heading text-2xl font-bold text-slate-900">Nuevo Prospecto</h2>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-100 p-6 md:p-8 space-y-8 shadow-sm">

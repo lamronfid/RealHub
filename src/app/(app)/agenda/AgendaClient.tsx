@@ -151,7 +151,7 @@ export default function AgendaClient({ events }: { events: any[] }) {
         {/* Calendar Section */}
         <div className="lg:col-span-5 xl:col-span-4 bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-slate-100 self-start sticky top-8">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="font-[family-name:var(--font-outfit)] text-xl font-bold text-slate-900 capitalize">
+            <h3 className="font-heading text-xl font-bold text-slate-900 capitalize">
               {format(currentDate, 'MMMM yyyy', { locale: es })}
             </h3>
             <div className="flex items-center gap-1">
@@ -210,7 +210,7 @@ export default function AgendaClient({ events }: { events: any[] }) {
         <div className="lg:col-span-7 xl:col-span-8">
           <div className="mb-8 flex items-center justify-between">
             <div>
-              <h2 className="font-[family-name:var(--font-outfit)] text-2xl font-bold text-slate-900 tracking-tight">
+              <h2 className="font-heading text-2xl font-bold text-slate-900 tracking-tight">
                 {isToday(selectedDate) ? 'Hoy' : format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
               </h2>
               <p className="text-slate-500 mt-1">
@@ -244,7 +244,7 @@ export default function AgendaClient({ events }: { events: any[] }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-3xl p-6 sm:p-8 w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold font-[family-name:var(--font-outfit)] text-slate-900">Nuevo Evento</h2>
+              <h2 className="text-xl font-bold font-heading text-slate-900">Nuevo Evento</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <span className="material-symbols-outlined">close</span>
               </button>

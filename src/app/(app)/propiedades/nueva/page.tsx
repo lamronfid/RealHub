@@ -120,7 +120,7 @@ export default function NuevaPropiedad() {
   const isLand = LAND_ONLY_TYPES.includes(propertyType as any);
   const isCommercial = COMMERCIAL_TYPES.includes(propertyType as any);
   const isApartment = propertyType === 'departamento';
-  const isLocalComercial = propertyType === 'local_comercial';
+  const isLocalComercial = ['local_comercial', 'salon_comercial'].includes(propertyType);
   const isHouse = ['casa', 'duplex', 'casa_duplex'].includes(propertyType);
   const availableCities = CITIES[department] || [];
   const availableNeighborhoods = NEIGHBORHOODS[city] || [];
@@ -193,7 +193,7 @@ export default function NuevaPropiedad() {
 
   return (
     <div className="max-w-3xl mx-auto pb-24">
-      <h2 className="font-[family-name:var(--font-outfit)] text-2xl font-bold text-slate-900 mb-2">Nueva Propiedad</h2>
+      <h2 className="font-heading text-2xl font-bold text-slate-900 mb-2">Nueva Propiedad</h2>
 
       {/* Progress Bar */}
       <div className="flex items-center gap-1 mb-8">

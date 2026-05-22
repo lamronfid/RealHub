@@ -64,7 +64,7 @@ export default async function PropertyMatchesPage({ params }: { params: Promise<
           <Link href="/propiedades" className="text-sm font-bold text-indigo-600 hover:text-indigo-700 mb-2 inline-flex items-center gap-1">
             <span className="material-symbols-outlined text-[16px]">arrow_back</span> Volver
           </Link>
-          <h2 className="font-[family-name:var(--font-outfit)] text-2xl font-bold text-slate-900 line-clamp-1">
+          <h2 className="text-2xl font-bold text-slate-900 line-clamp-1">
             Matches para: {property.title}
           </h2>
           <p className="text-slate-500 text-sm mt-1">Prospectos interesados encontrados en la plataforma</p>

@@ -5,13 +5,15 @@ import { usePathname, useRouter } from 'next/navigation';
 import { AGENT_NAV_ITEMS } from '@/lib/types';
 import { useAgentUI } from '@/lib/store';
 import { createClient } from '@/lib/supabase/client';
+import VerifiedBadge from './VerifiedBadge';
 
 interface SidebarProps {
   agentName: string;
   agentAvatar?: string | null;
+  isVerified?: boolean;
 }
 
-export default function Sidebar({ agentName, agentAvatar }: SidebarProps) {
+export default function Sidebar({ agentName, agentAvatar, isVerified }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -122,7 +124,10 @@ export default function Sidebar({ agentName, agentAvatar }: SidebarProps) {
           {!sidebarCollapsed && (
             <>
               <div className="flex flex-col text-left overflow-hidden flex-1">
-                <span className="text-sm font-semibold text-slate-800 truncate">{agentName}</span>
+                <div className="flex items-center gap-1 overflow-hidden">
+                  <span className="text-sm font-semibold text-slate-800 truncate">{agentName}</span>
+                  {isVerified && <VerifiedBadge className="w-3.5 h-3.5 shrink-0" />}
+                </div>
                 <span className="text-[10px] text-slate-400">Agente</span>
               </div>
               <span className="material-symbols-outlined text-slate-300 text-lg">

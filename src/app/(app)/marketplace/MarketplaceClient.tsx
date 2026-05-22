@@ -18,7 +18,7 @@ export default function MarketplaceClient({ properties, prospects, currentAgentI
   const [searchText, setSearchText] = useState('');
 
   const filteredProperties = useMemo(() => {
-    return properties.filter(p => {
+    const list = properties.filter(p => {
       if (filterType !== 'all' && p.property_type !== filterType) return false;
       if (filterTransaction !== 'all' && p.transaction_type !== filterTransaction) return false;
       if (searchText.trim()) {
@@ -27,6 +27,18 @@ export default function MarketplaceClient({ properties, prospects, currentAgentI
         if (!haystack.includes(q)) return false;
       }
       return true;
+    });
+
+    // Sort: is_featured DESC, then created_at DESC
+    return [...list].sort((a, b) => {
+      const aFeatured = a.is_featured ? 1 : 0;
+      const bFeatured = b.is_featured ? 1 : 0;
+      if (aFeatured !== bFeatured) {
+        return bFeatured - aFeatured; // Featured first
+      }
+      const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return bTime - aTime; // Newest first
     });
   }, [properties, filterType, filterTransaction, searchText]);
 
@@ -54,7 +66,7 @@ export default function MarketplaceClient({ properties, prospects, currentAgentI
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h2 className="font-[family-name:var(--font-outfit)] text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+          <h2 className="font-heading text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
             The Collection
           </h2>
           <p className="text-slate-500 mt-2 max-w-xl">
@@ -114,7 +126,7 @@ export default function MarketplaceClient({ properties, prospects, currentAgentI
         filteredProperties.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center bg-white rounded-3xl border border-slate-100">
             <span className="material-symbols-outlined text-6xl text-slate-200 mb-4 font-light">search_off</span>
-            <h3 className="font-[family-name:var(--font-outfit)] text-2xl font-bold text-slate-800 mb-2">No se encontraron propiedades</h3>
+            <h3 className="font-heading text-2xl font-bold text-slate-800 mb-2">No se encontraron propiedades</h3>
             <p className="text-slate-400 max-w-md">Ajusta los filtros para ver más resultados.</p>
           </div>
         ) : (
@@ -128,7 +140,7 @@ export default function MarketplaceClient({ properties, prospects, currentAgentI
         filteredProspects.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center bg-white rounded-3xl border border-slate-100">
             <span className="material-symbols-outlined text-6xl text-slate-200 mb-4 font-light">search_off</span>
-            <h3 className="font-[family-name:var(--font-outfit)] text-2xl font-bold text-slate-800 mb-2">No se encontraron prospectos</h3>
+            <h3 className="font-heading text-2xl font-bold text-slate-800 mb-2">No se encontraron prospectos</h3>
             <p className="text-slate-400 max-w-md">Ajusta los filtros para ver más resultados.</p>
           </div>
         ) : (

@@ -1,18 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function RegistrarPage() {
+function RegistrarPageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const plan = searchParams.get('plan') || 'elite';
+  const supabase = createClient();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const router = useRouter();
-  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,64 +23,72 @@ export default function RegistrarPage() {
     setError('');
     setSuccess('');
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/subscripcion/checkout?plan=${plan}`
+      }
+    });
     if (error) {
       setError(error.message);
     } else {
-      if (data.session) {
-        router.push('/');
-        router.refresh();
-      } else {
-        setSuccess('Revisa tu email para confirmar tu cuenta. Si no llega, revisa Spam.');
-      }
+      router.push(`/subscripcion/confirmar?plan=${plan}`);
     }
-    
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-950 to-[#0A0D1A] px-4 font-sans text-slate-100 relative overflow-hidden">
+      {/* Glows */}
+      <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] bg-violet-600/10 rounded-full blur-[140px] pointer-events-none" />
+
+      <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200">
-            <span className="text-white font-black text-xl">R</span>
-          </div>
-          <h1 className="font-[family-name:var(--font-outfit)] text-3xl font-bold text-slate-900 tracking-tight">RealHub</h1>
-          <p className="text-slate-500 text-sm mt-1">Plataforma de agentes inmobiliarios</p>
+          <Link href="/subscripcion/planes" className="inline-flex items-center gap-2 group mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 via-indigo-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-all">
+              <span className="material-symbols-outlined text-white text-xl font-bold">domain</span>
+            </div>
+            <span className="font-heading font-black text-xl tracking-wider bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent group-hover:text-white transition-all">
+              Real<span className="text-indigo-400 font-extrabold">Hub</span>
+            </span>
+          </Link>
+          <p className="text-slate-400 text-xs mt-1">Crea tu cuenta para activar tu <strong className="text-indigo-400 uppercase">Plan {plan}</strong></p>
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/50 p-8">
-          <h2 className="font-[family-name:var(--font-outfit)] text-xl font-bold text-slate-900 mb-6">
-            Crear Cuenta
+        <div className="bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl rounded-3xl p-8 shadow-2xl">
+          <h2 className="font-heading text-xl font-black text-white tracking-tight mb-6">
+            Crear tu Cuenta de Agente
           </h2>
 
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-600">
+            <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-400">
               {error}
             </div>
           )}
           {success && (
-            <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-sm text-emerald-600">
+            <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400">
               {success}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Email</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Correo Electrónico</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="tu@email.com"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition-all text-slate-900 font-medium placeholder-slate-400"
+                className="w-full bg-[#04060C] border border-white/[0.08] focus:border-indigo-500/50 rounded-2xl py-3 px-4 text-xs font-semibold text-white focus:outline-none placeholder-slate-600 transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Contraseña</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Contraseña</label>
               <input
                 type="password"
                 value={password}
@@ -85,23 +96,23 @@ export default function RegistrarPage() {
                 required
                 minLength={6}
                 placeholder="••••••••"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition-all text-slate-900 font-medium placeholder-slate-400"
+                className="w-full bg-[#04060C] border border-white/[0.08] focus:border-indigo-500/50 rounded-2xl py-3 px-4 text-xs font-semibold text-white focus:outline-none placeholder-slate-600 transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white py-3 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-indigo-200 transition-all disabled:opacity-50 active:scale-[0.98]"
+              className="w-full py-3.5 mt-2 bg-gradient-to-r from-sky-400 via-indigo-500 to-pink-500 hover:brightness-110 text-white font-extrabold text-xs uppercase tracking-widest rounded-2xl active:scale-[0.99] transition-all shadow-[0_4px_20px_rgba(99,102,241,0.25)]"
             >
-              {loading ? 'Cargando...' : 'Crear Cuenta'}
+              {loading ? 'Creando Cuenta...' : 'Registrar y Continuar'}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center border-t border-white/[0.05] pt-4">
             <Link
               href="/login"
-              className="text-sm text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
+              className="text-xs font-semibold text-slate-500 hover:text-slate-300 transition-colors"
             >
               ¿Ya tienes cuenta? Inicia sesión
             </Link>
@@ -109,5 +120,17 @@ export default function RegistrarPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegistrarPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#080B16] text-slate-200">
+        <p className="text-slate-500 text-xs font-semibold font-sans">Cargando registro...</p>
+      </div>
+    }>
+      <RegistrarPageContent />
+    </Suspense>
   );
 }

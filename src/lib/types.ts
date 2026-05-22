@@ -39,6 +39,7 @@ export const STAGE_COLORS: Record<PipelineStage, string> = {
 export const PROPERTY_TYPES = [
   'casa', 'departamento', 'terreno', 'duplex', 'triplex',
   'pozo', 'oficina', 'deposito', 'inmueble_productivo', 'casa_duplex', 'local_comercial',
+  'tinglado', 'cochera', 'salon_comercial', 'lote'
 ] as const;
 
 export type PropertyType = typeof PROPERTY_TYPES[number];
@@ -49,13 +50,17 @@ export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
   oficina: 'Oficina', deposito: 'Depósito',
   inmueble_productivo: 'Inmueble Productivo', casa_duplex: 'Casa Dúplex',
   local_comercial: 'Local Comercial',
+  tinglado: 'Tinglado / Galpón',
+  cochera: 'Cochera / Garaje',
+  salon_comercial: 'Salón Comercial',
+  lote: 'Lote / Fraccionamiento'
 };
 
 export const DETAILED_PROPERTY_TYPES: PropertyType[] = [
   'casa', 'departamento', 'duplex', 'triplex', 'pozo', 'casa_duplex',
 ];
-export const LAND_ONLY_TYPES: PropertyType[] = ['terreno'];
-export const COMMERCIAL_TYPES: PropertyType[] = ['oficina', 'deposito', 'inmueble_productivo', 'local_comercial'];
+export const LAND_ONLY_TYPES: PropertyType[] = ['terreno', 'lote'];
+export const COMMERCIAL_TYPES: PropertyType[] = ['oficina', 'deposito', 'inmueble_productivo', 'local_comercial', 'tinglado', 'salon_comercial', 'cochera'];
 
 export const TRANSACTION_TYPES = ['compra', 'alquiler', 'ambos'] as const;
 export type TransactionType = typeof TRANSACTION_TYPES[number];
@@ -91,6 +96,8 @@ export interface AgentProfile {
   experience_years: number | null;
   created_at: string;
   updated_at: string;
+  subscription_tier?: string;
+  is_verified?: boolean;
 }
 
 export interface FeatureRequest {

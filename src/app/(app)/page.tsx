@@ -48,10 +48,10 @@ export default async function HomePage() {
   return (
     <div className="space-y-8 max-w-[1400px] mx-auto">
       <div>
-        <h2 className="font-[family-name:var(--font-outfit)] text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
           {greeting} 👋
         </h2>
-        <p className="text-slate-500 mt-1">Resumen de tu actividad y rendimiento.</p>
+        <p className="text-slate-500 text-sm mt-1">Resumen de tu actividad y rendimiento.</p>
       </div>
 
       {/* KPIs */}
@@ -64,8 +64,8 @@ export default async function HomePage() {
               <span className={`material-symbols-outlined ${kpi.text} text-lg`}>{kpi.icon}</span>
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900 tracking-tight leading-none mb-1">{kpi.value}</p>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{kpi.label}</p>
+              <p className="font-heading text-3xl font-black text-slate-900 tracking-tight leading-none mb-1">{kpi.value}</p>
+              <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">{kpi.label}</p>
             </div>
           </Link>
         ))}
@@ -75,8 +75,8 @@ export default async function HomePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-100">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="font-[family-name:var(--font-outfit)] text-lg font-bold text-slate-900">Pipeline</h3>
-            <Link href="/prospectos" className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Ver todo →</Link>
+            <h3 className="text-lg font-bold text-slate-900 tracking-tight">Pipeline</h3>
+            <Link href="/prospectos" className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Ver todo →</Link>
           </div>
           <div className="space-y-3">
             {(['nuevo_contacto', 'propuestas_enviadas', 'visita_agendada', 'negociacion', 'tramites', 'cerrado', 'perdido'] as PipelineStage[]).map((stage) => {
@@ -86,11 +86,11 @@ export default async function HomePage() {
               return (
                 <div key={stage} className="flex items-center gap-4">
                   <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: STAGE_COLORS[stage] }} />
-                  <span className="text-sm text-slate-600 w-40 shrink-0">{STAGE_LABELS[stage]}</span>
+                  <span className="text-sm font-medium text-slate-600 w-40 shrink-0">{STAGE_LABELS[stage]}</span>
                   <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: STAGE_COLORS[stage] }} />
                   </div>
-                  <span className="text-sm font-bold text-slate-700 w-8 text-right">{count}</span>
+                  <span className="text-sm font-extrabold text-slate-900 w-8 text-right">{count}</span>
                 </div>
               );
             })}
@@ -98,7 +98,7 @@ export default async function HomePage() {
         </div>
 
         <div className="bg-white rounded-2xl p-6 border border-slate-100">
-          <h3 className="font-[family-name:var(--font-outfit)] text-lg font-bold text-slate-900 mb-4">Seguimientos</h3>
+          <h3 className="text-lg font-bold text-slate-900 tracking-tight mb-4">Seguimientos</h3>
           {(!pendingFollowUps || pendingFollowUps.length === 0) ? (
             <div className="text-center py-8">
               <span className="material-symbols-outlined text-4xl text-slate-200 block mb-2">check_circle</span>
@@ -110,8 +110,8 @@ export default async function HomePage() {
                 <div key={fu.id} className="flex items-center gap-3 p-3 rounded-xl bg-amber-50/50 border border-amber-100/50">
                   <span className="material-symbols-outlined text-amber-500 text-lg">schedule</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-800 truncate">{fu.prospects?.full_name || 'Prospecto'}</p>
-                    <p className="text-xs text-slate-400">{fu.interval_label}</p>
+                    <p className="text-sm font-semibold text-slate-800 truncate">{fu.prospects?.full_name || 'Prospecto'}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{fu.interval_label}</p>
                   </div>
                 </div>
               ))}
@@ -129,8 +129,8 @@ export default async function HomePage() {
             <span className="material-symbols-outlined text-2xl">add_home</span>
           </div>
           <div>
-            <p className="font-bold text-lg">Nueva Propiedad</p>
-            <p className="text-white/70 text-sm">Agregar al portafolio</p>
+            <p className="font-heading font-extrabold text-lg tracking-tight">Nueva Propiedad</p>
+            <p className="text-white/80 text-xs font-semibold">Agregar al portafolio</p>
           </div>
         </Link>
         <Link href="/prospectos/nuevo"
@@ -140,8 +140,8 @@ export default async function HomePage() {
             <span className="material-symbols-outlined text-2xl text-emerald-600">person_add</span>
           </div>
           <div>
-            <p className="font-bold text-lg text-slate-800">Nuevo Prospecto</p>
-            <p className="text-slate-500 text-sm">Cargar cliente</p>
+            <p className="font-heading font-extrabold text-lg text-slate-800 tracking-tight">Nuevo Prospecto</p>
+            <p className="text-slate-500 text-xs font-semibold">Cargar cliente</p>
           </div>
         </Link>
         <Link href="/marketplace"
@@ -151,8 +151,8 @@ export default async function HomePage() {
             <span className="material-symbols-outlined text-2xl text-violet-600">explore</span>
           </div>
           <div>
-            <p className="font-bold text-lg text-slate-800">Marketplace</p>
-            <p className="text-slate-500 text-sm">Explorar propiedades</p>
+            <p className="font-heading font-extrabold text-lg text-slate-800 tracking-tight">Marketplace</p>
+            <p className="text-slate-500 text-xs font-semibold">Explorar propiedades</p>
           </div>
         </Link>
       </div>

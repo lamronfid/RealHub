@@ -25,7 +25,7 @@ export default async function EditPropertyPage({ params }: { params: Promise<{ i
           <Link href={`/propiedades/${id}`} className="text-sm font-bold text-indigo-600 hover:text-indigo-700 inline-flex items-center gap-1 mb-2">
             <span className="material-symbols-outlined text-[16px]">arrow_back</span> Volver
           </Link>
-          <h2 className="font-[family-name:var(--font-outfit)] text-2xl font-bold text-slate-900">Editar Propiedad</h2>
+          <h2 className="text-2xl font-bold text-slate-900">Editar Propiedad</h2>
           <p className="text-slate-500 text-sm mt-1">{property.title}</p>
         </div>
       </div>

@@ -17,7 +17,7 @@ export default function AmenitiesList({ amenities }: AmenitiesListProps) {
 
   return (
     <div className="mt-8 mb-6">
-      <h2 className="font-[family-name:var(--font-outfit)] text-lg font-bold text-slate-900 mb-3">Amenities</h2>
+      <h2 className="font-heading text-lg font-bold text-slate-900 mb-3">Amenities</h2>
       <div className="flex flex-wrap gap-2">
         {validAmenities.map((amenity) => (
           <div 
