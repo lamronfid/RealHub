@@ -76,7 +76,7 @@ export default function PlanesPage() {
         <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">
           RealHub Membership
         </span>
-        <h1 className="font-heading text-4xl md:text-5xl font-black tracking-tight text-white leading-none">
+        <h1 className="font-heading text-4xl md:text-5xl font-black tracking-tight !text-white leading-none">
           Eleva tu Negocio al <span className="bg-gradient-to-r from-sky-400 via-indigo-400 to-pink-400 bg-clip-text text-transparent">Máximo Nivel</span>
         </h1>
         <p className="text-slate-400 text-sm leading-relaxed max-w-lg mx-auto font-medium">
@@ -92,7 +92,7 @@ export default function PlanesPage() {
           <div>
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h3 className="font-heading text-xl font-bold text-white tracking-tight">Plan Entrada</h3>
+                <h3 className="font-heading text-xl font-bold !text-white tracking-tight">Plan Entrada</h3>
                 <p className="text-xs text-slate-400 font-medium mt-1">Para agentes individuales que inician</p>
               </div>
             </div>
@@ -136,7 +136,7 @@ export default function PlanesPage() {
           <div>
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h3 className="font-heading text-xl font-bold text-white tracking-tight">Plan Pro</h3>
+                <h3 className="font-heading text-xl font-bold !text-white tracking-tight">Plan Pro</h3>
                 <p className="text-xs text-slate-400 font-medium mt-1">Mayor alcance y herramientas de búsqueda</p>
               </div>
             </div>
@@ -227,10 +227,8 @@ export default function PlanesPage() {
 
       </div>
 
+
       <div className="text-center relative z-10">
-        <Link href="/" className="text-xs font-semibold text-slate-500 hover:text-slate-300 transition-colors flex items-center justify-center gap-1.5 mt-8">
-          <span className="material-symbols-outlined text-sm">arrow_back</span> Volver al Dashboard
-        </Link>
       </div>
 
     </div>
