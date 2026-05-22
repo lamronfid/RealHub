@@ -184,7 +184,7 @@ export default function PlanesPage() {
           <div>
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h3 className="font-heading text-xl font-bold bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent flex items-center gap-1.5">
+                <h3 className="font-heading text-xl font-bold bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text !text-transparent flex items-center gap-1.5">
                   Plan Élite <span className="material-symbols-outlined text-indigo-400 text-lg">workspace_premium</span>
                 </h3>
                 <p className="text-xs text-slate-400 font-medium mt-1">El estándar de oro para líderes del mercado</p>
