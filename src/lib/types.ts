@@ -98,6 +98,7 @@ export interface AgentProfile {
   updated_at: string;
   subscription_tier?: string;
   is_verified?: boolean;
+  scraper_searches_used?: number;
 }
 
 export interface FeatureRequest {
@@ -240,6 +241,7 @@ export const AGENT_NAV_ITEMS: NavItem[] = [
   { label: 'Propiedades', href: '/propiedades', icon: 'domain' },
   { label: 'Prospectos', href: '/prospectos', icon: 'people' },
   { label: 'Marketplace', href: '/marketplace', icon: 'storefront' },
+  { label: 'Scraper', href: '/scraper', icon: 'travel_explore' },
   { label: 'Agenda', href: '/agenda', icon: 'calendar_month' },
   { label: 'Mi Perfil', href: '/perfil', icon: 'person' },
 ];
