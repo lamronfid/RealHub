@@ -22,10 +22,12 @@ export default function TopBar({ agentName, agentAvatar, isVerified }: TopBarPro
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   
   let pageTitle = 'Dashboard';
+  if (pathname.includes('/admin')) pageTitle = 'Administración';
   if (pathname.includes('/propiedades')) pageTitle = 'Propiedades';
   if (pathname.includes('/prospectos')) pageTitle = 'Prospectos';
   if (pathname.includes('/agenda')) pageTitle = 'Agenda';
   if (pathname.includes('/marketplace')) pageTitle = 'The Collection';
+
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

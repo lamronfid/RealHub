@@ -49,29 +49,30 @@ export default async function HomePage() {
     <div className="space-y-8 max-w-[1400px] mx-auto font-sans">
       
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-slate-900 p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-50/75 via-sky-50/55 to-pink-50/40 p-6 md:p-8 text-slate-800 border border-indigo-100/60 shadow-premium flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         {/* Background glow effects */}
-        <div className="absolute top-[-45%] right-[-10%] w-[320px] h-[320px] bg-gradient-to-br from-indigo-500/25 to-violet-500/25 rounded-full blur-[70px] pointer-events-none" />
-        <div className="absolute bottom-[-45%] left-[-10%] w-[240px] h-[240px] bg-pink-500/15 rounded-full blur-[50px] pointer-events-none" />
+        <div className="absolute top-[-45%] right-[-10%] w-[320px] h-[320px] bg-gradient-to-br from-indigo-500/10 to-violet-500/10 rounded-full blur-[70px] pointer-events-none" />
+        <div className="absolute bottom-[-45%] left-[-10%] w-[240px] h-[240px] bg-pink-500/80 rounded-full blur-[50px] pointer-events-none opacity-10" />
         
         <div className="relative z-10 space-y-2">
-          <span className="bg-indigo-500/25 text-indigo-300 border border-indigo-500/35 text-[9px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full backdrop-blur-sm">
+          <span className="bg-indigo-50 text-indigo-700 border border-indigo-100/80 text-[9px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full">
             Panel de Control
           </span>
-          <h2 className="text-2xl md:text-3xl font-black font-heading tracking-tight leading-tight">
+          <h2 className="text-2xl md:text-3xl font-black font-heading tracking-tight leading-tight text-slate-900">
             {greeting}, ¡bienvenido a RealHub! 👋
           </h2>
-          <p className="text-slate-400 text-xs font-medium max-w-md leading-relaxed">
+          <p className="text-slate-500 text-xs font-semibold max-w-md leading-relaxed">
             Aquí tienes el resumen de rendimiento y seguimientos activos de tu portafolio inmobiliario en Paraguay.
           </p>
         </div>
         
         <div className="relative z-10 flex gap-2.5 shrink-0">
-          <Link href="/propiedades/nueva" className="px-5 py-3 bg-white text-slate-950 font-bold text-xs uppercase tracking-wider rounded-2xl hover:bg-slate-100 transition-all shadow-lg active:scale-[0.98]">
+          <Link href="/propiedades/nueva" className="px-5 py-3.5 bg-indigo-600 text-white font-bold text-xs uppercase tracking-wider rounded-2xl hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-100 transition-all active:scale-[0.98]">
             Nueva Propiedad
           </Link>
         </div>
       </div>
+
 
       {/* KPIs Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5">

@@ -11,9 +11,10 @@ interface SidebarProps {
   agentName: string;
   agentAvatar?: string | null;
   isVerified?: boolean;
+  role?: string | null;
 }
 
-export default function Sidebar({ agentName, agentAvatar, isVerified }: SidebarProps) {
+export default function Sidebar({ agentName, agentAvatar, isVerified, role }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -23,6 +24,15 @@ export default function Sidebar({ agentName, agentAvatar, isVerified }: SidebarP
     await supabase.auth.signOut();
     window.location.href = '/login';
   };
+
+  const navItems = [...AGENT_NAV_ITEMS];
+  if (role === 'admin') {
+    navItems.splice(navItems.length - 1, 0, {
+      label: 'Panel Admin',
+      href: '/admin',
+      icon: 'admin_panel_settings',
+    });
+  }
 
   return (
     <aside
@@ -45,7 +55,8 @@ export default function Sidebar({ agentName, agentAvatar, isVerified }: SidebarP
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {AGENT_NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
+
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
           return (
             <Link

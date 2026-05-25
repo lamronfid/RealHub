@@ -45,10 +45,11 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       {needsOnboarding && <OnboardingWrapper />}
       <FeedbackButton />
 
-      <Sidebar agentName={agentName} agentAvatar={agentAvatar} isVerified={isVerified} />
+      <Sidebar agentName={agentName} agentAvatar={agentAvatar} isVerified={isVerified} role={profile?.role} />
 
       <div className="md:ml-[260px] transition-all duration-300 flex flex-col min-h-screen">
         <TopBar agentName={agentName} agentAvatar={agentAvatar} isVerified={isVerified} />
+
         <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8">
           {children}
         </main>
