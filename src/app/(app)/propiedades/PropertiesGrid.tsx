@@ -11,7 +11,9 @@ export default function PropertiesGrid({ properties }: { properties: any[] }) {
       {(filtered) => (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filtered.map((p) => (
-            <div key={p.id} className="group bg-white rounded-3xl border border-slate-100 overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:border-slate-200 transition-all duration-500">
+            <div key={p.id} className="group bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-premium shadow-premium-hover flex flex-col justify-between">
+              
+              {/* Card Image Area */}
               <Link href={`/propiedades/${p.id}`} className="block relative aspect-[16/10] bg-slate-50 overflow-hidden">
                 {p.photos && p.photos.length > 0 ? (
                   <img src={p.photos[0]} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out" />
@@ -21,66 +23,102 @@ export default function PropertiesGrid({ properties }: { properties: any[] }) {
                     <span className="text-[10px] font-bold uppercase tracking-widest">Sin Imagen</span>
                   </div>
                 )}
-                <div className="absolute top-4 left-4 flex gap-2">
-                  <span className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-sm backdrop-blur ${
-                    p.transaction_type === 'compra' ? 'bg-emerald-500/90 text-white' : 'bg-blue-500/90 text-white'
+                
+                {/* Visual overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-900/10 to-transparent opacity-90" />
+                
+                {/* Floating location text on image */}
+                <div className="absolute bottom-3 left-4 right-4 z-10">
+                  <p className="text-[11px] font-extrabold text-white/90 drop-shadow-sm flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm text-indigo-300">location_on</span>
+                    {[p.neighborhood, p.city].filter(Boolean).join(', ')}
+                  </p>
+                </div>
+
+                {/* Status Badges */}
+                <div className="absolute top-4 left-4 flex gap-1.5 z-10">
+                  <span className={`text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-sm backdrop-blur-md bg-opacity-90 ${
+                    p.transaction_type === 'compra' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'
                   }`}>
                     {p.status === 'EN VENTA' || p.transaction_type === 'compra' ? 'EN VENTA' : p.status}
                   </span>
                   {p.visibility === 'marketplace' && (
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-sm bg-violet-500/90 backdrop-blur text-white">Marketplace</span>
+                    <span className="text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-sm bg-violet-600/90 backdrop-blur-md text-white">Marketplace</span>
                   )}
                 </div>
               </Link>
-              <div className="p-5 space-y-4">
-                <div>
+
+              {/* Card Body Details */}
+              <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                <div className="space-y-2">
                   <Link href={`/propiedades/${p.id}`} className="hover:text-indigo-600 transition-colors">
-                    <h3 className="font-bold text-lg text-slate-900 line-clamp-1">{p.title}</h3>
+                    <h3 className="font-heading font-extrabold text-base text-slate-800 line-clamp-1 group-hover:text-indigo-600 transition-colors">{p.title}</h3>
                   </Link>
-                  <p className="text-sm text-slate-400 mt-0.5 line-clamp-1">
-                    {[p.neighborhood, p.city, p.department].filter(Boolean).join(', ')}
-                  </p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-500 bg-slate-50 px-2 py-1 rounded-md">
+                  <span className="inline-block text-[9px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-md">
                     {PROPERTY_TYPE_LABELS[p.property_type as PropertyType] || p.property_type}
                   </span>
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest">Precio</span>
                   <div className="text-right">
                     {p.transaction_type === 'ambos' ? (
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-slate-900">V: {p.currency} {p.sale_price?.toLocaleString('es-PY')}</span>
-                        <span className="text-xs text-slate-500">A: {p.currency} {p.rent_price?.toLocaleString('es-PY')}/mes</span>
+                      <div className="flex flex-col text-right">
+                        <span className="text-xs font-bold text-slate-800">V: {p.currency} {p.sale_price?.toLocaleString('es-PY')}</span>
+                        <span className="text-[10px] text-slate-400 font-medium">A: {p.currency} {p.rent_price?.toLocaleString('es-PY')}/mes</span>
                       </div>
                     ) : (
-                      <span className="text-lg font-bold text-slate-900">
+                      <span className="text-base font-black text-slate-900 font-heading tracking-tight">
                         {p.currency} {p.transaction_type === 'alquiler' ? p.rent_price?.toLocaleString('es-PY') : p.sale_price?.toLocaleString('es-PY')}
-                        {p.transaction_type === 'alquiler' && <span className="text-sm text-slate-400 font-normal">/mes</span>}
+                        {p.transaction_type === 'alquiler' && <span className="text-xs text-slate-400 font-normal"> / mes</span>}
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-4 pt-3 border-t border-slate-50">
-                  {p.bedrooms && <div className="flex items-center gap-1.5"><span className="material-symbols-outlined text-slate-300 text-base">bed</span><span className="text-xs font-medium text-slate-600">{p.bedrooms}</span></div>}
-                  {p.bathrooms && <div className="flex items-center gap-1.5"><span className="material-symbols-outlined text-slate-300 text-base">bathtub</span><span className="text-xs font-medium text-slate-600">{p.bathrooms}</span></div>}
-                  {p.m2_built && <div className="flex items-center gap-1.5"><span className="material-symbols-outlined text-slate-300 text-base">square_foot</span><span className="text-xs font-medium text-slate-600">{p.m2_built} m²</span></div>}
-                  <div className="ml-auto flex items-center gap-2">
+
+                {/* Attributes & Tools Bar */}
+                <div className="flex items-center gap-1.5 pt-3.5 border-t border-slate-100/80">
+                  <div className="flex flex-wrap items-center gap-1 text-slate-500 flex-1">
+                    {p.bedrooms && (
+                      <span className="bg-slate-50 border border-slate-100/60 rounded-lg px-2 py-1 text-[10px] font-semibold flex items-center gap-1 text-slate-600">
+                        <span className="material-symbols-outlined text-[13px] text-slate-400">bed</span>
+                        {p.bedrooms}
+                      </span>
+                    )}
+                    {p.bathrooms && (
+                      <span className="bg-slate-50 border border-slate-100/60 rounded-lg px-2 py-1 text-[10px] font-semibold flex items-center gap-1 text-slate-600">
+                        <span className="material-symbols-outlined text-[13px] text-slate-400">bathtub</span>
+                        {p.bathrooms}
+                      </span>
+                    )}
+                    {p.m2_built && (
+                      <span className="bg-slate-50 border border-slate-100/60 rounded-lg px-2 py-1 text-[10px] font-semibold flex items-center gap-1 text-slate-600">
+                        <span className="material-symbols-outlined text-[13px] text-slate-400">square_foot</span>
+                        {p.m2_built} m²
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <Link
                       href={`/propiedades/${p.id}/editar`}
                       title="Editar propiedad"
-                      className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                      className="flex items-center justify-center w-7 h-7 rounded-lg text-slate-400 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-100 hover:border-indigo-100 transition-all duration-200"
                     >
-                      <span className="material-symbols-outlined text-[18px]">edit</span>
+                      <span className="material-symbols-outlined text-[15px]">edit</span>
                     </Link>
                     <ToggleMarketplace propertyId={p.id} isMarketplace={p.visibility === 'marketplace'} />
                   </div>
                 </div>
+
               </div>
+
             </div>
           ))}
           {filtered.length === 0 && (
-            <div className="col-span-full bg-white rounded-2xl border border-slate-100 p-12 text-center">
+            <div className="col-span-full bg-white rounded-3xl border border-slate-100 p-16 text-center shadow-premium">
               <span className="material-symbols-outlined text-4xl text-slate-200 mb-2 block">filter_alt_off</span>
-              <p className="text-slate-400 font-medium">No hay propiedades que coincidan con los filtros.</p>
+              <p className="text-slate-400 font-medium text-sm">No hay propiedades que coincidan con los filtros.</p>
             </div>
           )}
         </div>

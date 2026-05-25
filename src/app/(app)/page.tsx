@@ -46,26 +46,45 @@ export default async function HomePage() {
   const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
 
   return (
-    <div className="space-y-8 max-w-[1400px] mx-auto">
-      <div>
-        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-          {greeting} 👋
-        </h2>
-        <p className="text-slate-500 text-sm mt-1">Resumen de tu actividad y rendimiento.</p>
+    <div className="space-y-8 max-w-[1400px] mx-auto font-sans">
+      
+      {/* Welcome Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-slate-900 p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        {/* Background glow effects */}
+        <div className="absolute top-[-45%] right-[-10%] w-[320px] h-[320px] bg-gradient-to-br from-indigo-500/25 to-violet-500/25 rounded-full blur-[70px] pointer-events-none" />
+        <div className="absolute bottom-[-45%] left-[-10%] w-[240px] h-[240px] bg-pink-500/15 rounded-full blur-[50px] pointer-events-none" />
+        
+        <div className="relative z-10 space-y-2">
+          <span className="bg-indigo-500/25 text-indigo-300 border border-indigo-500/35 text-[9px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full backdrop-blur-sm">
+            Panel de Control
+          </span>
+          <h2 className="text-2xl md:text-3xl font-black font-heading tracking-tight leading-tight">
+            {greeting}, ¡bienvenido a RealHub! 👋
+          </h2>
+          <p className="text-slate-400 text-xs font-medium max-w-md leading-relaxed">
+            Aquí tienes el resumen de rendimiento y seguimientos activos de tu portafolio inmobiliario en Paraguay.
+          </p>
+        </div>
+        
+        <div className="relative z-10 flex gap-2.5 shrink-0">
+          <Link href="/propiedades/nueva" className="px-5 py-3 bg-white text-slate-950 font-bold text-xs uppercase tracking-wider rounded-2xl hover:bg-slate-100 transition-all shadow-lg active:scale-[0.98]">
+            Nueva Propiedad
+          </Link>
+        </div>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+      {/* KPIs Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5">
         {kpis.map((kpi) => (
           <Link key={kpi.label} href={kpi.href}
-            className="group bg-white rounded-2xl p-5 border border-slate-100 hover:border-slate-200 hover:shadow-lg hover:shadow-slate-100/50 transition-all duration-300 flex flex-col justify-between"
+            className="group bg-white rounded-2xl p-5 border border-slate-100 shadow-premium shadow-premium-hover flex flex-col justify-between"
           >
-            <div className={`${kpi.bg} w-10 h-10 rounded-xl flex items-center justify-center mb-4`}>
+            <div className={`${kpi.bg} w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300`}>
               <span className={`material-symbols-outlined ${kpi.text} text-lg`}>{kpi.icon}</span>
             </div>
             <div>
               <p className="font-heading text-3xl font-black text-slate-900 tracking-tight leading-none mb-1">{kpi.value}</p>
-              <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">{kpi.label}</p>
+              <p className="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest mt-1.5">{kpi.label}</p>
             </div>
           </Link>
         ))}
@@ -73,89 +92,105 @@ export default async function HomePage() {
 
       {/* Pipeline + Follow-ups */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-100">
+        
+        <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-100 shadow-premium">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-slate-900 tracking-tight">Pipeline</h3>
-            <Link href="/prospectos" className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Ver todo →</Link>
+            <h3 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-indigo-500 text-lg">stacked_bar_chart</span>
+              Embudo de Ventas (Pipeline)
+            </h3>
+            <Link href="/prospectos" className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest hover:text-indigo-700">Ver todo →</Link>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {(['nuevo_contacto', 'propuestas_enviadas', 'visita_agendada', 'negociacion', 'tramites', 'cerrado', 'perdido'] as PipelineStage[]).map((stage) => {
               const count = stageCounts[stage] || 0;
               const total = totalProspects || 1;
               const pct = Math.round((count / total) * 100);
               return (
-                <div key={stage} className="flex items-center gap-4">
-                  <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: STAGE_COLORS[stage] }} />
-                  <span className="text-sm font-medium text-slate-600 w-40 shrink-0">{STAGE_LABELS[stage]}</span>
-                  <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: STAGE_COLORS[stage] }} />
+                <div key={stage} className="flex items-center gap-4 group">
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: STAGE_COLORS[stage] }} />
+                  <span className="text-xs font-semibold text-slate-600 w-36 shrink-0 group-hover:text-slate-900 transition-colors">{STAGE_LABELS[stage]}</span>
+                  <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden relative">
+                    <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${pct}%`, backgroundColor: STAGE_COLORS[stage] }} />
                   </div>
-                  <span className="text-sm font-extrabold text-slate-900 w-8 text-right">{count}</span>
+                  <span className="text-xs font-extrabold text-slate-800 w-8 text-right bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">{count}</span>
                 </div>
               );
             })}
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 border border-slate-100">
-          <h3 className="text-lg font-bold text-slate-900 tracking-tight mb-4">Seguimientos</h3>
-          {(!pendingFollowUps || pendingFollowUps.length === 0) ? (
-            <div className="text-center py-8">
-              <span className="material-symbols-outlined text-4xl text-slate-200 block mb-2">check_circle</span>
-              <p className="text-sm text-slate-400">Todo al día</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {pendingFollowUps.map((fu: any) => (
-                <div key={fu.id} className="flex items-center gap-3 p-3 rounded-xl bg-amber-50/50 border border-amber-100/50">
-                  <span className="material-symbols-outlined text-amber-500 text-lg">schedule</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 truncate">{fu.prospects?.full_name || 'Prospecto'}</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{fu.interval_label}</p>
+        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-premium flex flex-col justify-between">
+          <div>
+            <h3 className="text-base font-bold text-slate-900 tracking-tight mb-5 flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-amber-500 text-lg">event_upcoming</span>
+              Próximos Seguimientos
+            </h3>
+            {(!pendingFollowUps || pendingFollowUps.length === 0) ? (
+              <div className="text-center py-10">
+                <span className="material-symbols-outlined text-4xl text-slate-200 block mb-2">check_circle</span>
+                <p className="text-xs text-slate-400 font-medium">¡Todo al día por hoy!</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pendingFollowUps.map((fu: any) => (
+                  <div key={fu.id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100/80 hover:border-slate-200 transition-all duration-200">
+                    <span className="material-symbols-outlined text-slate-400 text-lg">schedule</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-slate-800 truncate">{fu.prospects?.full_name || 'Prospecto'}</p>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{fu.interval_label}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
+          <Link href="/agenda" className="w-full text-center mt-5 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-[10px] font-bold text-slate-500 uppercase tracking-widest transition-colors block">
+            Ver Agenda Completa
+          </Link>
         </div>
+
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <Link href="/propiedades/nueva"
-          className="flex items-center gap-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl p-6 hover:shadow-xl hover:shadow-indigo-200/50 transition-all"
+          className="flex items-center gap-4 bg-gradient-to-br from-indigo-600 via-indigo-600 to-violet-600 text-white rounded-2xl p-5 hover:shadow-xl hover:shadow-indigo-200/50 transition-all duration-300 hover:-translate-y-0.5"
         >
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shrink-0 shadow-inner">
             <span className="material-symbols-outlined text-2xl">add_home</span>
           </div>
           <div>
-            <p className="font-heading font-extrabold text-lg tracking-tight">Nueva Propiedad</p>
-            <p className="text-white/80 text-xs font-semibold">Agregar al portafolio</p>
+            <p className="font-heading font-extrabold text-base tracking-tight">Nueva Propiedad</p>
+            <p className="text-indigo-200 text-xs mt-0.5">Agregar al portafolio</p>
           </div>
         </Link>
+        
         <Link href="/prospectos/nuevo"
-          className="flex items-center gap-4 bg-white border border-slate-200 rounded-2xl p-6 hover:border-indigo-200 hover:shadow-lg transition-all"
+          className="flex items-center gap-4 bg-white border border-slate-100 rounded-2xl p-5 shadow-premium hover:border-emerald-250 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
         >
-          <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center shrink-0 border border-emerald-100">
             <span className="material-symbols-outlined text-2xl text-emerald-600">person_add</span>
           </div>
           <div>
-            <p className="font-heading font-extrabold text-lg text-slate-800 tracking-tight">Nuevo Prospecto</p>
-            <p className="text-slate-500 text-xs font-semibold">Cargar cliente</p>
+            <p className="font-heading font-extrabold text-base text-slate-800 tracking-tight">Nuevo Prospecto</p>
+            <p className="text-slate-400 text-xs mt-0.5">Registrar cliente</p>
           </div>
         </Link>
+
         <Link href="/marketplace"
-          className="flex items-center gap-4 bg-white border border-slate-200 rounded-2xl p-6 hover:border-violet-200 hover:shadow-lg transition-all"
+          className="flex items-center gap-4 bg-white border border-slate-100 rounded-2xl p-5 shadow-premium hover:border-violet-250 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
         >
-          <div className="w-12 h-12 bg-violet-50 rounded-xl flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 bg-violet-50 rounded-xl flex items-center justify-center shrink-0 border border-violet-100">
             <span className="material-symbols-outlined text-2xl text-violet-600">explore</span>
           </div>
           <div>
-            <p className="font-heading font-extrabold text-lg text-slate-800 tracking-tight">Marketplace</p>
-            <p className="text-slate-500 text-xs font-semibold">Explorar propiedades</p>
+            <p className="font-heading font-extrabold text-base text-slate-800 tracking-tight">Marketplace</p>
+            <p className="text-slate-400 text-xs mt-0.5">Explorar propiedades</p>
           </div>
         </Link>
       </div>
+
       <FeedbackButton />
     </div>
   );

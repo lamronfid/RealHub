@@ -51,11 +51,11 @@ export default function Sidebar({ agentName, agentAvatar, isVerified }: SidebarP
             <Link
               key={item.href}
               href={item.href}
-              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 relative ${
                 isActive
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
-              } ${sidebarCollapsed ? 'justify-center' : ''}`}
+                  ? 'bg-indigo-50/60 text-indigo-700 shadow-sm border-l-4 border-indigo-600 pl-2'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-l-4 border-transparent hover:border-slate-200/80 pl-2'
+              } ${sidebarCollapsed ? 'justify-center border-l-0 pl-3' : ''}`}
               title={sidebarCollapsed ? item.label : undefined}
             >
               <span
@@ -104,19 +104,19 @@ export default function Sidebar({ agentName, agentAvatar, isVerified }: SidebarP
       </div>
 
       {/* Agent Info / Collapse */}
-      <div className={`border-t border-slate-100 px-3 py-3 ${sidebarCollapsed ? 'px-2' : ''}`}>
+      <div className={`border-t border-slate-100/80 px-3 py-3 ${sidebarCollapsed ? 'px-2' : ''}`}>
         <button
           onClick={toggleSidebar}
-          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors ${
+          className={`flex items-center gap-2.5 w-full px-2.5 py-2.5 rounded-2xl bg-slate-50/30 hover:bg-slate-50 border border-slate-100 hover:border-slate-200/60 transition-all duration-300 shadow-[0_1px_2px_rgba(0,0,0,0.02)] ${
             sidebarCollapsed ? 'justify-center' : ''
           }`}
           title={sidebarCollapsed ? 'Expandir menú' : 'Colapsar menú'}
         >
           {agentAvatar ? (
-            <img src={agentAvatar} alt={agentName} className="w-8 h-8 rounded-full object-cover shrink-0" />
+            <img src={agentAvatar} alt={agentName} className="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 ring-2 ring-indigo-500/10" />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center shrink-0">
-              <span className="text-xs font-bold text-slate-600">
+            <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
+              <span className="text-[10px] font-bold text-indigo-600">
                 {agentName.split(' ').map(n => n[0]).join('').slice(0, 2)}
               </span>
             </div>
@@ -125,12 +125,12 @@ export default function Sidebar({ agentName, agentAvatar, isVerified }: SidebarP
             <>
               <div className="flex flex-col text-left overflow-hidden flex-1">
                 <div className="flex items-center gap-1 overflow-hidden">
-                  <span className="text-sm font-semibold text-slate-800 truncate">{agentName}</span>
-                  {isVerified && <VerifiedBadge className="w-3.5 h-3.5 shrink-0" />}
+                  <span className="text-xs font-semibold text-slate-800 truncate">{agentName}</span>
+                  {isVerified && <VerifiedBadge className="w-3 h-3 shrink-0" />}
                 </div>
-                <span className="text-[10px] text-slate-400">Agente</span>
+                <span className="text-[9px] text-slate-400 font-medium">Agente RealHub</span>
               </div>
-              <span className="material-symbols-outlined text-slate-300 text-lg">
+              <span className="material-symbols-outlined text-slate-300 text-base">
                 chevron_left
               </span>
             </>

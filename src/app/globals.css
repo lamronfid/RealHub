@@ -59,3 +59,30 @@ input:disabled,
 [aria-disabled="true"] {
   cursor: not-allowed !important;
 }
+
+/* Premium UI/UX Design System Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.shadow-premium {
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.02), 
+              0 10px 30px -10px rgba(15, 23, 42, 0.03), 
+              0 1px 2px rgba(15, 23, 42, 0.01);
+}
+
+.shadow-premium-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.shadow-premium-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -10px rgba(79, 70, 229, 0.06), 
+              0 18px 36px -12px rgba(79, 70, 229, 0.04),
+              0 1px 3px rgba(79, 70, 229, 0.01);
+  border-color: rgba(99, 102, 241, 0.15) !important;
+}
+
