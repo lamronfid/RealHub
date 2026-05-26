@@ -108,15 +108,15 @@ export default function PlanesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50/70 via-indigo-50/50 to-pink-50/30 text-slate-800 rounded-3xl p-6 md:p-12 pt-24 md:pt-32 relative overflow-hidden border border-slate-200/80 shadow-2xl flex flex-col justify-start font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-800 rounded-3xl p-6 md:p-12 pt-24 md:pt-32 relative overflow-hidden border border-slate-200 shadow-2xl flex flex-col justify-start font-sans">
       
       {/* Top Header Navigation */}
       <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-400 via-indigo-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-all">
+          <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-600/10 group-hover:scale-105 transition-all">
             <span className="material-symbols-outlined text-white text-lg font-bold">domain</span>
           </div>
-          <span className="font-heading font-black text-base tracking-wider bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent group-hover:from-indigo-650 group-hover:to-indigo-650 transition-all">
+          <span className="font-heading font-black text-base tracking-wider text-slate-900 group-hover:text-indigo-600 transition-all">
             Real<span className="text-indigo-600 font-extrabold">Hub</span>
           </span>
         </Link>
@@ -141,9 +141,7 @@ export default function PlanesPage() {
         )}
       </div>
       
-      {/* Background glow elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-pink-500/10 rounded-full blur-[120px] pointer-events-none" />
+
 
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-4 mb-10 relative z-10">
@@ -151,7 +149,7 @@ export default function PlanesPage() {
           Suscripciones RealHub
         </span>
         <h1 className="font-heading text-4xl md:text-5xl font-black tracking-tight text-slate-900 leading-none">
-          Eleva tu Negocio al <span className="bg-gradient-to-r from-sky-500 via-indigo-650 to-pink-550 bg-clip-text text-transparent">Máximo Nivel</span>
+          Eleva tu Negocio al <span className="text-indigo-600">Máximo Nivel</span>
         </h1>
         <p className="text-slate-500 text-sm leading-relaxed max-w-lg mx-auto font-semibold">
           Publica propiedades sin límites, automatiza tus cargas con Inteligencia Artificial y destaca tu portafolio en Paraguay.
@@ -177,7 +175,7 @@ export default function PlanesPage() {
             }`}
           >
             Anual
-            <span className="bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-md animate-pulse">
+            <span className="bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md">
               -20%
             </span>
           </button>
@@ -194,11 +192,11 @@ export default function PlanesPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto w-full relative z-10 mb-16 items-stretch">
         
         {/* Plan Entrada */}
-        <div className="bg-white/90 border border-slate-150 rounded-3xl p-8 flex flex-col justify-between hover:border-sky-300 transition-all duration-500 hover:scale-[1.01] hover:shadow-[0_12px_40px_rgba(56,189,248,0.06)] relative group">
+        <div className="bg-white border border-slate-200 rounded-3xl p-8 flex flex-col justify-between hover:border-slate-350 transition-all duration-500 hover:scale-[1.01] hover:shadow-[0_12px_40px_rgba(15,23,42,0.04)] relative group">
           <div>
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h3 className="font-heading text-xl font-black text-slate-850 tracking-tight">{plans.entrada.name}</h3>
+                <h3 className="font-heading text-xl font-black text-slate-855 tracking-tight">{plans.entrada.name}</h3>
                 <p className="text-xs text-slate-400 font-semibold mt-1">{plans.entrada.subtitle}</p>
               </div>
             </div>
@@ -220,7 +218,7 @@ export default function PlanesPage() {
             <ul className="space-y-4 text-xs text-slate-650 font-medium">
               {plans.entrada.features.map((f, i) => (
                 <li key={i} className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-sky-500 text-lg">check</span>
+                  <span className="material-symbols-outlined text-indigo-600 text-lg">check</span>
                   {f}
                 </li>
               ))}
@@ -235,18 +233,17 @@ export default function PlanesPage() {
           
           <button 
             onClick={() => handleSelectPlan('entrada')}
-            className="w-full mt-8 py-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 hover:bg-sky-500 hover:text-white hover:border-sky-500 text-slate-700 font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-sm active:scale-[0.98]"
+            className="w-full mt-8 py-3.5 rounded-2xl bg-white border border-slate-200 hover:bg-slate-900 hover:text-white hover:border-slate-900 text-slate-800 font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-sm active:scale-[0.98]"
           >
             Obtener Plan Entrada
           </button>
         </div>
 
-        {/* Plan Pro */}
-        <div className="bg-white/90 border border-slate-150 rounded-3xl p-8 flex flex-col justify-between hover:border-violet-300 transition-all duration-500 hover:scale-[1.01] hover:shadow-[0_12px_40px_rgba(139,92,246,0.06)] relative group">
+        <div className="bg-white border border-slate-200 rounded-3xl p-8 flex flex-col justify-between hover:border-slate-300 transition-all duration-500 relative group">
           <div>
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h3 className="font-heading text-xl font-black text-slate-850 tracking-tight">{plans.pro.name}</h3>
+                <h3 className="font-heading text-xl font-black text-slate-855 tracking-tight">{plans.pro.name}</h3>
                 <p className="text-xs text-slate-400 font-semibold mt-1">{plans.pro.subtitle}</p>
               </div>
             </div>
@@ -256,7 +253,7 @@ export default function PlanesPage() {
                 <span className="font-heading text-6xl font-black text-slate-900 tracking-tight transition-all duration-300">
                   ${billingCycle === 'monthly' ? plans.pro.monthlyPrice : plans.pro.annualPrice}
                 </span>
-                <span className="text-xs text-slate-450 font-bold uppercase tracking-wider">/ mes</span>
+                <span className="text-xs text-slate-455 font-bold uppercase tracking-wider">/ mes</span>
               </div>
               {billingCycle === 'annual' && (
                 <p className="text-[10px] font-bold text-slate-400 mt-1">Facturado anualmente (${plans.pro.yearlyTotal}/año)</p>
@@ -265,10 +262,10 @@ export default function PlanesPage() {
 
             <hr className="border-slate-100 my-6" />
 
-            <ul className="space-y-4 text-xs text-slate-650 font-medium">
+            <ul className="space-y-4 text-xs text-slate-655 font-medium">
               {plans.pro.features.map((f, i) => (
                 <li key={i} className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-violet-500 text-lg">check</span>
+                  <span className="material-symbols-outlined text-indigo-600 text-lg">check</span>
                   {f}
                 </li>
               ))}
@@ -283,24 +280,23 @@ export default function PlanesPage() {
           
           <button 
             onClick={() => handleSelectPlan('pro')}
-            className="w-full mt-8 py-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 hover:bg-violet-550 hover:text-white hover:border-violet-550 text-slate-700 font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-sm active:scale-[0.98]"
+            className="w-full mt-8 py-3.5 rounded-2xl bg-white border border-slate-200 hover:bg-slate-900 hover:text-white hover:border-slate-900 text-slate-805 font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-sm active:scale-[0.98]"
           >
             Obtener Plan Pro
           </button>
         </div>
 
-        {/* Plan Élite — Highlighted Premium */}
-        <div className="bg-white/95 border-2 border-indigo-500/80 rounded-3xl p-8 flex flex-col justify-between hover:border-indigo-650 transition-all duration-500 relative hover:scale-[1.02] hover:shadow-[0_15px_45px_rgba(99,102,241,0.12)] overflow-hidden">
+        <div className="bg-white border-2 border-indigo-600 rounded-3xl p-8 flex flex-col justify-between hover:border-indigo-700 transition-all duration-500 relative hover:scale-[1.02] overflow-hidden">
           {/* Top Banner Tag */}
-          <div className="absolute top-0 right-0 bg-gradient-to-r from-sky-400 via-indigo-500 to-pink-500 text-white text-[9px] font-black uppercase tracking-widest py-1.5 px-6 rounded-bl-2xl">
+          <div className="absolute top-0 right-0 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest py-1.5 px-6 rounded-bl-2xl">
             Recomendado
           </div>
           
           <div>
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h3 className="font-heading text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-650 bg-clip-text !text-transparent flex items-center gap-1.5">
-                  Plan Élite <span className="material-symbols-outlined text-indigo-500 text-lg">workspace_premium</span>
+                <h3 className="font-heading text-xl font-black text-indigo-650 flex items-center gap-1.5">
+                  Plan Élite <span className="material-symbols-outlined text-indigo-600 text-lg">workspace_premium</span>
                 </h3>
                 <p className="text-xs text-slate-400 font-semibold mt-1">{plans.elite.subtitle}</p>
               </div>
@@ -311,19 +307,19 @@ export default function PlanesPage() {
                 <span className="font-heading text-6xl font-black text-slate-900 tracking-tight transition-all duration-300">
                   ${billingCycle === 'monthly' ? plans.elite.monthlyPrice : plans.elite.annualPrice}
                 </span>
-                <span className="text-xs text-slate-450 font-bold uppercase tracking-wider">/ mes</span>
+                <span className="text-xs text-slate-455 font-bold uppercase tracking-wider">/ mes</span>
               </div>
               {billingCycle === 'annual' && (
-                <p className="text-[10px] font-bold text-slate-450 mt-1">Facturado anualmente (${plans.elite.yearlyTotal}/año)</p>
+                <p className="text-[10px] font-bold text-slate-455 mt-1">Facturado anualmente (${plans.elite.yearlyTotal}/año)</p>
               )}
             </div>
 
             <hr className="border-indigo-100 my-6" />
 
-            <ul className="space-y-4 text-xs text-slate-650 font-semibold">
+            <ul className="space-y-4 text-xs text-slate-655 font-semibold">
               {plans.elite.features.map((f, i) => (
                 <li key={i} className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-emerald-500 text-lg">check_circle</span>
+                  <span className="material-symbols-outlined text-emerald-600 text-lg">check_circle</span>
                   {f}
                 </li>
               ))}
@@ -332,7 +328,7 @@ export default function PlanesPage() {
           
           <button 
             onClick={() => handleSelectPlan('elite')}
-            className="w-full mt-8 py-3.5 rounded-2xl bg-gradient-to-r from-sky-400 via-indigo-500 to-pink-500 hover:shadow-lg hover:shadow-indigo-200 text-white font-extrabold text-xs uppercase tracking-widest hover:brightness-110 active:scale-[0.98] transition-all"
+            className="w-full mt-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs uppercase tracking-widest active:scale-[0.98] transition-all"
           >
             Obtener Plan Élite
           </button>

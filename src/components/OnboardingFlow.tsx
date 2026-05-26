@@ -77,13 +77,9 @@ export default function OnboardingFlow() {
   return (
     <div className="fixed inset-0 z-[100] bg-gradient-to-br from-sky-50 via-indigo-50/40 to-pink-50/20 flex items-center justify-center p-4 font-sans text-slate-800">
       
-      {/* Background ambient glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-pink-500/5 rounded-full blur-[100px] pointer-events-none" />
-
       {/* Progress bar */}
       <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-200/60">
-        <div className="h-full bg-gradient-to-r from-sky-400 via-indigo-500 to-pink-500 transition-all duration-500 rounded-r-full" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+        <div className="h-full bg-indigo-600 transition-all duration-500 rounded-r-full" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
       </div>
 
       <div className="w-full max-w-md relative z-10">
@@ -331,7 +327,7 @@ export default function OnboardingFlow() {
             <button
               onClick={isLastStep ? handleFinish : () => setStep(s => s + 1)}
               disabled={!canAdvance() || isPending}
-              className="flex-1 bg-gradient-to-r from-sky-400 via-indigo-500 to-pink-500 text-white font-extrabold text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl hover:shadow-lg hover:shadow-indigo-100 transition-all disabled:opacity-40 disabled:from-slate-200 disabled:to-slate-300 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl hover:shadow-lg hover:shadow-indigo-100 transition-all disabled:opacity-40 disabled:bg-slate-250 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
             >
               {isPending ? (
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>

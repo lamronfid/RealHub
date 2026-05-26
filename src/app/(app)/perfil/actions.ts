@@ -14,6 +14,13 @@ export async function updateProfile(formData: FormData) {
   const agencyName = formData.get('agency_name') as string;
   const bio = formData.get('bio') as string;
   const avatarUrl = formData.get('avatar_url') as string;
+  const licenseNumber = formData.get('license_number') as string;
+  const specialty = formData.get('specialty') as string;
+  const experienceYearsStr = formData.get('experience_years') as string;
+  const coverageAreas = formData.getAll('coverage_areas') as string[];
+
+  const experienceYears = experienceYearsStr ? parseInt(experienceYearsStr, 10) : null;
+  const specialties = specialty ? [specialty] : [];
 
   const { error } = await supabase
     .from('agent_profiles')
@@ -24,6 +31,10 @@ export async function updateProfile(formData: FormData) {
       agency_name: agencyName || null,
       bio: bio || null,
       avatar_url: avatarUrl || undefined,
+      license_number: licenseNumber || null,
+      specialties,
+      coverage_areas: coverageAreas,
+      experience_years: experienceYears,
       updated_at: new Date().toISOString(),
     })
     .eq('id', user.id);

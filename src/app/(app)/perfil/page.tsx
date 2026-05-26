@@ -11,7 +11,7 @@ export default async function PerfilPage() {
 
   const { data: profile } = await supabase
     .from('agent_profiles')
-    .select('id, full_name, phone, whatsapp, avatar_url, agency_name, bio, subscription_tier, is_verified')
+    .select('id, full_name, phone, whatsapp, avatar_url, agency_name, bio, subscription_tier, is_verified, license_number, specialties, coverage_areas, experience_years, role')
     .eq('id', user.id)
     .single();
 
@@ -30,7 +30,7 @@ export default async function PerfilPage() {
         {/* Verification status header */}
         <div className="flex items-center gap-2">
           {profile.subscription_tier === 'elite' || profile.is_verified ? (
-            <div className="flex items-center gap-1.5 bg-gradient-to-r from-sky-400/10 via-indigo-500/10 to-pink-500/10 text-indigo-600 border border-indigo-500/20 text-xs font-black uppercase tracking-wider px-4 py-2 rounded-xl">
+            <div className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-black uppercase tracking-wider px-4 py-2 rounded-xl">
               <span>Élite Verificado</span>
               <VerifiedBadge className="w-4 h-4 ml-0.5" />
             </div>

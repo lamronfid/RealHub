@@ -4,6 +4,8 @@ import { useState, useTransition } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import imageCompression from 'browser-image-compression';
 import { updateProfile } from './actions';
+import { DEPARTMENTS } from '@/lib/types';
+import Link from 'next/link';
 
 const avatarCompressionOptions = {
   maxSizeMB: 0.3,
@@ -21,6 +23,11 @@ interface ProfileFormProps {
     avatar_url: string | null;
     agency_name: string | null;
     bio: string | null;
+    license_number?: string | null;
+    specialties?: string[] | null;
+    coverage_areas?: string[] | null;
+    experience_years?: number | null;
+    role?: string | null;
   };
 }
 
@@ -31,6 +38,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [selectedCoverage, setSelectedCoverage] = useState<string[]>(profile.coverage_areas || []);
   const supabase = createClient();
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,6 +88,11 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
 
     const formData = new FormData(e.currentTarget);
     formData.set('avatar_url', avatarUrl);
+    
+    // Add all selected coverage areas to form data
+    selectedCoverage.forEach(dept => {
+      formData.append('coverage_areas', dept);
+    });
 
     startTransition(async () => {
       const res = await updateProfile(formData);
@@ -98,13 +111,13 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
       {success && <div className="bg-emerald-50 border border-emerald-100 text-emerald-600 p-4 rounded-2xl text-xs font-semibold flex items-center gap-2"><span className="material-symbols-outlined text-lg">check_circle</span>{success}</div>}
 
       {/* Avatar Section */}
-      <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-100/80">
+      <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-100/85 bg-slate-50/50 p-6 rounded-2xl">
         <div className="relative group">
           {avatarPreview ? (
             <img src={avatarPreview} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-2 border-slate-200 shadow-md ring-4 ring-indigo-500/5" />
           ) : (
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-50 to-violet-50 flex items-center justify-center border-2 border-slate-200 shadow-md ring-4 ring-indigo-500/5">
-              <span className="text-2xl font-bold text-indigo-400 uppercase">
+            <div className="w-24 h-24 rounded-full bg-indigo-50 flex items-center justify-center border-2 border-slate-200 shadow-md ring-4 ring-indigo-500/5">
+              <span className="text-2xl font-bold text-indigo-500 uppercase">
                 {profile.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2)}
               </span>
             </div>
@@ -114,69 +127,156 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
             <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
           </label>
         </div>
-        <div className="text-center sm:text-left space-y-1">
+        <div className="text-center sm:text-left space-y-2">
           <h3 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Foto de Perfil</h3>
-          <p className="text-xs text-slate-400">Formatos recomendados: JPG, PNG o WebP. Se comprimirá automáticamente.</p>
+          <p className="text-xs text-slate-450">Formatos recomendados: JPG, PNG o WebP. Se comprimirá automáticamente.</p>
           {isUploading && <p className="text-xs text-indigo-600 font-semibold animate-pulse">Subiendo imagen...</p>}
+          
+          {/* Display User Role and Admin Panel Link */}
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <span className="bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-slate-200">
+              Rol: {profile.role === 'admin' ? 'Administrador' : profile.role === 'superadmin' ? 'Superadmin' : profile.role === 'owner' ? 'Propietario' : 'Agente'}
+            </span>
+            {(profile.role === 'admin' || profile.role === 'superadmin' || profile.role === 'owner') && (
+              <Link 
+                href="/admin"
+                className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full transition-all inline-flex items-center gap-1 shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[12px] font-bold">admin_panel_settings</span>
+                Acceder al Panel Admin
+              </Link>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Personal Info */}
       <div className="space-y-4">
-        <h3 className="text-[10px] font-extrabold text-indigo-600 uppercase tracking-widest flex items-center gap-1.5">
+        <h3 className="text-[10px] font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5">
           <span className="material-symbols-outlined text-base">badge</span>
           Información Personal
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-1.5">
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Nombre Completo <span className="text-rose-500">*</span></label>
             <input name="full_name" defaultValue={profile.full_name} required
-              className="w-full bg-slate-50/50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
+              className="w-full bg-slate-50/50 border border-slate-205 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
               placeholder="Tu nombre completo" />
           </div>
           <div className="space-y-1.5">
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Agencia / Inmobiliaria</label>
             <input name="agency_name" defaultValue={profile.agency_name || ''}
-              className="w-full bg-slate-50/50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
-              placeholder="Ej: RE/MAX Paraguay" />
+              className="w-full bg-slate-50/50 border border-slate-205 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
+              placeholder="Ej: RE/MAX Paraguay o Independiente" />
+          </div>
+          <div className="space-y-1.5">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Nro. de Licencia</label>
+            <input name="license_number" defaultValue={profile.license_number || ''}
+              className="w-full bg-slate-50/50 border border-slate-205 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
+              placeholder="Ej: M.U.A. 1234" />
           </div>
         </div>
       </div>
 
       {/* Contact Info */}
       <div className="space-y-4 pt-6 border-t border-slate-100/80">
-        <h3 className="text-[10px] font-extrabold text-indigo-600 uppercase tracking-widest flex items-center gap-1.5">
+        <h3 className="text-[10px] font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5">
           <span className="material-symbols-outlined text-base">contact_phone</span>
           Información de Contacto
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-              Teléfono / WhatsApp <span className="text-rose-500">*</span>
+              Teléfono Celular <span className="text-rose-500">*</span>
             </label>
-            <input name="phone" defaultValue={profile.phone || ''} type="tel"
-              className="w-full bg-slate-50/50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
+            <input name="phone" defaultValue={profile.phone || ''} type="tel" required
+              className="w-full bg-slate-50/50 border border-slate-205 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
               placeholder="+595 981 123 456" />
             <p className="text-[9px] text-slate-400 font-medium">Este número se muestra en Marketplace y links de chat directos</p>
           </div>
           <div className="space-y-1.5">
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">WhatsApp Alternativo</label>
             <input name="whatsapp" defaultValue={profile.whatsapp || ''} type="tel"
-              className="w-full bg-slate-50/50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
+              className="w-full bg-slate-50/50 border border-slate-205 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
               placeholder="Opcional" />
           </div>
+        </div>
+      </div>
+
+      {/* Professional Info */}
+      <div className="space-y-4 pt-6 border-t border-slate-100/80">
+        <h3 className="text-[10px] font-extrabold text-indigo-655 uppercase tracking-widest flex items-center gap-1.5">
+          <span className="material-symbols-outlined text-base">work</span>
+          Información Profesional
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Especialidad Principal</label>
+            <select name="specialty" defaultValue={profile.specialties?.[0] || 'ambos'}
+              className="w-full bg-slate-50/50 border border-slate-205 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3.5 px-4 text-xs font-semibold text-slate-800 focus:outline-none transition-all cursor-pointer">
+              <option value="venta">Ventas de Inmuebles</option>
+              <option value="alquiler">Alquileres</option>
+              <option value="ambos">Ventas y Alquileres</option>
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Años de Experiencia</label>
+            <select name="experience_years" defaultValue={profile.experience_years?.toString() || ''}
+              className="w-full bg-slate-50/50 border border-slate-205 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3.5 px-4 text-xs font-semibold text-slate-800 focus:outline-none transition-all cursor-pointer">
+              <option value="">No especificado</option>
+              <option value="1">Menos de 1 año</option>
+              <option value="3">1 - 3 años</option>
+              <option value="5">3 - 5 años</option>
+              <option value="10">5 - 10 años</option>
+              <option value="15">10 - 15 años</option>
+              <option value="20">Más de 15 años</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Coverage Areas */}
+      <div className="space-y-4 pt-6 border-t border-slate-100/80">
+        <h3 className="text-[10px] font-extrabold text-indigo-655 uppercase tracking-widest flex items-center gap-1.5">
+          <span className="material-symbols-outlined text-base">map</span>
+          Departamentos de Cobertura (Paraguay)
+        </h3>
+        
+        <div className="flex flex-wrap gap-2 bg-slate-50/30 p-4 rounded-2xl border border-slate-200/60">
+          {DEPARTMENTS.map(dept => {
+            const isSelected = selectedCoverage.includes(dept);
+            return (
+              <button
+                key={dept}
+                type="button"
+                onClick={() => setSelectedCoverage(prev => prev.includes(dept) ? prev.filter(d => d !== dept) : [...prev, dept])}
+                className={`px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-wider border transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isSelected 
+                    ? 'bg-indigo-650 border-indigo-650 text-white shadow-sm' 
+                    : 'bg-white border-slate-200 text-slate-650 hover:bg-slate-50'
+                }`}
+              >
+                {isSelected && <span className="material-symbols-outlined text-[12px] font-bold">check</span>}
+                {dept}
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex items-center justify-between text-[10px] font-extrabold text-slate-400 uppercase tracking-widest px-1">
+          <span>Zonas de operación activas:</span>
+          <span className="text-indigo-650 bg-indigo-50 px-2 py-0.5 rounded-md">{selectedCoverage.length} seleccionadas</span>
         </div>
       </div>
 
       {/* Bio */}
       <div className="space-y-4 pt-6 border-t border-slate-100/80">
         <div className="space-y-1.5">
-          <label className="block text-[10px] font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-1.5">
+          <label className="block text-[10px] font-bold text-indigo-655 uppercase tracking-widest flex items-center gap-1.5">
             <span className="material-symbols-outlined text-base">description</span>
             Presentación (Bio)
           </label>
           <textarea name="bio" defaultValue={profile.bio || ''} rows={3}
-            className="w-full bg-slate-50/50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all resize-none leading-relaxed"
+            className="w-full bg-slate-50/50 border border-slate-205 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all resize-none leading-relaxed"
             placeholder="Escribe una breve reseña sobre tu trayectoria, zonas de cobertura o especialidades..." />
         </div>
       </div>
@@ -184,7 +284,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
       {/* Submit */}
       <div className="flex justify-end pt-6 border-t border-slate-100/80">
         <button type="submit" disabled={isPending || isUploading}
-          className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-8 py-3.5 rounded-2xl font-bold text-xs uppercase tracking-widest hover:brightness-110 shadow-lg shadow-indigo-100 hover:shadow-xl hover:shadow-indigo-200 transition-all disabled:opacity-50 active:scale-[0.98] min-w-[200px]"
+          className="bg-indigo-600 hover:bg-indigo-750 text-white px-8 py-3.5 rounded-2xl font-bold text-xs uppercase tracking-widest hover:shadow-lg shadow-md shadow-indigo-100 hover:shadow-indigo-200/40 transition-all disabled:opacity-50 active:scale-[0.98] min-w-[200px]"
         >
           {isUploading ? 'Subiendo foto...' : isPending ? 'Guardando...' : 'Guardar Cambios'}
         </button>

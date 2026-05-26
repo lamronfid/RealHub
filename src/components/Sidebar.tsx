@@ -26,7 +26,8 @@ export default function Sidebar({ agentName, agentAvatar, isVerified, role }: Si
   };
 
   const navItems = [...AGENT_NAV_ITEMS];
-  if (role === 'admin') {
+  const isAdminOrOwner = role === 'admin' || role === 'superadmin' || role === 'owner';
+  if (isAdminOrOwner) {
     navItems.splice(navItems.length - 1, 0, {
       label: 'Panel Admin',
       href: '/admin',
