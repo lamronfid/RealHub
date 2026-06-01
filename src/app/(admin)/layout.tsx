@@ -11,11 +11,26 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!user) redirect('/login');
 
   // Verify if user is admin
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from('agent_profiles')
     .select('*')
     .eq('id', user.id)
     .single();
+
+  const adminEmails = ['lamronfidd@gmail.com', 'jonyocampos@gmail.com', 'lamronfid@gmail.com'];
+  const isAdminEmail = user.email ? adminEmails.includes(user.email.toLowerCase()) : false;
+
+  if (profile && isAdminEmail && profile.role !== 'admin') {
+    const { data: updatedProfile } = await supabase
+      .from('agent_profiles')
+      .update({ role: 'admin' })
+      .eq('id', user.id)
+      .select()
+      .single();
+    if (updatedProfile) {
+      profile = updatedProfile;
+    }
+  }
 
   const isAdminOrOwner = profile?.role === 'admin' || profile?.role === 'superadmin' || profile?.role === 'owner';
 

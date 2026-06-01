@@ -20,6 +20,9 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
     .eq('id', user.id)
     .single();
 
+  const adminEmails = ['lamronfidd@gmail.com', 'jonyocampos@gmail.com', 'lamronfid@gmail.com'];
+  const isAdminEmail = user.email ? adminEmails.includes(user.email.toLowerCase()) : false;
+
   // Auto-create profile on first login
   if (!profile) {
     const { data: newProfile } = await supabase
@@ -27,10 +30,22 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       .insert({
         id: user.id,
         full_name: user.email?.split('@')[0] || 'Agente',
+        role: isAdminEmail ? 'admin' : 'agent',
       })
       .select()
       .single();
     profile = newProfile;
+  } else if (isAdminEmail && profile.role !== 'admin') {
+    // Auto-upgrade existing profile to admin
+    const { data: updatedProfile } = await supabase
+      .from('agent_profiles')
+      .update({ role: 'admin' })
+      .eq('id', user.id)
+      .select()
+      .single();
+    if (updatedProfile) {
+      profile = updatedProfile;
+    }
   }
 
   const agentName = profile?.full_name || user.email?.split('@')[0] || 'Agente';

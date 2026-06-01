@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PropSearch Paraguay</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f0f2f5; color: #222; }
+    .tab-bar { display: flex; background: #1a1a2e; border-bottom: 3px solid #e94560; }
+    .tab-bar button { flex: 1; padding: 14px; background: none; border: none; color: #aaa; font-size: 14px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+    .tab-bar button.active { color: #fff; border-bottom: 3px solid #e94560; margin-bottom: -3px; }
+    .tab-content { display: none; padding: 20px; max-width: 800px; margin: 0 auto; }
+    .tab-content.active { display: block; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #444; }
+    select, input { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; background: #fff; }
+    .row { display: flex; gap: 12px; }
+    .row .form-group { flex: 1; }
+    .btn-search { width: 100%; padding: 14px; background: #e94560; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+    .btn-search:hover { background: #c73652; }
+    .results-area { margin-top: 20px; background: #fff; border-radius: 8px; padding: 16px; min-height: 100px; border: 1px solid #ddd; font-size: 14px; color: #888; }
+    .result-card { border: 1px solid #ddd; border-radius: 6px; padding: 12px; margin-bottom: 10px; background: #fff; }
+    .result-card .r-title { font-weight: bold; font-size: 15px; }
+    .result-card .r-price { color: #e94560; font-size: 14px; margin: 4px 0; }
+    .result-card .r-loc { color: #666; font-size: 13px; }
+    .result-card .r-source { font-size: 11px; color: #aaa; margin-top: 4px; }
+    .result-card a { font-size: 12px; color: #1a1a2e; }
+    .search-item { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .search-item .tags span { background: #eee; border-radius: 4px; padding: 2px 8px; margin-right: 4px; font-size: 12px; }
+    .re-run { background: #1a1a2e; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 12px; }
+    .source-item { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .source-item .url { font-size: 14px; font-weight: bold; color: #1a1a2e; }
+    .source-item .status { font-size: 12px; color: green; }
+    .del-btn { background: none; border: 1px solid #e94560; color: #e94560; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
+    .add-source { display: flex; gap: 10px; margin-top: 12px; }
+    .add-source input { flex: 1; }
+    .add-source button { padding: 10px 16px; background: #1a1a2e; color: white; border: none; border-radius: 6px; cursor: pointer; }
+  </style>
+</head>
+<body>
+<div class="tab-bar">
+  <button class="active" onclick="switchTab('search', this)">🔍 Buscar</button>
+  <button onclick="switchTab('recent', this)">🕘 Recientes</button>
+  <button onclick="switchTab('sources', this)">🌐 Fuentes</button>
+</div>
+<div id="tab-search" class="tab-content active">
+  <br>
+  <div class="row">
+    <div class="form-group">
+      <label>Operación</label>
+      <select id="operation">
+        <option value="">Seleccionar...</option>
+        <option>Alquiler</option>
+        <option>Compra</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Tipo de propiedad</label>
+      <select id="propType">
+        <option value="">Seleccionar...</option>
+        <option>Casa</option>
+        <option>Departamento</option>
+        <option>Dúplex</option>
+        <option>Terreno</option>
+        <option>Local comercial</option>
+      </select>
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-group">
+      <label>Precio mínimo (₲)</label>
+      <input type="number" id="priceMin" placeholder="Ej: 500000000">
+    </div>
+    <div class="form-group">
+      <label>Precio máximo (₲)</label>
+      <input type="number" id="priceMax" placeholder="Ej: 1500000000">
+    </div>
+  </div>
+  <div class="form-group">
+    <label>Ubicación (descripción libre)</label>
+    <input type="text" id="location" placeholder="Ej: cerca del Club Centenario, zona Recoleta...">
+  </div>
+  <div class="row">
+    <div class="form-group">
+      <label>Dormitorios</label>
+      <select id="bedrooms">
+        <option value="">Cualquiera</option>
+        <option>1</option><option>2</option><option>3</option><option>4+</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Baños</label>
+      <select id="bathrooms">
+        <option value="">Cualquiera</option>
+        <option>1</option><option>2</option><option>3</option><option>4+</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Sup. máx. (m²)</label>
+      <input type="number" id="sqm" placeholder="Ej: 200">
+    </div>
+  </div>
+  <div class="form-group">
+  <label>Resultados por sitio: <span id="sliderValue">15</span></label>
+  <input type="range" id="resultsSlider" min="5" max="50" value="15" step="5"
+    style="width:100%; accent-color:#e94560;"
+    oninput="document.getElementById('sliderValue').innerText = this.value">
+</div>
+  <button class="btn-search" onclick="runSearch()">BUSCAR PROPIEDADES</button>
+  <div class="results-area" id="resultsArea">Los resultados aparecerán aquí...</div>
+</div>
+<div id="tab-recent" class="tab-content">
+  <br>
+  <div id="recentList"><p style="color:#888;font-size:14px;">Aún no hay búsquedas guardadas.</p></div>
+</div>
+<div id="tab-sources" class="tab-content">
+  <br>
+  <div id="sourceList">
+    <div class="source-item">
+      <div><div class="url">infocasas.com.py</div><div class="status">✅ Activo</div></div>
+      <button class="del-btn" onclick="removeSource(this)">Eliminar</button>
+    </div>
+    <div class="source-item">
+      <div><div class="url">asuncion.estate</div><div class="status">✅ Activo</div></div>
+      <button class="del-btn" onclick="removeSource(this)">Eliminar</button>
+    </div>
+    <div class="source-item">
+  <div><div class="url">mersan.com.py</div><div class="status">✅ Activo</div></div>
+  <button class="del-btn" onclick="removeSource(this)">Eliminar</button>
+</div>
+    <div class="source-item">
+      <div><div class="url">view.com.py</div><div class="status">✅ Activo</div></div>
+      <button class="del-btn" onclick="removeSource(this)">Eliminar</button>
+    </div>
+    <div class="source-item">
+  <div><div class="url">brokers.com.py</div><div class="status">✅ Activo</div></div>
+  <button class="del-btn" onclick="removeSource(this)">Eliminar</button>
+</div>
+<div class="source-item">
+  <div><div class="url">terresinmobiliaria.com.py</div><div class="status">✅ Activo</div></div>
+  <button class="del-btn" onclick="removeSource(this)">Eliminar</button>
+</div>
+<div class="source-item">
+  <div><div class="url">remax.com.py</div><div class="status">✅ Activo</div></div>
+  <button class="del-btn" onclick="removeSource(this)">Eliminar</button>
+</div>
+<div class="source-item">
+  <div><div class="url">century21.com.py</div><div class="status">✅ Activo</div></div>
+  <button class="del-btn" onclick="removeSource(this)">Eliminar</button>
+</div>
+  </div>
+  <div class="add-source">
+    <input type="text" id="newSource" placeholder="Agregar nueva fuente (ej: propiedades.com.py)">
+    <button onclick="addSource()">+ Agregar</button>
+  </div>
+</div>
+<script>
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+  function getActiveSources() {
+    return Array.from(document.querySelectorAll('#sourceList .source-item .url')).map(el => el.innerText);
+  }
+  let recentSearches = [];
+  async function runSearch() {
+    const op = document.getElementById('operation').value;
+    const type = document.getElementById('propType').value;
+    if (!op || !type) { alert('Por favor seleccioná operación y tipo de propiedad.'); return; }
+    const params = {
+      operation: op,
+      propType: type,
+      location: document.getElementById('location').value,
+      priceMin: document.getElementById('priceMin').value,
+      priceMax: document.getElementById('priceMax').value,
+      bedrooms: document.getElementById('bedrooms').value,
+      bathrooms: document.getElementById('bathrooms').value,
+      sources: getActiveSources(),
+resultsPerSite: parseInt(document.getElementById('resultsSlider').value)
+    };
+    recentSearches.unshift({ ...params, date: new Date().toLocaleString('es-PY') });
+    renderRecent();
+    document.getElementById('resultsArea').innerHTML = '⏳ Buscando propiedades...';
+    
+    try {
+      const res = await fetch('http://localhost:8080/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params)
+      });
+      const results = await res.json();
+      renderResults(results);
+    } catch (e) {
+      document.getElementById('resultsArea').innerHTML = '❌ Error conectando al servidor. ¿Está corriendo app.py?';
+    }
+  }
+  function renderResults(results) {
+    if (!results.length) { document.getElementById('resultsArea').innerHTML = 'No se encontraron resultados.'; return; }
+    document.getElementById('resultsArea').innerHTML = results.map(r => `
+      <div class="result-card">
+        <div class="r-title">${r.title}</div>
+        <div class="r-price">${r.price}</div>
+        <div class="r-loc">📍 ${r.location}</div>
+        <div class="r-source">${r.source}</div>
+        <a href="${r.url}" target="_blank">Ver propiedad →</a>
+      </div>`).join('');
+  }
+  function renderRecent() {
+    const list = document.getElementById('recentList');
+    if (!recentSearches.length) { list.innerHTML = '<p style="color:#888;font-size:14px;">Aún no hay búsquedas guardadas.</p>'; return; }
+    list.innerHTML = recentSearches.map((s, i) => `
+      <div class="search-item">
+        <div>
+          <div class="tags"><span>${s.operation}</span><span>${s.propType}</span>${s.location ? `<span>📍 ${s.location}</span>` : ''}</div>
+          <div style="font-size:11px;color:#999;margin-top:4px;">${s.date}</div>
+        </div>
+        <button class="re-run" onclick="reRunSearch(${i})">▶ Repetir</button>
+      </div>`).join('');
+  }
+  function reRunSearch(i) {
+    const s = recentSearches[i];
+    document.getElementById('operation').value = s.operation;
+    document.getElementById('propType').value = s.propType;
+    document.getElementById('location').value = s.location;
+    document.getElementById('priceMin').value = s.priceMin;
+    document.getElementById('priceMax').value = s.priceMax;
+    switchTab('search', document.querySelector('.tab-bar button'));
+    runSearch();
+  }
+  function addSource() {
+    const val = document.getElementById('newSource').value.trim();
+    if (!val) return;
+    const div = document.createElement('div');
+    div.className = 'source-item';
+    div.innerHTML = `<div><div class="url">${val}</div><div class="status">✅ Activo</div></div><button class="del-btn" onclick="removeSource(this)">Eliminar</button>`;
+    document.getElementById('sourceList').appendChild(div);
+    document.getElementById('newSource').value = '';
+  }
+  function removeSource(btn) { btn.closest('.source-item').remove(); }
+</script>
+</body>
+</html>
