@@ -12,6 +12,7 @@ when PROPSEARCH_SECRET is set in the environment.
 import os
 import re
 import sys
+import asyncio
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -130,6 +131,5 @@ def scrape_url():
 
 
 if __name__ == "__main__":
-    import asyncio
     port = int(os.getenv("PORT", 7860))
     app.run(host="0.0.0.0", port=port, debug=True)
