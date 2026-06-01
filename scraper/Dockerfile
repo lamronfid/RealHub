@@ -14,9 +14,9 @@ COPY . .
 # Single sync worker: scraping is blocking + async-inside-sync via asyncio.run().
 # 300 s timeout covers the slowest Mersan + detail-page path.
 # 4 threads allow concurrent health checks / rate requests while a search runs.
-EXPOSE 8080
+EXPOSE 7860
 CMD ["gunicorn", \
-     "--bind", "0.0.0.0:8080", \
+     "--bind", "0.0.0.0:7860", \
      "--workers", "1", \
      "--threads", "4", \
      "--timeout", "300", \
