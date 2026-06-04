@@ -52,12 +52,33 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. Run Search
+    // 4. Run Search or Return Direct Credentials to Bypass 10s Timeout
     const body = await req.json();
+    const apiUrl = process.env.PROPSEARCH_API_URL || process.env.PROPSEARCH_URL;
+
+    if (apiUrl) {
+      // Increment scraper_searches_used first
+      const { error: updateError } = await supabase
+        .from('agent_profiles')
+        .update({ scraper_searches_used: searchesUsed + 1 })
+        .eq('id', user.id);
+
+      if (updateError) {
+        console.warn('Error al actualizar el contador de búsquedas:', updateError.message);
+      }
+
+      return NextResponse.json({
+        direct: true,
+        apiUrl: apiUrl.replace(/\/$/, ''),
+        apiSecret: process.env.PROPSEARCH_SECRET || ''
+      });
+    }
+
+    // Local development child_process fallback
     const raw = await runSearch(body);
     const data = JSON.parse(raw);
 
-    // 5. Increment scraper_searches_used
+    // Increment scraper_searches_used
     const { error: updateError } = await supabase
       .from('agent_profiles')
       .update({ scraper_searches_used: searchesUsed + 1 })

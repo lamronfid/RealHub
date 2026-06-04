@@ -1068,7 +1068,43 @@ function BulkScraperTab({ incrementSearch }: { incrementSearch: () => void }) {
         throw new Error(d.error ?? `Error ${res.status}`);
       }
 
-      const data: FlaskResult[] = await res.json();
+      let data = await res.json();
+
+      if (data && data.direct) {
+        const directRes = await fetch(`${data.apiUrl}/search`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(data.apiSecret ? { Authorization: `Bearer ${data.apiSecret}` } : {}),
+          },
+          body: JSON.stringify({
+            operation: form.operation,
+            propType: selectedPropTypes[0] || '',
+            propTypes: selectedPropTypes,
+            estadoObra,
+            m2ConstruidoMin,
+            m2ConstruidoMax,
+            m2TerrenoMin: m2TerrenoMin !== undefined ? m2TerrenoMin * terrenoMultiplier : undefined,
+            m2TerrenoMax: m2TerrenoMax !== undefined ? m2TerrenoMax * terrenoMultiplier : undefined,
+            location: locationForScraper,
+            barrios: selectedBarrios,
+            min_price: priceMin,
+            max_price: priceMax,
+            currency: priceCurrency,
+            bedrooms: selectedBedrooms,
+            sources,
+            resultsPerSite: form.resultsPerSite,
+          }),
+        });
+
+        if (!directRes.ok) {
+          const text = await directRes.text().catch(() => '');
+          throw new Error(`Scraper API ${directRes.status}: ${text.slice(0, 300)}`);
+        }
+
+        data = await directRes.json();
+      }
+
       setResults(data);
       incrementSearch(); // Enforce user UI search count update
 
