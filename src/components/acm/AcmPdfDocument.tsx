@@ -7,6 +7,7 @@ import {
   Font,
 } from '@react-pdf/renderer';
 import type { AcmSubjectProperty, AcmComparable, AcmReportData, AcmPricePositioning } from '@/types/acm';
+import { getComparisonSqm } from '@/lib/acm/calculations';
 
 interface Props {
   subject: Partial<AcmSubjectProperty>;
@@ -136,29 +137,32 @@ export default function AcmPdfDocument({
       <Page size="A4" style={styles.page}>
         <Text style={styles.sectionTitle}>Propiedad en Análisis</Text>
         <View style={styles.grid}>
-          {[
-            ['Tipo de operación', subject.operationType],
-            ['Tipo de propiedad', subject.propertyType],
-            ['Estado', subject.propertyCondition?.replace('_', ' ')],
-            ['Ubicación', `${subject.neighborhood}, ${subject.city}`],
-            ['Precio objetivo', subject.priceTarget ? `USD ${fmt(subject.priceTarget)}` : '—'],
-            ['m² totales', subject.sqmTotal?.toString() ?? '—'],
-            ['m² construidos', subject.sqmBuilt?.toString() ?? '—'],
-            ['Dormitorios', subject.bedrooms?.toString() ?? '—'],
-            ['Garages', subject.garages?.toString() ?? '0'],
-            ['Año construcción', subject.yearBuilt?.toString() ?? '—'],
-            [
-              'Precio por m²',
-              subject.priceTarget && subject.sqmTotal
-                ? `USD ${fmt(Math.round(subject.priceTarget / subject.sqmTotal))}`
-                : '—',
-            ],
-          ].map(([label, value]) => (
-            <View style={styles.gridCell} key={label}>
-              <Text style={styles.cellLabel}>{label}</Text>
-              <Text style={styles.cellValue}>{value ?? '—'}</Text>
-            </View>
-          ))}
+          {(() => {
+            const subjectSqm = getComparisonSqm(subject.propertyType, subject.sqmTotal, subject.sqmBuilt);
+            const subjectPricePerSqm =
+              subject.priceTarget && subjectSqm
+                ? `USD ${fmt(Math.round(subject.priceTarget / subjectSqm))}`
+                : '—';
+
+            return [
+              ['Tipo de operación', subject.operationType],
+              ['Tipo de propiedad', subject.propertyType],
+              ['Estado', subject.propertyCondition?.replace('_', ' ')],
+              ['Ubicación', `${subject.neighborhood}, ${subject.city}`],
+              ['Precio objetivo', subject.priceTarget ? `USD ${fmt(subject.priceTarget)}` : '—'],
+              ['m² totales', subject.sqmTotal?.toString() ?? '—'],
+              ['m² construidos', subject.sqmBuilt?.toString() ?? '—'],
+              ['Dormitorios', subject.bedrooms?.toString() ?? '—'],
+              ['Garages', subject.garages?.toString() ?? '0'],
+              ['Año construcción', subject.yearBuilt?.toString() ?? '—'],
+              ['Precio por m²', subjectPricePerSqm],
+            ].map(([label, value]) => (
+              <View style={styles.gridCell} key={label}>
+                <Text style={styles.cellLabel}>{label}</Text>
+                <Text style={styles.cellValue}>{value ?? '—'}</Text>
+              </View>
+            ));
+          })()}
         </View>
 
         {subject.amenities && subject.amenities.length > 0 && (
@@ -206,7 +210,7 @@ export default function AcmPdfDocument({
             <Text style={[styles.td, styles.colSm]}>{fmt(c.price + (c.adjustment ?? 0))}</Text>
             <Text style={[styles.td, styles.colXs]}>{c.sqm ?? '—'}</Text>
             <Text style={[styles.td, styles.colSm]}>
-              {c.pricePerSqm ? fmt(c.pricePerSqm) : '—'}
+              {c.sqm ? fmt(Math.round((c.price + (c.adjustment ?? 0)) / c.sqm)) : '—'}
             </Text>
             <Text style={[styles.td, styles.colXs]}>{c.bedrooms ?? '—'}</Text>
             <Text style={[styles.td, styles.colXs]}>{c.similarityScore}%</Text>

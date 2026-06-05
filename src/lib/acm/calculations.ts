@@ -5,6 +5,18 @@ import type {
   AcmPricePositioning,
 } from '@/types/acm';
 
+export function getComparisonSqm(
+  propertyType: string | undefined,
+  sqmTotal: number | undefined,
+  sqmBuilt: number | undefined
+): number | undefined {
+  if (propertyType === 'terreno') {
+    return sqmTotal && sqmTotal > 0 ? sqmTotal : undefined;
+  }
+  if (sqmBuilt && sqmBuilt > 0) return sqmBuilt;
+  return sqmTotal && sqmTotal > 0 ? sqmTotal : undefined;
+}
+
 export function calcPricePerSqm(price: number, sqm: number | undefined): number | undefined {
   if (!sqm || sqm === 0) return undefined;
   return Math.round(price / sqm);
@@ -37,9 +49,10 @@ export function calcSimilarityScore(
     if (diff <= 0.15) score += 20;
   }
 
-  // Size within ±15%: 15pts
-  if (subject.sqmTotal && comparable.sqm) {
-    const diff = Math.abs(subject.sqmTotal - comparable.sqm) / subject.sqmTotal;
+  // Size within ±15%: 15pts (using resolved comparison area for subject)
+  const subjectSqm = getComparisonSqm(subject.propertyType, subject.sqmTotal, subject.sqmBuilt);
+  if (subjectSqm && comparable.sqm) {
+    const diff = Math.abs(subjectSqm - comparable.sqm) / subjectSqm;
     if (diff <= 0.15) score += 15;
   }
 
@@ -64,9 +77,11 @@ export function calcReportData(
   selected: AcmComparable[]
 ): AcmReportData {
   const prices = selected.map((c) => c.price + (c.adjustment ?? 0));
+  
+  // Calculate price per sqm based on adjusted prices
   const pricesPerSqm = selected
-    .filter((c) => c.pricePerSqm !== undefined)
-    .map((c) => c.pricePerSqm!);
+    .filter((c) => c.sqm && c.sqm > 0)
+    .map((c) => Math.round((c.price + (c.adjustment ?? 0)) / c.sqm!));
 
   const avgPrice = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
   const avgPricePerSqm =

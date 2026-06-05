@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useAcmStore } from '@/store/acm-store';
-import { calcReportData } from '@/lib/acm/calculations';
+import { calcReportData, getComparisonSqm } from '@/lib/acm/calculations';
 import type { AcmPricePositioning } from '@/types/acm';
 
 const POSITIONING: Record<AcmPricePositioning, { label: string; cls: string; icon: string }> = {
@@ -66,10 +66,27 @@ export default function ReportView() {
   const reportData = calcReportData(subjectProperty, selected);
 
   const positioning = POSITIONING[reportData.pricePositioning];
+  const subjectSqm = getComparisonSqm(subjectProperty.propertyType, subjectProperty.sqmTotal, subjectProperty.sqmBuilt);
   const subjectPricePerSqm =
-    subjectProperty.priceTarget && subjectProperty.sqmTotal
-      ? Math.round(subjectProperty.priceTarget / subjectProperty.sqmTotal)
+    subjectProperty.priceTarget && subjectSqm
+      ? Math.round(subjectProperty.priceTarget / subjectSqm)
       : null;
+
+  const subjectGridItems = [
+    ['Tipo', subjectProperty.propertyType],
+    ['Operación', subjectProperty.operationType],
+    ['Ubicación', `${subjectProperty.neighborhood}, ${subjectProperty.city}`],
+    ['Estado', subjectProperty.propertyCondition?.replace('_', ' ')],
+    ['Precio objetivo', subjectProperty.priceTarget ? `USD ${fmt(subjectProperty.priceTarget)}` : '—'],
+    ['Precio por m²', subjectPricePerSqm ? `USD ${fmt(subjectPricePerSqm)}` : '—'],
+    ['m² totales', subjectProperty.sqmTotal?.toString() ?? '—'],
+  ];
+
+  if (subjectProperty.propertyType !== 'terreno' && subjectProperty.sqmBuilt) {
+    subjectGridItems.push(['m² construidos', subjectProperty.sqmBuilt.toString()]);
+  }
+
+  subjectGridItems.push(['Dormitorios', subjectProperty.bedrooms?.toString() ?? '—']);
 
   return (
     <div className="space-y-6">
@@ -77,16 +94,7 @@ export default function ReportView() {
       <section className="bg-white rounded-xl border p-6">
         <h2 className="text-base font-semibold text-gray-900 mb-4">Propiedad en Análisis</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          {[
-            ['Tipo', subjectProperty.propertyType],
-            ['Operación', subjectProperty.operationType],
-            ['Ubicación', `${subjectProperty.neighborhood}, ${subjectProperty.city}`],
-            ['Estado', subjectProperty.propertyCondition?.replace('_', ' ')],
-            ['Precio objetivo', subjectProperty.priceTarget ? `USD ${fmt(subjectProperty.priceTarget)}` : '—'],
-            ['Precio por m²', subjectPricePerSqm ? `USD ${fmt(subjectPricePerSqm)}` : '—'],
-            ['m² totales', subjectProperty.sqmTotal?.toString() ?? '—'],
-            ['Dormitorios', subjectProperty.bedrooms?.toString() ?? '—'],
-          ].map(([label, value]) => (
+          {subjectGridItems.map(([label, value]) => (
             <div key={label}>
               <p className="text-xs text-gray-400">{label}</p>
               <p className="font-medium text-gray-900 capitalize">{value}</p>
@@ -134,7 +142,7 @@ export default function ReportView() {
                   </td>
                   <td className="px-4 py-3 text-right text-gray-600">{c.sqm ?? '—'}</td>
                   <td className="px-4 py-3 text-right text-gray-600">
-                    {c.pricePerSqm ? fmt(c.pricePerSqm) : '—'}
+                    {c.sqm ? fmt(Math.round((c.price + (c.adjustment ?? 0)) / c.sqm)) : '—'}
                   </td>
                   <td className="px-4 py-3 text-center text-gray-600">{c.bedrooms ?? '—'}</td>
                   <td className="px-4 py-3 text-center text-gray-600">{c.yearBuilt ?? '—'}</td>

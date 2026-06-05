@@ -1,5 +1,5 @@
 import type { AcmSubjectProperty, AcmComparable, AcmCurrency, AcmPropertyType } from '@/types/acm';
-import { calcPricePerSqm } from './calculations';
+import { calcPricePerSqm, getComparisonSqm } from './calculations';
 import { runSearch } from '@/lib/propsearch-runner';
 import { getUsdToPygRate } from '@/lib/exchange-rate';
 import { getAgentId } from '@/lib/agent';
@@ -173,23 +173,32 @@ export async function fetchInternalComparables(
   }
   if (!data) return [];
 
-  return (data as Record<string, unknown>[]).map((p) => ({
-    id:             `int-${p.id}`,
-    source:         p.agent_id === agentId ? 'Mis propiedades' : 'Marketplace RealHub',
-    title:          String(p.title ?? `${p.property_type} en ${p.neighborhood}`),
-    propertyType:   p.property_type as AcmPropertyType | undefined,
-    price:          Number(p.price),
-    currency:       (p.currency ?? 'USD') as AcmCurrency,
-    sqm:            p.sqm_total != null ? Number(p.sqm_total) : undefined,
-    pricePerSqm:    calcPricePerSqm(Number(p.price), p.sqm_total != null ? Number(p.sqm_total) : undefined),
-    bedrooms:       p.bedrooms != null ? Number(p.bedrooms) : undefined,
-    yearBuilt:      p.year_built != null ? Number(p.year_built) : undefined,
-    location:       `${p.neighborhood ?? ''}, ${p.city}`.replace(/^, /, ''),
-    neighborhood:   p.neighborhood != null ? String(p.neighborhood) : undefined,
-    city:           p.city != null ? String(p.city) : undefined,
-    url:            String(p.source_url ?? `/propiedades/${p.id}`),
-    similarityScore: 0,
-    photo:          p.main_photo != null ? String(p.main_photo) : undefined,
-    isInternal:     true,
-  }));
+  return (data as Record<string, unknown>[]).map((p) => {
+    const sqm = getComparisonSqm(
+      p.property_type as string | undefined,
+      p.sqm_total != null ? Number(p.sqm_total) : undefined,
+      p.sqm_built != null ? Number(p.sqm_built) : undefined
+    );
+    const pricePerSqm = calcPricePerSqm(Number(p.price), sqm);
+
+    return {
+      id:             `int-${p.id}`,
+      source:         p.agent_id === agentId ? 'Mis propiedades' : 'Marketplace RealHub',
+      title:          String(p.title ?? `${p.property_type} en ${p.neighborhood}`),
+      propertyType:   p.property_type as AcmPropertyType | undefined,
+      price:          Number(p.price),
+      currency:       (p.currency ?? 'USD') as AcmCurrency,
+      sqm,
+      pricePerSqm,
+      bedrooms:       p.bedrooms != null ? Number(p.bedrooms) : undefined,
+      yearBuilt:      p.year_built != null ? Number(p.year_built) : undefined,
+      location:       `${p.neighborhood ?? ''}, ${p.city}`.replace(/^, /, ''),
+      neighborhood:   p.neighborhood != null ? String(p.neighborhood) : undefined,
+      city:           p.city != null ? String(p.city) : undefined,
+      url:            String(p.source_url ?? `/propiedades/${p.id}`),
+      similarityScore: 0,
+      photo:          p.main_photo != null ? String(p.main_photo) : undefined,
+      isInternal:     true,
+    };
+  });
 }
