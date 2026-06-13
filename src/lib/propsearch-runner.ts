@@ -57,7 +57,7 @@ function runSearchSubprocess(params: unknown): Promise<string> {
   return new Promise((resolve, reject) => {
     // Dynamic command based on OS platform
     const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
-    const child = spawn(pythonCmd, ['runner.py'], { cwd: PROPSEARCH_DIR });
+    const child = spawn(pythonCmd, ['runner.py'], { cwd: PROPSEARCH_DIR, shell: process.platform === 'win32' });
 
     let stdout = '';
     let stderr = '';
