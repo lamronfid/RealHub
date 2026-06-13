@@ -183,6 +183,15 @@ export default function PortfolioImportWizard({ profile }: { profile: any }) {
       {/* Glow */}
       <div className="absolute top-[-30%] right-[-10%] w-[350px] h-[350px] bg-gradient-to-br from-indigo-500/10 to-violet-500/10 rounded-full blur-[90px] pointer-events-none" />
 
+      {/* Close Button */}
+      <button 
+        onClick={handleSkip}
+        className="absolute top-6 right-6 w-8 h-8 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-750 transition-colors z-20 cursor-pointer"
+        aria-label="Cerrar importador"
+      >
+        <span className="material-symbols-outlined text-base font-bold">close</span>
+      </button>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-50 pb-6 relative z-10">
         <div className="space-y-1">

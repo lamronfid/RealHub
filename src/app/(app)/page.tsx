@@ -44,14 +44,6 @@ export default async function HomePage({
 
   const isWizardActive = showWizardParam || (totalProperties === 0 && !skipWizard);
 
-  if (totalProperties === 0 && isWizardActive) {
-    return (
-      <div className="py-6">
-        <PortfolioImportWizard profile={profile} />
-      </div>
-    );
-  }
-
   const stageCounts: Record<string, number> = {};
   (prospectsByStage || []).forEach((p) => {
     stageCounts[p.stage] = (stageCounts[p.stage] || 0) + 1;
@@ -243,6 +235,15 @@ export default async function HomePage({
       </div>
 
       <FeedbackButton />
+
+      {/* Portfolio Import Wizard Modal */}
+      {totalProperties === 0 && isWizardActive && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-300">
+          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl relative animate-in zoom-in-95 duration-300">
+            <PortfolioImportWizard profile={profile} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
