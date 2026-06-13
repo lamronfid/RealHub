@@ -165,6 +165,17 @@ export default function EditPropertyForm({ property }: EditPropertyFormProps) {
         )}
       </div>
 
+      {/* Status */}
+      <div>
+        <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Estado de Publicación</label>
+        <select name="status" defaultValue={property.status || 'activa'}
+          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200">
+          <option value="activa">Activa</option>
+          <option value="off_market">Off-Market (Privada)</option>
+          <option value="coming_soon">Coming Soon (Próximamente)</option>
+        </select>
+      </div>
+
       {/* Location */}
       <div className="space-y-4 pt-4 border-t border-slate-100">
         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Ubicación</h3>

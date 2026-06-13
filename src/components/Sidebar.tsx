@@ -6,6 +6,7 @@ import { AGENT_NAV_ITEMS } from '@/lib/types';
 import { useAgentUI } from '@/lib/store';
 import { createClient } from '@/lib/supabase/client';
 import VerifiedBadge from './VerifiedBadge';
+import { useScraperStore } from '@/store/scraper-store';
 
 interface SidebarProps {
   agentName: string;
@@ -19,6 +20,7 @@ export default function Sidebar({ agentName, agentAvatar, isVerified, role }: Si
   const router = useRouter();
   const supabase = createClient();
   const { sidebarCollapsed, toggleSidebar } = useAgentUI();
+  const { hasUnreadResults } = useScraperStore();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -57,7 +59,6 @@ export default function Sidebar({ agentName, agentAvatar, isVerified, role }: Si
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
-
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
           return (
             <Link
@@ -71,16 +72,22 @@ export default function Sidebar({ agentName, agentAvatar, isVerified, role }: Si
               title={sidebarCollapsed ? item.label : undefined}
             >
               <span
-                className={`material-symbols-outlined text-[22px] transition-colors shrink-0 ${
+                className={`material-symbols-outlined text-[22px] transition-colors shrink-0 relative ${
                   isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'
                 }`}
                 style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
               >
                 {item.icon}
+                {sidebarCollapsed && item.label === 'Scraper' && hasUnreadResults && (
+                  <span className="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-indigo-600 ring-2 ring-white border border-white" />
+                )}
               </span>
               {!sidebarCollapsed && (
-                <span className={`text-[13px] font-medium ${isActive ? 'font-semibold' : ''}`}>
-                  {item.label}
+                <span className={`text-[13px] font-medium ${isActive ? 'font-semibold' : ''} flex-1 flex items-center justify-between`}>
+                  <span>{item.label}</span>
+                  {item.label === 'Scraper' && hasUnreadResults && (
+                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 ring-4 ring-indigo-150/50 animate-pulse ml-1.5 shrink-0" />
+                  )}
                 </span>
               )}
             </Link>

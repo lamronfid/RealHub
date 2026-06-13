@@ -4,6 +4,7 @@ import type {
   AcmReportData,
   AcmPricePositioning,
 } from '@/types/acm';
+import { getRefPricePerSqm } from './neighborhood-prices';
 
 export function getComparisonSqm(
   propertyType: string | undefined,
@@ -116,12 +117,27 @@ export function calcReportData(
     below_market:         'por debajo del mercado',
   };
 
+  // Neighborhood reference valuation validation
+  const refPricePerSqm = getRefPricePerSqm(subject.neighborhood, subject.city);
+
+  const deviationPct = refPricePerSqm && avgPricePerSqm > 0
+    ? Math.round(((avgPricePerSqm - refPricePerSqm) / refPricePerSqm) * 100)
+    : null;
+
+  let refStatement = '';
+  if (refPricePerSqm && deviationPct !== null) {
+    const direction = deviationPct > 0 ? 'por encima' : 'por debajo';
+    const absDev = Math.abs(deviationPct);
+    refStatement = ` El promedio por m² calculado (USD ${avgPricePerSqm.toLocaleString('es-PY')}) está un ${absDev}% ${direction} del promedio referencial histórico del barrio (USD ${refPricePerSqm.toLocaleString('es-PY')}/m²).`;
+  }
+
   const conclusion =
     `Basado en el análisis de ${selected.length} propiedades comparables en ` +
     `${subject.neighborhood ?? subject.city}, el precio promedio de mercado es ` +
     `USD ${avgPrice.toLocaleString('es-PY')}. El precio objetivo de ` +
-    `USD ${target.toLocaleString('es-PY')} está ${positioningLabel[pricePositioning]}. ` +
-    `Se recomienda publicar a USD ${suggestedPrice.toLocaleString('es-PY')} para una comercialización óptima.`;
+    `USD ${target.toLocaleString('es-PY')} está ${positioningLabel[pricePositioning]}.` +
+    refStatement +
+    ` Se recomienda publicar a USD ${suggestedPrice.toLocaleString('es-PY')} para una comercialización óptima.`;
 
   return {
     averagePrice: avgPrice,
@@ -133,5 +149,7 @@ export function calcReportData(
     pricePositioning,
     conclusion,
     estimatedDaysOnMarket: daysMap[pricePositioning],
+    refPricePerSqm,
+    deviationPct,
   };
 }

@@ -113,6 +113,8 @@ export interface AcmReportData {
   pricePositioning: AcmPricePositioning;
   conclusion: string;
   estimatedDaysOnMarket: string;
+  refPricePerSqm?: number | null;
+  deviationPct?: number | null;
 }
 
 export interface AcmReport {

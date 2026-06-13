@@ -40,6 +40,7 @@ export default function NuevaPropiedad() {
     sale_price: '',
     rent_price: '',
     currency: 'USD',
+    status: 'activa',
     bedrooms: '',
     bathrooms: '',
     garages: '',
@@ -250,6 +251,14 @@ export default function NuevaPropiedad() {
                 <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Moneda</label>
                 <select name="currency" value={formValues.currency} onChange={handleInputChange} className={ic}>
                   {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Estado de Publicación *</label>
+                <select name="status" value={formValues.status} onChange={handleInputChange} className={ic}>
+                  <option value="activa">Activa</option>
+                  <option value="off_market">Off-Market (Privada)</option>
+                  <option value="coming_soon">Coming Soon (Próximamente)</option>
                 </select>
               </div>
             </div>

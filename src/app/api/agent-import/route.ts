@@ -23,7 +23,6 @@ import type { AgentPropertyRow } from '@/types/property';
 
 // Point to the internal scraper directory
 const PROPSEARCH_DIR = path.resolve(process.cwd(), 'scraper');
-const PLACEHOLDER_AGENT_ID = 'current-agent-id'; // TODO: replace with auth.uid()
 
 export interface AgentMatch {
   source: 'remax' | 'c21';
@@ -74,6 +73,14 @@ function runAgentScraper(task: unknown): Promise<unknown[]> {
 }
 
 export async function POST(req: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const currentAgentId = user.id;
+
   let body: Record<string, unknown>;
   try {
     body = await req.json();
@@ -137,7 +144,7 @@ export async function POST(req: NextRequest) {
     // Map scraped listings directly to agent_properties rows.
     // The scraper now returns structured data — no string-parsing needed.
     const rows = rawListings.map((r) => ({
-      agent_id:           PLACEHOLDER_AGENT_ID,
+      agent_id:           currentAgentId,
       title:              r.title ?? 'Sin título',
       operation_type:     r.operation_type ?? 'venta',
       property_type:      r.property_type ?? 'casa',
@@ -162,7 +169,6 @@ export async function POST(req: NextRequest) {
       source_agent_id:    agentId,
     }));
 
-    const supabase = await createClient();
     const { data, error } = await supabase
       .from('agent_properties')
       .upsert(rows, { onConflict: 'source_url' })

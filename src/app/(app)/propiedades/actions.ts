@@ -112,7 +112,7 @@ export async function createProperty(formData: FormData) {
   const latitude = formData.get('latitude') ? parseFloat(formData.get('latitude') as string) : null;
   const longitude = formData.get('longitude') ? parseFloat(formData.get('longitude') as string) : null;
 
-  const status = transactionType === 'compra' ? 'En Venta' : 'En Alquiler';
+  const status = formData.get('status') as string || 'activa';
 
   const { data: newProperty, error } = await supabase.from('properties').insert({
     title, description, transaction_type: transactionType, property_type: propertyType,
@@ -225,6 +225,7 @@ export async function updateProperty(propertyId: string, formData: FormData) {
   const photos = photosRaw ? JSON.parse(photosRaw) : [];
   const latitude = formData.get('latitude') ? parseFloat(formData.get('latitude') as string) : null;
   const longitude = formData.get('longitude') ? parseFloat(formData.get('longitude') as string) : null;
+  const status = formData.get('status') as string || 'activa';
 
   const { error } = await supabase
     .from('properties')
@@ -238,6 +239,7 @@ export async function updateProperty(propertyId: string, formData: FormData) {
       services, zoning, floor_number: floorNumber, has_elevator: hasElevator,
       front_meters: frontMeters, floor_location: floorLocation,
       latitude, longitude,
+      status,
       updated_at: new Date().toISOString(),
     })
     .eq('id', propertyId)

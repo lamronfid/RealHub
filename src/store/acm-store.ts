@@ -6,6 +6,7 @@ import type {
   AcmFilters,
   AcmReportData,
 } from '@/types/acm';
+import { calcReportData } from '@/lib/acm/calculations';
 
 interface AcmStore {
   currentStep: 1 | 2 | 3 | 4;
@@ -14,6 +15,7 @@ interface AcmStore {
 
   allComparables: AcmComparable[];
   selectedIds: Set<string>;
+  adjustments: Record<string, number>;
   filters: AcmFilters;
   isSearching: boolean;
   isCalculating: boolean;
@@ -30,6 +32,7 @@ interface AcmStore {
   setSubjectProperty: (data: Partial<AcmSubjectProperty>) => void;
   setComparables: (comparables: AcmComparable[]) => void;
   updateComparable: (id: string, updates: Partial<AcmComparable>) => void;
+  setAdjustment: (id: string, adjustment: number) => void;
   toggleComparable: (id: string) => void;
   setFilters: (filters: Partial<AcmFilters>) => void;
   setIsSearching: (value: boolean) => void;
@@ -57,6 +60,7 @@ const DEFAULT_STATE = {
   subjectProperty: {},
   allComparables: [],
   selectedIds: new Set<string>(),
+  adjustments: {} as Record<string, number>,
   filters: DEFAULT_FILTERS,
   isSearching: false,
   isCalculating: false,
@@ -81,14 +85,50 @@ export const useAcmStore = create<AcmStore>()(
         })),
 
       setComparables: (comparables) =>
-        set({ allComparables: comparables, selectedIds: new Set() }),
+        set({ allComparables: comparables, selectedIds: new Set(), adjustments: {} }),
 
       updateComparable: (id, updates) =>
-        set((state) => ({
-          allComparables: state.allComparables.map((c) =>
+        set((state) => {
+          const updatedComparables = state.allComparables.map((c) =>
             c.id === id ? { ...c, ...updates } : c
-          ),
-        })),
+          );
+          
+          let newReportData = state.reportData;
+          if (state.reportData && ('adjustment' in updates || 'price' in updates)) {
+            const selected = updatedComparables.filter((c) => state.selectedIds.has(c.id));
+            newReportData = calcReportData(state.subjectProperty, selected);
+          }
+
+          const newAdjustments = 'adjustment' in updates
+            ? { ...state.adjustments, [id]: updates.adjustment as number }
+            : state.adjustments;
+
+          return {
+            allComparables: updatedComparables,
+            reportData: newReportData,
+            adjustments: newAdjustments,
+          };
+        }),
+
+      setAdjustment: (id, adjustment) =>
+        set((state) => {
+          const newAdjustments = { ...state.adjustments, [id]: adjustment };
+          const updatedComparables = state.allComparables.map((c) =>
+            c.id === id ? { ...c, adjustment } : c
+          );
+
+          let newReportData = state.reportData;
+          if (state.reportData) {
+            const selected = updatedComparables.filter((c) => state.selectedIds.has(c.id));
+            newReportData = calcReportData(state.subjectProperty, selected);
+          }
+
+          return {
+            adjustments: newAdjustments,
+            allComparables: updatedComparables,
+            reportData: newReportData,
+          };
+        }),
 
       toggleComparable: (id) =>
         set((state) => {
@@ -98,7 +138,15 @@ export const useAcmStore = create<AcmStore>()(
           } else if (next.size < 10) {
             next.add(id);
           }
-          return { selectedIds: next };
+          
+          // Recompute reportData if it exists
+          let newReportData = state.reportData;
+          if (state.reportData) {
+            const selected = state.allComparables.filter((c) => next.has(c.id));
+            newReportData = calcReportData(state.subjectProperty, selected);
+          }
+
+          return { selectedIds: next, reportData: newReportData };
         }),
 
       setFilters: (filters) =>

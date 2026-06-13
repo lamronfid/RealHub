@@ -2,13 +2,25 @@ import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { STAGE_LABELS, STAGE_COLORS, type PipelineStage } from '@/lib/types';
 import FeedbackButton from '@/components/FeedbackButton';
+import PortfolioImportWizard from '@/components/PortfolioImportWizard';
+import { cookies } from 'next/headers';
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ wizard?: string }>;
+}) {
+  const params = await searchParams;
+  const showWizardParam = params.wizard === 'true';
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
   const agentId = user.id;
+
+  const cookieStore = await cookies();
+  const skipWizard = cookieStore.get('skip_import_wizard')?.value === 'true';
 
   const [
     { count: totalProperties },
@@ -18,6 +30,7 @@ export default async function HomePage() {
     { data: pendingFollowUps },
     { count: unreadMatches },
     { count: closedThisMonth },
+    { data: profile },
   ] = await Promise.all([
     supabase.from('properties').select('*', { count: 'exact', head: true }).eq('agent_id', agentId),
     supabase.from('properties').select('*', { count: 'exact', head: true }).eq('agent_id', agentId).eq('visibility', 'marketplace'),
@@ -25,8 +38,19 @@ export default async function HomePage() {
     supabase.from('prospects').select('stage').eq('agent_id', agentId),
     supabase.from('follow_ups').select('*, prospects(full_name)').eq('agent_id', agentId).eq('status', 'pending').lte('scheduled_at', new Date().toISOString()).order('scheduled_at', { ascending: true }).limit(5),
     supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', agentId).eq('type', 'match').eq('is_read', false),
-    supabase.from('prospects').select('*', { count: 'exact', head: true }).eq('agent_id', agentId).eq('stage', 'cerrado').gte('updated_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
+    supabase.from('prospects').select('*', { count: 'exact', head: true }).eq('agent_id', agentId).eq('stage', 'cerrado').gte('updated_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
+    supabase.from('agent_profiles').select('*').eq('id', agentId).single(),
   ]);
+
+  const isWizardActive = showWizardParam || (totalProperties === 0 && !skipWizard);
+
+  if (totalProperties === 0 && isWizardActive) {
+    return (
+      <div className="py-6">
+        <PortfolioImportWizard profile={profile} />
+      </div>
+    );
+  }
 
   const stageCounts: Record<string, number> = {};
   (prospectsByStage || []).forEach((p) => {
@@ -73,6 +97,32 @@ export default async function HomePage() {
         </div>
       </div>
 
+      {/* Synchronization Banner (for agents with 0 properties who skipped the wizard) */}
+      {totalProperties === 0 && (
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-sky-400 via-indigo-500 to-pink-500 p-6 text-white border border-indigo-100/20 shadow-premium flex flex-col md:flex-row justify-between items-start md:items-center gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="absolute top-[-45%] right-[-10%] w-[320px] h-[320px] bg-gradient-to-br from-white/10 to-transparent rounded-full blur-[70px] pointer-events-none" />
+          <div className="relative z-10 space-y-1.5">
+            <span className="bg-white/20 text-white border border-white/30 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+              Sincronización de Cartera
+            </span>
+            <h3 className="text-lg font-black font-heading tracking-tight leading-tight">
+              ¿Tenés propiedades publicadas en RE/MAX o Century 21?
+            </h3>
+            <p className="text-white/80 text-xs font-semibold max-w-xl leading-relaxed">
+              No las cargues una por una. Nuestro importador automático puede buscar tu perfil de agente y copiar tus publicaciones activas a RealHub en un solo clic.
+            </p>
+          </div>
+          <div className="relative z-10 shrink-0">
+            <Link
+              href="/?wizard=true"
+              className="inline-flex items-center gap-2 px-5 py-3.5 bg-white text-indigo-600 hover:text-indigo-700 font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-slate-50 transition-all hover:scale-[1.02] shadow-md shadow-black/10 active:scale-[0.98]"
+            >
+              <span className="material-symbols-outlined text-sm">travel_explore</span>
+              <span>Iniciar Asistente</span>
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* KPIs Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5">

@@ -133,7 +133,7 @@ export default function ReportView() {
                     <p className="text-xs text-gray-400">{c.source}</p>
                   </td>
                   <td className="px-4 py-3 text-right font-medium">
-                    {fmt(c.price + (c.adjustment ?? 0))}
+                    USD {fmt(c.price + (c.adjustment ?? 0))}
                     {c.adjustment ? (
                       <span className={`block text-xs ${c.adjustment > 0 ? 'text-green-600' : 'text-red-500'}`}>
                         base {fmt(c.price)}
@@ -142,7 +142,7 @@ export default function ReportView() {
                   </td>
                   <td className="px-4 py-3 text-right text-gray-600">{c.sqm ?? '—'}</td>
                   <td className="px-4 py-3 text-right text-gray-600">
-                    {c.sqm ? fmt(Math.round((c.price + (c.adjustment ?? 0)) / c.sqm)) : '—'}
+                    {c.sqm ? `USD ${fmt(Math.round((c.price + (c.adjustment ?? 0)) / c.sqm))}` : '—'}
                   </td>
                   <td className="px-4 py-3 text-center text-gray-600">{c.bedrooms ?? '—'}</td>
                   <td className="px-4 py-3 text-center text-gray-600">{c.yearBuilt ?? '—'}</td>
@@ -188,6 +188,25 @@ export default function ReportView() {
             </div>
           ))}
         </div>
+
+        {reportData.refPricePerSqm && (
+          <div className="bg-slate-50 border border-slate-100 rounded-lg p-4 mb-5 flex flex-col sm:flex-row justify-between sm:items-center gap-2 text-sm text-slate-700">
+            <span className="font-medium">
+              📍 Promedio de referencia histórico para el barrio <span className="font-semibold">{subjectProperty.neighborhood || subjectProperty.city}</span>:
+            </span>
+            <div className="flex items-center gap-3">
+              <span className="font-extrabold text-slate-900">USD {fmt(reportData.refPricePerSqm)}/m²</span>
+              {reportData.deviationPct !== undefined && reportData.deviationPct !== null && (
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                  reportData.deviationPct > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                }`}>
+                  {reportData.deviationPct > 0 ? '▲' : '▼'} {Math.abs(reportData.deviationPct)}% vs calculado
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className={`border rounded-lg p-4 ${positioning.cls}`}>
           <p className="font-semibold text-sm">
             {positioning.icon} {positioning.label}

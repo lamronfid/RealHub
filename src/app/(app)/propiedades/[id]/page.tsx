@@ -6,6 +6,7 @@ import PropertyMap from '@/components/property/PropertyMap';
 import MatchesList from '@/components/property/MatchesList';
 import AmenitiesList from '@/components/property/AmenitiesList';
 import VerifiedBadge from '@/components/VerifiedBadge';
+import ShareButton from '@/components/property/ShareButton';
 
 export default async function PropertyDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -87,10 +88,13 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
         </Link>
         <div className="flex items-center gap-3">
           {isOwner && (
-            <Link href={`/propiedades/${property.id}/editar`}
-              className="text-sm font-bold text-slate-600 hover:text-indigo-600 flex items-center gap-1 bg-white px-4 py-1.5 rounded-full border border-slate-200 transition">
-              <span className="material-symbols-outlined text-[16px]">edit</span> Editar
-            </Link>
+            <>
+              <ShareButton propertyId={property.id} userId={user.id} />
+              <Link href={`/propiedades/${property.id}/editar`}
+                className="text-sm font-bold text-slate-600 hover:text-indigo-650 flex items-center gap-1 bg-white px-4 py-1.5 rounded-full border border-slate-200 transition">
+                <span className="material-symbols-outlined text-[16px]">edit</span> Editar
+              </Link>
+            </>
           )}
           <span className="text-xs font-bold tracking-widest uppercase bg-slate-900 text-white px-3 py-1.5 rounded-full">
             EN {property.transaction_type.toUpperCase()}

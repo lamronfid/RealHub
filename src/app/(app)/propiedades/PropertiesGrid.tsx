@@ -37,11 +37,21 @@ export default function PropertiesGrid({ properties }: { properties: any[] }) {
 
                 {/* Status Badges */}
                 <div className="absolute top-4 left-4 flex gap-1.5 z-10">
-                  <span className={`text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-sm backdrop-blur-md bg-opacity-90 ${
-                    p.transaction_type === 'compra' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'
-                  }`}>
-                    {p.status === 'EN VENTA' || p.transaction_type === 'compra' ? 'EN VENTA' : p.status}
-                  </span>
+                  {p.status === 'off_market' ? (
+                    <span className="text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-sm bg-slate-900/95 text-amber-400 border border-amber-500/20 backdrop-blur-md">
+                      Off-Market
+                    </span>
+                  ) : p.status === 'coming_soon' ? (
+                    <span className="text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-sm bg-amber-550/90 text-white backdrop-blur-md animate-pulse">
+                      Coming Soon
+                    </span>
+                  ) : (
+                    <span className={`text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-sm backdrop-blur-md bg-opacity-90 ${
+                      p.transaction_type === 'compra' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'
+                    }`}>
+                      {p.status === 'EN VENTA' || p.status === 'En Venta' || p.transaction_type === 'compra' ? 'EN VENTA' : p.status === 'En Alquiler' ? 'EN ALQUILER' : p.status.toUpperCase()}
+                    </span>
+                  )}
                   {p.visibility === 'marketplace' && (
                     <span className="text-[9px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-xl shadow-sm bg-violet-600/90 backdrop-blur-md text-white">Marketplace</span>
                   )}

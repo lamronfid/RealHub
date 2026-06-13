@@ -41,3 +41,10 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# scratch scripts
+/scratch/
+/ezgif_paths.txt
+/temp_path.txt
+/realhub_drive_files.json
+

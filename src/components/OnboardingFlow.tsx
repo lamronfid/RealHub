@@ -11,6 +11,8 @@ const STEPS = [
   { key: 'agency', icon: 'business', title: 'Tu Agencia', subtitle: '¿Trabajas con una inmobiliaria?' },
   { key: 'coverage', icon: 'location_on', title: 'Cobertura', subtitle: '¿En qué zonas operás?' },
   { key: 'specialty', icon: 'workspace_premium', title: 'Especialidad', subtitle: '¿En qué te especializás?' },
+  { key: 'most_sold', icon: 'sell', title: 'Tipo de Propiedades', subtitle: '¿Cuáles son los inmuebles que más vendés?' },
+  { key: 'developments', icon: 'corporate_fare', title: 'Desarrollos', subtitle: 'Comercialización de proyectos' },
   { key: 'experience', icon: 'timeline', title: 'Experiencia', subtitle: '¿Cuánto tiempo llevas en el rubro?' },
 ];
 
@@ -24,9 +26,13 @@ export default function OnboardingFlow() {
   const [phone, setPhone] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [agencyName, setAgencyName] = useState('');
+  const [agencyOffice, setAgencyOffice] = useState('');
   const [isIndependent, setIsIndependent] = useState(true);
   const [coverageAreas, setCoverageAreas] = useState<string[]>([]);
   const [specialty, setSpecialty] = useState('');
+  const [mostSoldTypes, setMostSoldTypes] = useState<string[]>([]);
+  const [hasDevelopments, setHasDevelopments] = useState(false);
+  const [developmentsDetails, setDevelopmentsDetails] = useState('');
   const [experienceYears, setExperienceYears] = useState('');
   
   // Search zones helper
@@ -39,9 +45,11 @@ export default function OnboardingFlow() {
     switch (current.key) {
       case 'name': return fullName.trim().length >= 2;
       case 'phone': return phone.trim().length >= 6;
-      case 'agency': return isIndependent || (agencyName.trim().length >= 2);
+      case 'agency': return isIndependent || (agencyName.trim().length >= 2 && agencyOffice.trim().length >= 2);
       case 'coverage': return coverageAreas.length > 0;
       case 'specialty': return specialty !== '';
+      case 'most_sold': return mostSoldTypes.length > 0;
+      case 'developments': return !hasDevelopments || (developmentsDetails.trim().length >= 2);
       case 'experience': return experienceYears !== '';
       default: return true;
     }
@@ -53,7 +61,7 @@ export default function OnboardingFlow() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      await supabase.from('agent_profiles').update({
+      const onboardingData = {
         full_name: fullName.trim(),
         phone: phone.trim(),
         whatsapp: whatsapp.trim() || phone.trim(),
@@ -63,7 +71,45 @@ export default function OnboardingFlow() {
         experience_years: parseInt(experienceYears) || null,
         onboarding_completed: true,
         updated_at: new Date().toISOString(),
-      }).eq('id', user.id);
+        agency_office: isIndependent ? null : agencyOffice.trim(),
+        most_sold_types: mostSoldTypes,
+        has_developments: hasDevelopments,
+        developments_details: hasDevelopments ? developmentsDetails.trim() : null,
+      };
+
+      const { error } = await supabase
+        .from('agent_profiles')
+        .update(onboardingData)
+        .eq('id', user.id);
+
+      if (error) {
+        console.warn('Error updating profile with new onboarding columns, retrying with base columns:', error);
+        // Fallback: update only base columns to prevent blocking the onboarding flow
+        // Store all details inside `bio` as JSON metadata so we don't lose the agent's response
+        const onboardingJson = JSON.stringify({
+          agency_office: isIndependent ? null : agencyOffice.trim(),
+          most_sold_types: mostSoldTypes,
+          has_developments: hasDevelopments,
+          developments_details: hasDevelopments ? developmentsDetails.trim() : null,
+        }, null, 2);
+
+        const baseData = {
+          full_name: fullName.trim(),
+          phone: phone.trim(),
+          whatsapp: whatsapp.trim() || phone.trim(),
+          agency_name: isIndependent ? 'Independiente' : agencyName.trim(),
+          coverage_areas: coverageAreas,
+          specialties: [specialty],
+          experience_years: parseInt(experienceYears) || null,
+          bio: `[Onboarding Details]\n${onboardingJson}`,
+          onboarding_completed: true,
+          updated_at: new Date().toISOString(),
+        };
+        await supabase
+          .from('agent_profiles')
+          .update(baseData)
+          .eq('id', user.id);
+      }
 
       router.refresh();
     });
@@ -86,13 +132,13 @@ export default function OnboardingFlow() {
         
         {/* Step Counter */}
         <div className="text-center mb-5">
-          <span className="bg-indigo-50 text-indigo-750 border border-indigo-100/60 text-[10px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full">
+          <span className="bg-indigo-50 text-indigo-755 border border-indigo-100/60 text-[10px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full font-sans">
             Paso {step + 1} de {STEPS.length}
           </span>
         </div>
 
         {/* Floating Card Container */}
-        <div className="bg-white/90 border border-slate-100 backdrop-blur-xl rounded-3xl p-8 shadow-2xl shadow-slate-200/40 flex flex-col justify-between">
+        <div className="bg-white/90 border border-slate-100/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl shadow-slate-200/40 flex flex-col justify-between">
           
           <div className="flex items-center gap-3.5 mb-6">
             <div className="w-12 h-12 bg-indigo-50 border border-indigo-100/80 rounded-xl flex items-center justify-center text-indigo-650 shrink-0">
@@ -150,13 +196,13 @@ export default function OnboardingFlow() {
               </div>
             )}
 
-            {/* Step 3: Tu Agencia (Dual Card Selectors) */}
+            {/* Step 3: Tu Agencia */}
             {current.key === 'agency' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <button 
                     type="button" 
-                    onClick={() => { setIsIndependent(true); setAgencyName('Independiente'); }}
+                    onClick={() => { setIsIndependent(true); setAgencyName('Independiente'); setAgencyOffice(''); }}
                     className={`p-5 rounded-2xl border text-center flex flex-col items-center justify-center gap-3 transition-all cursor-pointer ${
                       isIndependent 
                         ? 'bg-indigo-50/60 border-indigo-500 text-indigo-700 shadow-sm' 
@@ -188,15 +234,26 @@ export default function OnboardingFlow() {
                 </div>
 
                 {!isIndependent && (
-                  <div className="animate-in slide-in-from-top-2 duration-300">
-                    <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1.5">Nombre de la Agencia</label>
-                    <input 
-                      value={agencyName === 'Independiente' ? '' : agencyName} 
-                      onChange={e => setAgencyName(e.target.value)} 
-                      className={inputClass} 
-                      placeholder="Ej: RE/MAX, Century 21, Inmobiliaria..." 
-                      autoFocus
-                    />
+                  <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                    <div>
+                      <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1.5">Nombre de la Agencia</label>
+                      <input 
+                        value={agencyName === 'Independiente' ? '' : agencyName} 
+                        onChange={e => setAgencyName(e.target.value)} 
+                        className={inputClass} 
+                        placeholder="Ej: RE/MAX, Century 21, Inmobiliaria..." 
+                        autoFocus
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1.5">Oficina / Sucursal</label>
+                      <input 
+                        value={agencyOffice} 
+                        onChange={e => setAgencyOffice(e.target.value)} 
+                        className={inputClass} 
+                        placeholder="Ej: C21 Estilo, RE/MAX Unique..." 
+                      />
+                    </div>
                   </div>
                 )}
               </div>
@@ -247,7 +304,7 @@ export default function OnboardingFlow() {
               </div>
             )}
 
-            {/* Step 5: Especialidad (Modern Cards) */}
+            {/* Step 5: Especialidad */}
             {current.key === 'specialty' && (
               <div className="space-y-2.5">
                 {[
@@ -279,7 +336,93 @@ export default function OnboardingFlow() {
               </div>
             )}
 
-            {/* Step 6: Experiencia (Visual Chip Grid) */}
+            {/* Step 6: Propiedades más vendidas */}
+            {current.key === 'most_sold' && (
+              <div className="space-y-3">
+                <p className="text-[10px] font-extrabold text-slate-450 uppercase tracking-widest mb-1.5">
+                  Selecciona los tipos de propiedades que más vendés (mín. 1)
+                </p>
+                <div className="grid grid-cols-2 gap-2 max-h-[160px] overflow-y-auto pr-1 p-2 bg-slate-50/40 rounded-2xl border border-slate-150/50">
+                  {[
+                    { value: 'casa', label: 'Casas' },
+                    { value: 'departamento', label: 'Departamentos' },
+                    { value: 'duplex', label: 'Dúplex' },
+                    { value: 'terreno', label: 'Terrenos / Lotes' },
+                    { value: 'local_comercial', label: 'Locales Comerciales' },
+                    { value: 'oficina', label: 'Oficinas' },
+                    { value: 'deposito', label: 'Depósitos' },
+                    { value: 'quinta', label: 'Quintas / Countries' },
+                    { value: 'campo', label: 'Estancias / Campos' },
+                  ].map(opt => {
+                    const isSelected = mostSoldTypes.includes(opt.value);
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setMostSoldTypes(prev => prev.includes(opt.value) ? prev.filter(v => v !== opt.value) : [...prev, opt.value])}
+                        className={`px-3 py-2 rounded-xl text-[11px] font-bold border transition-all cursor-pointer text-left flex items-center justify-between ${
+                          isSelected
+                            ? 'bg-indigo-50 border-indigo-500 text-indigo-750 font-black'
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        <span>{opt.label}</span>
+                        {isSelected && <span className="material-symbols-outlined text-[13px] text-indigo-650 font-bold">check</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Step 7: Desarrollos a su cargo */}
+            {current.key === 'developments' && (
+              <div className="space-y-4">
+                <p className="text-xs font-bold text-slate-700 leading-relaxed">
+                  ¿Tenés la comercialización de algún desarrollo inmobiliario (proyecto en pozo/construcción) a tu cargo?
+                </p>
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => { setHasDevelopments(true); }}
+                    className={`flex-1 py-3.5 rounded-2xl border text-center font-extrabold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                      hasDevelopments
+                        ? 'bg-indigo-50/60 border-indigo-500 text-indigo-700 shadow-sm'
+                        : 'bg-slate-50/60 border-slate-200 text-slate-500 hover:bg-slate-100'
+                    }`}
+                  >
+                    Sí, tengo desarrollos
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setHasDevelopments(false); setDevelopmentsDetails(''); }}
+                    className={`flex-1 py-3.5 rounded-2xl border text-center font-extrabold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                      !hasDevelopments
+                        ? 'bg-indigo-50/60 border-indigo-500 text-indigo-700 shadow-sm'
+                        : 'bg-slate-50/60 border-slate-200 text-slate-500 hover:bg-slate-100'
+                    }`}
+                  >
+                    No por ahora
+                  </button>
+                </div>
+
+                {hasDevelopments && (
+                  <div className="animate-in slide-in-from-top-2 duration-300">
+                    <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1.5">Nombre y detalles de los desarrollos</label>
+                    <textarea
+                      value={developmentsDetails}
+                      onChange={e => setDevelopmentsDetails(e.target.value)}
+                      rows={3}
+                      className="w-full bg-slate-50/50 border border-slate-200/85 focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 rounded-2xl py-3 px-4 text-xs font-semibold text-slate-850 focus:outline-none placeholder-slate-400 transition-all resize-none"
+                      placeholder="Ej: Edificio More del Sol (3 unidades de 2 dorm), Barrio Cerrado Aqua (5 lotes)..."
+                      autoFocus
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Step 8: Experiencia */}
             {current.key === 'experience' && (
               <div className="grid grid-cols-2 gap-3">
                 {[

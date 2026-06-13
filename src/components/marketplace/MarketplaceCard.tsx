@@ -97,9 +97,19 @@ export default function MarketplaceCard({ property, currentAgentId }: Marketplac
           {/* Top Badges */}
           <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
             <div className="flex flex-col gap-1.5">
-              <span className="bg-white/90 backdrop-blur text-slate-900 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm w-fit">
-                {property.transaction_type === 'compra' ? 'Venta' : 'Alquiler'}
-              </span>
+              {property.status === 'off_market' ? (
+                <span className="bg-slate-900/95 text-amber-400 border border-amber-500/20 backdrop-blur text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm w-fit">
+                  Off-Market
+                </span>
+              ) : property.status === 'coming_soon' ? (
+                <span className="bg-amber-550/90 text-white backdrop-blur text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm w-fit animate-pulse">
+                  Coming Soon
+                </span>
+              ) : (
+                <span className="bg-white/90 backdrop-blur text-slate-900 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm w-fit">
+                  {property.transaction_type === 'compra' ? 'Venta' : 'Alquiler'}
+                </span>
+              )}
               
               {property.is_featured && (
                 <span className="bg-gradient-to-r from-amber-400 via-indigo-500 to-pink-500 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 w-fit border border-white/10 animate-pulse">

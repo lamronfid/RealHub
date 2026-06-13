@@ -1,20 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import type { AgentPropertyRow } from '@/types/property';
 import { rowToAgentProperty } from '@/types/property';
 
-// TODO: Replace with real auth once RealHub auth is integrated.
-// This will become:  const agentId = (await supabase.auth.getUser()).data.user?.id
-const PLACEHOLDER_AGENT_ID = 'current-agent-id';
-
-function getAgentId(): string {
-  return PLACEHOLDER_AGENT_ID;
-}
-
 // GET /api/agent-properties — list this agent's properties
 export async function GET(req: NextRequest) {
-  const supabase = createClient();
-  const agentId  = getAgentId();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const agentId = user.id;
 
   const { searchParams } = new URL(req.url);
   const operationType = searchParams.get('operationType');
@@ -43,8 +40,13 @@ export async function GET(req: NextRequest) {
 
 // POST /api/agent-properties — create a new property
 export async function POST(req: NextRequest) {
-  const supabase = createClient();
-  const agentId  = getAgentId();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const agentId = user.id;
 
   let body: Record<string, unknown>;
   try {

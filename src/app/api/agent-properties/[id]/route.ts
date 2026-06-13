@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import type { AgentPropertyRow } from '@/types/property';
 import { rowToAgentProperty } from '@/types/property';
 
-const PLACEHOLDER_AGENT_ID = 'current-agent-id';
-
 // PATCH /api/agent-properties/[id] — update a property
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const supabase = createClient();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const agentId = user.id;
   const { id } = await params;
 
   let body: Record<string, unknown>;
@@ -36,7 +40,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     .from('agent_properties')
     .update(updates)
     .eq('id', id)
-    .eq('agent_id', PLACEHOLDER_AGENT_ID)
+    .eq('agent_id', agentId)
     .select()
     .single();
 
@@ -48,14 +52,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 // DELETE /api/agent-properties/[id]
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const supabase = createClient();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const agentId = user.id;
   const { id } = await params;
 
   const { error } = await supabase
     .from('agent_properties')
     .delete()
     .eq('id', id)
-    .eq('agent_id', PLACEHOLDER_AGENT_ID);
+    .eq('agent_id', agentId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

@@ -6,6 +6,7 @@ import TopBar from '@/components/TopBar';
 import OnboardingWrapper from '@/components/OnboardingWrapper';
 import FeedbackButton from '@/components/FeedbackButton';
 import { getSubscriptionState } from '@/lib/subscription';
+import RealtimeNotificationToast from '@/components/RealtimeNotificationToast';
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -59,6 +60,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
     <div className="min-h-screen bg-slate-50/50">
       {needsOnboarding && <OnboardingWrapper />}
       <FeedbackButton />
+      <RealtimeNotificationToast />
 
       <Sidebar agentName={agentName} agentAvatar={agentAvatar} isVerified={isVerified} role={profile?.role} />
 

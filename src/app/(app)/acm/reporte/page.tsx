@@ -106,6 +106,13 @@ export default function ReportePage() {
 
         <div className="flex gap-3">
           <button
+            onClick={() => router.push('/acm/presentar')}
+            className="px-5 py-2.5 text-sm font-semibold rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 transition-colors flex items-center gap-1.5"
+          >
+            <span className="material-symbols-outlined text-[18px]">slideshow</span>
+            Presentar
+          </button>
+          <button
             onClick={handleSave}
             disabled={saving || saved}
             className={`px-5 py-2.5 text-sm font-medium rounded-lg border transition-colors ${

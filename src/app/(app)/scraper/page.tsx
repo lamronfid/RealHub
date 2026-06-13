@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { getSubscriptionState } from '@/lib/subscription';
 import { DEPARTMENTS, getCities, getNeighborhoods } from '@/data/paraguay-locations';
 import Link from 'next/link';
+import { useScraperStore } from '@/store/scraper-store';
 
 // =============================================================================
 // ─── TYPES & CONSTANTS ───────────────────────────────────────────────────────
@@ -912,10 +913,7 @@ function BulkScraperTab({ incrementSearch }: { incrementSearch: () => void }) {
   const [priceError, setPriceError] = useState<string | null>(null);
 
   const [sources, setSources] = useState<string[]>(_psCache.sources);
-  const [results, setResults] = useState<FlaskResult[]>(_psCache.results);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [searched, setSearched] = useState(_psCache.searched);
+  const { results, loading, error, searched, startSearch, clearUnread, setResults, setSearched } = useScraperStore();
   const [sort, setSort] = useState<SortOrder>(_psCache.sort);
   const [dispBarrios, setDispBarrios] = useState<string[]>(_psCache.dispBarrios);
   const [dispSources, setDispSources] = useState<string[]>(_psCache.dispSources);
@@ -931,6 +929,12 @@ function BulkScraperTab({ incrementSearch }: { incrementSearch: () => void }) {
 
   useEffect(() => { lsSet('ps_liked', liked); }, [liked]);
   useEffect(() => { lsSet('ps_saved_searches', savedSearches); }, [savedSearches]);
+
+  useEffect(() => {
+    if (!loading) {
+      clearUnread();
+    }
+  }, [loading, results, clearUnread]);
 
   function deleteSearch(id: string) {
     setSavedSearches((prev) => prev.filter((s) => s.id !== id));
@@ -1032,93 +1036,29 @@ function BulkScraperTab({ incrementSearch }: { incrementSearch: () => void }) {
       return;
     }
     setPriceError(null);
-    setLoading(true);
-    setError(null);
-    setSearched(true);
     setSort('asc');
     setDispBarrios([]);
     setDispSources([]);
     setCurrentPage(0);
-    try {
-      const res = await fetch('/api/propsearch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          operation: form.operation,
-          propType: selectedPropTypes[0] || '',
-          propTypes: selectedPropTypes,
-          estadoObra,
-          m2ConstruidoMin,
-          m2ConstruidoMax,
-          m2TerrenoMin: m2TerrenoMin !== undefined ? m2TerrenoMin * terrenoMultiplier : undefined,
-          m2TerrenoMax: m2TerrenoMax !== undefined ? m2TerrenoMax * terrenoMultiplier : undefined,
-          location: locationForScraper,
-          barrios: selectedBarrios,
-          min_price: priceMin,
-          max_price: priceMax,
-          currency: priceCurrency,
-          bedrooms: selectedBedrooms,
-          sources,
-          resultsPerSite: form.resultsPerSite,
-        }),
-      });
 
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        throw new Error(d.error ?? `Error ${res.status}`);
-      }
-
-      let data = await res.json();
-
-      if (data && data.direct) {
-        const directRes = await fetch(`${data.apiUrl}/search`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(data.apiSecret ? { Authorization: `Bearer ${data.apiSecret}` } : {}),
-          },
-          body: JSON.stringify({
-            operation: form.operation,
-            propType: selectedPropTypes[0] || '',
-            propTypes: selectedPropTypes,
-            estadoObra,
-            m2ConstruidoMin,
-            m2ConstruidoMax,
-            m2TerrenoMin: m2TerrenoMin !== undefined ? m2TerrenoMin * terrenoMultiplier : undefined,
-            m2TerrenoMax: m2TerrenoMax !== undefined ? m2TerrenoMax * terrenoMultiplier : undefined,
-            location: locationForScraper,
-            barrios: selectedBarrios,
-            min_price: priceMin,
-            max_price: priceMax,
-            currency: priceCurrency,
-            bedrooms: selectedBedrooms,
-            sources,
-            resultsPerSite: form.resultsPerSite,
-          }),
-        });
-
-        if (!directRes.ok) {
-          const text = await directRes.text().catch(() => '');
-          throw new Error(`Scraper API ${directRes.status}: ${text.slice(0, 300)}`);
-        }
-
-        data = await directRes.json();
-      }
-
-      setResults(data);
-      incrementSearch(); // Enforce user UI search count update
-
-      fetch('/api/propsearch/store', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ results: data, operation: form.operation, propType: selectedPropTypes[0] || '' }),
-      }).catch(() => {});
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
-      setResults([]);
-    } finally {
-      setLoading(false);
-    }
+    startSearch({
+      operation: form.operation,
+      propType: selectedPropTypes[0] || '',
+      propTypes: selectedPropTypes,
+      estadoObra,
+      m2ConstruidoMin,
+      m2ConstruidoMax,
+      m2TerrenoMin: m2TerrenoMin !== undefined ? m2TerrenoMin * terrenoMultiplier : undefined,
+      m2TerrenoMax: m2TerrenoMax !== undefined ? m2TerrenoMax * terrenoMultiplier : undefined,
+      location: locationForScraper,
+      barrios: selectedBarrios,
+      min_price: priceMin,
+      max_price: priceMax,
+      currency: priceCurrency,
+      bedrooms: selectedBedrooms,
+      sources,
+      resultsPerSite: form.resultsPerSite,
+    }, incrementSearch);
   }
 
   function handleSaveSearch() {
