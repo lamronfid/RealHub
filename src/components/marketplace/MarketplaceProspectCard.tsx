@@ -87,11 +87,24 @@ export default function MarketplaceProspectCard({ prospect, currentAgentId }: Ma
         </p>
 
         {/* Budget */}
-        <div className="mb-6">
-          <span className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Presupuesto</span>
-          <p className="font-heading text-2xl font-bold text-slate-800">
-            {budgetText}
-          </p>
+        <div className="mb-6 flex items-end justify-between">
+          <div>
+            <span className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Presupuesto</span>
+            <p className="font-heading text-2xl font-bold text-slate-800">
+              {budgetText}
+            </p>
+          </div>
+          {!isOwner && prospect.agent_profiles?.phone && (
+            <a 
+              href={agentPhoneLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center w-12 h-12 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white rounded-full transition-all duration-300 shadow-sm shrink-0"
+              title="Contactar al Agente por WhatsApp"
+            >
+              <span className="material-symbols-outlined text-xl">chat</span>
+            </a>
+          )}
         </div>
 
         {/* Specific Needs Grid */}
@@ -145,17 +158,6 @@ export default function MarketplaceProspectCard({ prospect, currentAgentId }: Ma
             </div>
           </Link>
 
-          {!isOwner && prospect.agent_profiles?.phone && (
-            <a 
-              href={agentPhoneLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-[#25D366]/10 text-[#25D366] flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-colors ml-2 shrink-0"
-              title="Contactar Agente por WhatsApp"
-            >
-              <span className="material-symbols-outlined text-[20px]">chat</span>
-            </a>
-          )}
         </div>
       </div>
     </div>

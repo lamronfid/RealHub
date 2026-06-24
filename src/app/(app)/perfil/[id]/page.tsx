@@ -50,6 +50,7 @@ export default function AgentPublicProfilePage() {
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState<AgentReview[]>([]);
   const [properties, setProperties] = useState<any[]>([]);
+  const [prospects, setProspects] = useState<any[]>([]);
   const [isOwnerBlocked, setIsOwnerBlocked] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [currentProfile, setCurrentProfile] = useState<any>(null);
@@ -141,6 +142,21 @@ export default function AgentPublicProfilePage() {
               photos: []
             }
           ]);
+
+          setProspects([
+            {
+              id: 'mock-prosp-1',
+              transaction_type: 'compra',
+              property_types: ['casa', 'duplex'],
+              currency: 'USD',
+              price_max: 120000,
+              rooms_min: 3,
+              bathrooms_min: 2,
+              notes: 'Busca zona Luque o San Lorenzo para su familia.',
+              departments: ['Central'],
+              created_at: new Date().toISOString()
+            }
+          ]);
         } else {
           const { data: prof, error } = await supabase
             .from('agent_profiles')
@@ -182,11 +198,22 @@ export default function AgentPublicProfilePage() {
                 .from('properties')
                 .select('*')
                 .eq('agent_id', id)
-                .eq('status', 'activa')
+                .or('status.eq.activa,visibility.eq.marketplace')
                 .order('created_at', { ascending: false });
 
               if (!propsErr && props) {
                 setProperties(props);
+              }
+
+              // 4. Fetch agent's prospects
+              const { data: prosps, error: prospsErr } = await supabase
+                .from('prospects')
+                .select('*')
+                .eq('agent_id', id)
+                .order('created_at', { ascending: false });
+
+              if (!prospsErr && prosps) {
+                setProspects(prosps);
               }
             }
           }
@@ -544,6 +571,85 @@ export default function AgentPublicProfilePage() {
           </div>
         )}
       </div>
+
+      {/* Prospects Section (Only show if not agency) */}
+      {agent.account_type !== 'agency' && (
+        <div className="bg-white rounded-3xl border border-slate-100 p-6 md:p-8 shadow-sm space-y-6">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <h2 className="font-[family-name:var(--font-outfit)] text-lg font-black text-slate-800 flex items-center gap-2">
+              <span className="material-symbols-outlined text-indigo-500 font-bold">people</span>
+              Prospectos de Búsqueda Activos
+            </h2>
+            <span className="bg-indigo-50 text-indigo-700 text-xs font-black px-3 py-1 rounded-full border border-indigo-100">
+              {prospects.length} {prospects.length === 1 ? 'Prospecto' : 'Prospectos'}
+            </span>
+          </div>
+
+          {prospects.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 p-6">
+              <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">person_search</span>
+              <p className="text-slate-400 text-xs font-semibold">Este agente no tiene prospectos de búsqueda activos actualmente.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {prospects.map((prosp) => {
+                const types = prosp.property_types && prosp.property_types.length > 0
+                  ? prosp.property_types.map((t: string) => PROPERTY_TYPE_LABELS[t] || t).join(', ')
+                  : 'Cualquier tipo';
+
+                const locations = prosp.neighborhoods && prosp.neighborhoods.length > 0
+                  ? prosp.neighborhoods.join(', ')
+                  : prosp.departments && prosp.departments.length > 0
+                    ? prosp.departments.join(', ')
+                    : 'Cualquier zona';
+
+                const priceText = prosp.price_min || prosp.price_max
+                  ? `${prosp.currency} ${prosp.price_min ? prosp.price_min.toLocaleString('es-PY') : '0'} - ${prosp.price_max ? prosp.price_max.toLocaleString('es-PY') : 'unlimited'}`
+                  : 'A convenir';
+
+                return (
+                  <div key={prosp.id} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition-all text-left">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-start">
+                        <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${
+                          prosp.transaction_type === 'alquiler'
+                            ? 'bg-blue-50 text-blue-700 border border-blue-150'
+                            : 'bg-emerald-50 text-emerald-700 border border-emerald-150'
+                        }`}>
+                          Busca {prosp.transaction_type}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-semibold">
+                          {new Date(prosp.created_at).toLocaleDateString('es-PY')}
+                        </span>
+                      </div>
+                      
+                      <h4 className="font-bold text-sm text-slate-800 line-clamp-1">
+                        {types}
+                      </h4>
+                      
+                      <p className="text-[11px] text-slate-450 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[13px]">location_on</span>
+                        {locations}
+                      </p>
+
+                      <div className="pt-2">
+                        <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Presupuesto</span>
+                        <span className="text-sm font-extrabold text-indigo-650">{priceText}</span>
+                      </div>
+                    </div>
+
+                    {prosp.notes && (
+                      <p className="text-[11px] text-slate-400 italic mt-3 bg-slate-50 p-2 rounded-lg border border-slate-100 line-clamp-2">
+                        "{prosp.notes}"
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Two columns: Reviews list and Create review form */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

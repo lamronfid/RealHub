@@ -13,6 +13,7 @@ interface MarketplaceCardProps {
 
 export default function MarketplaceCard({ property, currentAgentId }: MarketplaceCardProps) {
   const [copied, setCopied] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [reviews, setReviews] = useState<AgentReview[]>([]);
 
   // Fetch agent reviews client-side to calculate ratings
@@ -200,16 +201,114 @@ export default function MarketplaceCard({ property, currentAgentId }: Marketplac
             </div>
           </Link>
           
-          {/* Copy White-label Link Button */}
+          {/* Share Ficha Button */}
           <button
-            onClick={handleCopyLink}
-            title="Copiar Link para Cliente"
+            onClick={() => setIsShareOpen(true)}
+            title="Compartir Ficha con Cliente"
             className="ml-auto w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white transition-colors"
           >
-            <span className="material-symbols-outlined text-[16px]">{copied ? 'check' : 'link'}</span>
+            <span className="material-symbols-outlined text-[16px]">share</span>
           </button>
         </div>
       </div>
+
+      {/* Share Modal */}
+      {isShareOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-md">
+          {/* Backdrop Click */}
+          <div className="absolute inset-0" onClick={() => setIsShareOpen(false)} />
+          
+          {/* Modal Content - Card style */}
+          <div className="relative bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-150 animate-fadeIn z-10 flex flex-col font-sans">
+            
+            {/* Image area */}
+            <div className="relative aspect-[16/10] bg-slate-100 overflow-hidden shrink-0">
+              {property.photos && property.photos.length > 0 ? (
+                <img src={property.photos[0]} alt={property.title} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">
+                  <span className="material-symbols-outlined text-4xl">landscape</span>
+                  <span className="text-[10px] uppercase font-bold tracking-widest mt-1">Sin Imagen</span>
+                </div>
+              )}
+              <button 
+                onClick={() => setIsShareOpen(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-900/60 backdrop-blur-xs hover:bg-slate-900 text-white flex items-center justify-center transition-colors"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+              
+              <span className="absolute bottom-4 left-4 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md shadow-md">
+                Ficha Compartible
+              </span>
+            </div>
+
+            {/* Details */}
+            <div className="p-6 space-y-4">
+              <div className="text-left">
+                <span className="text-[9px] text-indigo-650 font-extrabold uppercase tracking-widest bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded">
+                  {property.transaction_type === 'compra' ? 'Venta' : 'Alquiler'} • {PROPERTY_TYPE_LABELS[property.property_type as PropertyType] || property.property_type}
+                </span>
+                <h3 className="font-heading text-lg font-bold text-slate-900 mt-2 line-clamp-1 leading-snug">
+                  {property.title}
+                </h3>
+                <p className="text-xs text-slate-400 flex items-center gap-1 mt-1">
+                  <span className="material-symbols-outlined text-[14px]">location_on</span>
+                  {[property.neighborhood, property.city].filter(Boolean).join(', ')}
+                </p>
+              </div>
+
+              {/* Price & Rooms Box */}
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100/80 flex items-center justify-between text-left">
+                <div>
+                  <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest">Precio Ficha</span>
+                  <span className="text-lg font-black text-slate-800">
+                    {property.currency} {property.transaction_type === 'alquiler' ? property.rent_price?.toLocaleString('es-PY') : property.sale_price?.toLocaleString('es-PY')}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest">Habitaciones</span>
+                  <span className="text-xs font-bold text-slate-700">{property.bedrooms || 0} Dormitorios</span>
+                </div>
+              </div>
+
+              {/* Informative Alert explaining client view */}
+              <div className="bg-emerald-50 border border-emerald-100 text-emerald-800 text-[10px] px-4 py-3 rounded-2xl flex items-start gap-2 leading-relaxed font-medium text-left">
+                <span className="material-symbols-outlined text-base text-emerald-650 shrink-0 mt-0.5">verified_user</span>
+                <p>
+                  <strong>Ficha Pública Marca Blanca:</strong> Tu cliente verá esta ficha con <strong>tus datos de contacto</strong>. No se le pedirá iniciar sesión ni pagar suscripción.
+                </p>
+              </div>
+
+              {/* Link Input & Copy Button */}
+              <div className="space-y-1.5 text-left">
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Link para compartir con tu cliente:</label>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="text" 
+                    readOnly 
+                    value={`${window.location.origin}/p/${property.id}?ref=${currentAgentId}`}
+                    className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-[11px] font-medium text-slate-650 select-all focus:outline-none truncate"
+                  />
+                  <button
+                    onClick={handleCopyLink}
+                    className={`px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0 ${
+                      copied 
+                        ? 'bg-emerald-600 text-white hover:bg-emerald-700' 
+                        : 'bg-indigo-650 text-white hover:bg-indigo-700 shadow-indigo-100 shadow-sm'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-sm">{copied ? 'check' : 'content_copy'}</span>
+                    <span>{copied ? 'Copiado' : 'Copiar'}</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }
