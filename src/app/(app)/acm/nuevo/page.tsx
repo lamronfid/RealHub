@@ -45,9 +45,9 @@ type Errors = Partial<Record<keyof AcmSubjectProperty, string>>;
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label className="block text-sm font-medium text-gray-700 mb-1">
+    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
       {children}
-      {required && <span className="text-red-500 ml-0.5">*</span>}
+      {required && <span className="text-rose-500 ml-0.5">*</span>}
     </label>
   );
 }
@@ -78,9 +78,9 @@ function Select({
         value={value ?? ''}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className={`w-full border rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400 ${
-          error ? 'border-red-400' : 'border-gray-300'
-        } [&>option:disabled]:text-gray-500`}
+        className={`w-full border rounded-xl px-3.5 py-2.5 text-xs font-semibold bg-white/70 backdrop-blur-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 disabled:bg-slate-50/50 disabled:text-slate-400 transition-all shadow-xs ${
+          error ? 'border-rose-400 focus:ring-rose-500/20 focus:border-rose-550' : 'border-slate-200/80 hover:border-slate-300'
+        } [&>option:disabled]:text-slate-500`}
       >
         {placeholder && (
           <option value="" disabled>
@@ -141,8 +141,8 @@ function NumberInput({
         value={display}
         onChange={handleChange}
         placeholder={placeholder}
-        className={`w-full border rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-          error ? 'border-red-400' : 'border-gray-300'
+        className={`w-full border rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-805 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white/70 backdrop-blur-xs transition-all shadow-xs ${
+          error ? 'border-rose-400 focus:ring-rose-500/20 focus:border-rose-550' : 'border-slate-200/80 hover:border-slate-300'
         }`}
       />
       <FieldError message={error} />
@@ -152,11 +152,12 @@ function NumberInput({
 
 function SectionHeader({ number, title }: { number: number; title: string }) {
   return (
-    <div className="flex items-center gap-3 mb-5">
-      <span className="w-7 h-7 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
-        {number}
+    <div className="flex items-center gap-3 mb-6 font-sans">
+      <span className="text-xs md:text-sm font-black text-indigo-600 uppercase tracking-wider font-heading">
+        Paso {number}
       </span>
-      <h2 className="font-semibold text-gray-800">{title}</h2>
+      <span className="text-slate-300 font-light">|</span>
+      <h2 className="font-extrabold text-slate-900 text-sm md:text-base tracking-tight font-heading">{title}</h2>
     </div>
   );
 }
@@ -183,18 +184,18 @@ function CostMatrixWidget({
   const effectiveCost = costPerSqm ?? cell?.mid;
 
   return (
-    <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-4">
-      <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
+    <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-2xl p-5 space-y-4">
+      <p className="text-[10px] font-black text-indigo-700 uppercase tracking-widest leading-none">
         Costo estimado de construcción
       </p>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <Label>Conservación</Label>
           <select
             value={conservacion ?? ''}
             onChange={(e) => onConservacionChange(e.target.value as AcmConservacion)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-white/80 border border-slate-200 hover:border-slate-350 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-xl py-2.5 px-3.5 text-xs font-semibold text-slate-800 focus:outline-none transition-all shadow-xs"
           >
             <option value="" disabled>Seleccioná</option>
             {(Object.keys(CONSERVACION_LABELS) as AcmConservacion[]).map((k) => (
@@ -207,7 +208,7 @@ function CostMatrixWidget({
           <select
             value={tipo ?? ''}
             onChange={(e) => onTipoChange(e.target.value as AcmTipo)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-white/80 border border-slate-200 hover:border-slate-350 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-xl py-2.5 px-3.5 text-xs font-semibold text-slate-800 focus:outline-none transition-all shadow-xs"
           >
             <option value="" disabled>Seleccioná</option>
             {(Object.keys(TIPO_LABELS) as AcmTipo[]).map((k) => (
@@ -218,14 +219,14 @@ function CostMatrixWidget({
       </div>
 
       {cell && effectiveCost !== undefined ? (
-        <div className="space-y-2">
-          <div className="flex items-baseline justify-between">
-            <span className="text-2xl font-bold text-gray-900">
-              USD {fmtDots(effectiveCost)}<span className="text-sm font-normal text-gray-500">/m²</span>
+        <div className="space-y-3.5 pt-1.5">
+          <div className="flex items-baseline justify-between font-sans">
+            <span className="text-xl font-black text-slate-900">
+              USD {fmtDots(effectiveCost)}<span className="text-xs font-bold text-slate-400">/m²</span>
             </span>
             {sqmBuilt && (
-              <span className="text-sm text-gray-500">
-                {sqmBuilt} m² → <span className="font-semibold text-gray-700">USD {fmtDots(effectiveCost * sqmBuilt)}</span>
+              <span className="text-xs text-slate-500 font-medium">
+                {sqmBuilt} m² → <span className="font-bold text-slate-800">USD {fmtDots(effectiveCost * sqmBuilt)}</span>
               </span>
             )}
           </div>
@@ -236,15 +237,15 @@ function CostMatrixWidget({
             step={1}
             value={effectiveCost}
             onChange={(e) => onCostChange(Number(e.target.value))}
-            className="w-full accent-blue-600"
+            className="w-full accent-indigo-600 h-1.5 bg-slate-100 rounded-lg cursor-pointer transition-all"
           />
-          <div className="flex justify-between text-xs text-gray-400">
-            <span>USD {cell.min}</span>
-            <span>USD {cell.max}</span>
+          <div className="flex justify-between text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+            <span>Mín. USD {cell.min}</span>
+            <span>Máx. USD {cell.max}</span>
           </div>
         </div>
       ) : (
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-slate-400 font-semibold leading-relaxed">
           Seleccioná conservación y tipo para ver el rango de costo.
         </p>
       )}
@@ -415,17 +416,17 @@ export default function NuevoAcmPage() {
             <button
               type="button"
               onClick={() => setPickerOpen((o) => !o)}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:border-blue-400 hover:text-blue-600 transition-colors shadow-sm"
+              className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200/85 hover:border-indigo-400 hover:text-indigo-655 transition-colors rounded-xl text-xs font-bold shadow-xs cursor-pointer"
             >
               <span className="text-base leading-none">🏠</span>
               Mis propiedades
-              <span className="text-gray-400">{pickerOpen ? '▲' : '▼'}</span>
+              <span className="text-slate-405">{pickerOpen ? '▲' : '▼'}</span>
             </button>
 
             {pickerOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setPickerOpen(false)} />
-                <div className="absolute right-0 top-full mt-1 w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-20 max-h-80 overflow-y-auto">
+                <div className="absolute right-0 top-full mt-1.5 w-80 bg-white/95 backdrop-blur-md border border-slate-150 rounded-2xl shadow-premium z-20 max-h-80 overflow-y-auto animate-fade-in">
                   <p className="text-xs text-gray-400 px-3 pt-3 pb-1 font-medium uppercase tracking-wide">
                     Seleccioná una propiedad
                   </p>
@@ -456,7 +457,7 @@ export default function NuevoAcmPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Sección 1 — Tipo de propiedad */}
-        <div className="bg-white rounded-xl border p-6">
+        <div className="glass-panel shadow-premium rounded-3xl p-6 md:p-8 space-y-6">
           <SectionHeader number={1} title="Tipo de propiedad" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -511,7 +512,7 @@ export default function NuevoAcmPage() {
         </div>
 
         {/* Sección 2 — Ubicación */}
-        <div className="bg-white rounded-xl border p-6">
+        <div className="glass-panel shadow-premium rounded-3xl p-6 md:p-8 space-y-6">
           <SectionHeader number={2} title="Ubicación" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -566,7 +567,7 @@ export default function NuevoAcmPage() {
         </div>
 
         {/* Sección 3 — Características */}
-        <div className="bg-white rounded-xl border p-6">
+        <div className="glass-panel shadow-premium rounded-3xl p-6 md:p-8 space-y-6">
           <SectionHeader number={3} title="Características" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Price */}
@@ -576,7 +577,7 @@ export default function NuevoAcmPage() {
                 <select
                   value={form.currency ?? 'USD'}
                   onChange={(e) => set('currency', e.target.value as AcmCurrency)}
-                  className="border border-gray-300 rounded-lg px-2 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-24"
+                  className="border border-slate-200/80 hover:border-slate-350 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 bg-white/70 backdrop-blur-xs rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none transition-all shadow-xs w-24"
                 >
                   <option value="USD">USD</option>
                   <option value="GS">Gs.</option>
@@ -715,10 +716,10 @@ export default function NuevoAcmPage() {
                     key={value}
                     type="button"
                     onClick={() => toggleAmenity(value)}
-                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
                       active
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400'
+                        ? 'border-indigo-550 bg-indigo-500/10 text-indigo-750 shadow-xs border-indigo-500/20'
+                        : 'border-slate-200 bg-white/70 backdrop-blur-xs text-slate-600 hover:border-slate-300 hover:bg-white'
                     }`}
                   >
                     {label}
@@ -737,7 +738,7 @@ export default function NuevoAcmPage() {
               rows={3}
               maxLength={500}
               placeholder="Información adicional relevante para el análisis..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full border border-slate-200/80 bg-white/70 backdrop-blur-xs rounded-xl px-4 py-3 text-xs font-semibold text-slate-850 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none shadow-xs"
             />
             <p className="text-xs text-gray-400 text-right">{(form.notes ?? '').length}/500</p>
           </div>
@@ -755,7 +756,7 @@ export default function NuevoAcmPage() {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-650 hover:brightness-110 text-white text-xs font-extrabold uppercase tracking-widest rounded-xl transition-all shadow-[0_4px_15px_rgba(99,102,241,0.2)] disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[0.99] active:scale-[0.97]"
           >
             Generar ACM →
           </button>

@@ -53,10 +53,12 @@ export default function PresentarPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-8 -m-4 md:-m-8 transition-colors duration-300">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 -m-4 md:-m-8 transition-colors duration-300 relative overflow-hidden">
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/5 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-violet-500/5 blur-[120px] pointer-events-none" />
       
       {/* Top Bar Controls */}
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 border-b border-slate-800 pb-6">
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 border-b border-slate-800/80 pb-6 relative z-10">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
             <span className="material-symbols-outlined text-indigo-400">slideshow</span>
@@ -97,9 +99,9 @@ export default function PresentarPage() {
         <div className="lg:col-span-4 space-y-6">
           
           {/* Subject property summary card */}
-          <div className="bg-slate-850 rounded-3xl border border-slate-800 p-6 shadow-xl relative overflow-hidden">
+          <div className="bg-slate-900/50 backdrop-blur-md rounded-3xl border border-slate-800 p-6 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-bl-full pointer-events-none" />
-            <h2 className="text-xs font-bold uppercase tracking-widest text-indigo-400 mb-4 flex items-center gap-1.5">
+            <h2 className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-5 flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[14px]">home</span> Propiedad en Análisis
             </h2>
             <div className="space-y-4">
@@ -143,38 +145,38 @@ export default function PresentarPage() {
           </div>
 
           {/* Live Recalculating Metrics Gauge card */}
-          <div className="bg-slate-850 rounded-3xl border border-slate-800 p-6 shadow-xl space-y-6">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-indigo-400 flex items-center gap-1.5">
+          <div className="bg-slate-900/50 backdrop-blur-md rounded-3xl border border-slate-800 p-6 shadow-2xl space-y-6">
+            <h2 className="text-[10px] font-black uppercase tracking-widest text-indigo-400 flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[14px]">analytics</span>
               Valuación Sugerida
             </h2>
 
-            <div className="text-center py-4">
-              <p className="text-5xl font-black text-emerald-400 tracking-tight transition-all duration-300">
+            <div className="text-center py-5">
+              <p className="text-4xl md:text-5xl font-black text-emerald-450 tracking-tight transition-all duration-300 font-heading drop-shadow-[0_2px_12px_rgba(52,211,153,0.2)]">
                 {currencySymbol} {fmt(reportData.suggestedPrice)}
               </p>
-              <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mt-2">
+              <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black mt-3">
                 Recomendación de Mercado
               </p>
             </div>
 
-            <div className="space-y-3.5 pt-4 border-t border-slate-850">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Precio Promedio:</span>
+            <div className="space-y-3.5 pt-4 border-t border-slate-800 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-450 font-semibold">Precio Promedio:</span>
                 <span className="font-extrabold text-slate-200">{currencySymbol} {fmt(reportData.averagePrice)}</span>
               </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Promedio m²:</span>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-450 font-semibold">Promedio m²:</span>
                 <span className="font-extrabold text-slate-200">{currencySymbol} {fmt(reportData.averagePricePerSqm)}/m²</span>
               </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Rango Mín/Máx:</span>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-450 font-semibold">Rango Mín/Máx:</span>
                 <span className="font-extrabold text-slate-200">
                   {currencySymbol} {fmt(reportData.minPrice)} - {fmt(reportData.maxPrice)}
                 </span>
               </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Tiempo Estimado:</span>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-450 font-semibold">Tiempo Estimado:</span>
                 <span className="font-extrabold text-indigo-300">{reportData.estimatedDaysOnMarket}</span>
               </div>
               {reportData.refPricePerSqm && (
@@ -219,8 +221,8 @@ export default function PresentarPage() {
         </div>
 
         {/* Right Side: Comparables with Adjustments UI */}
-        <div className="lg:col-span-8 space-y-6">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+        <div className="lg:col-span-8 space-y-6 relative z-10">
+          <h2 className="text-sm font-black uppercase tracking-widest text-white flex items-center gap-2">
             <span className="material-symbols-outlined text-indigo-400">compare_arrows</span>
             Propiedades Comparables
           </h2>
@@ -233,7 +235,7 @@ export default function PresentarPage() {
               return (
                 <div
                   key={comp.id}
-                  className="bg-slate-850 rounded-3xl border border-slate-800 p-6 shadow-md transition duration-200"
+                  className="bg-slate-900/40 backdrop-blur-md rounded-3xl border border-slate-800/80 p-6 shadow-xl transition-all duration-300 hover:scale-[1.005] hover:border-slate-700/60"
                 >
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                     
@@ -243,15 +245,15 @@ export default function PresentarPage() {
                         <img
                           src={comp.photo}
                           alt={comp.title}
-                          className="w-16 h-16 md:w-20 md:h-20 rounded-2xl object-cover bg-slate-800 border border-slate-800 flex-shrink-0"
+                          className="w-16 h-16 md:w-20 md:h-20 rounded-2xl object-cover bg-slate-800 border border-slate-800/60 flex-shrink-0"
                         />
                       ) : (
-                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-500 border border-slate-800 flex-shrink-0">
+                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-500 border border-slate-800/60 flex-shrink-0">
                           <span className="material-symbols-outlined">landscape</span>
                         </div>
                       )}
                       <div>
-                        <h3 className="font-extrabold text-white text-base md:text-lg line-clamp-1">
+                        <h3 className="font-black text-white text-sm md:text-base line-clamp-1 font-heading">
                           {comp.title}
                         </h3>
                         <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-1">
@@ -273,10 +275,10 @@ export default function PresentarPage() {
                     {/* Price Breakdown */}
                     <div className="text-right flex-shrink-0 flex flex-col justify-between h-full min-w-[140px]">
                       <div>
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
                           Precio Ajustado
                         </p>
-                        <p className="text-2xl font-black text-white mt-1">
+                        <p className="text-2xl font-black text-white mt-1 font-heading">
                           USD {fmt(adjustedPrice)}
                         </p>
                       </div>
@@ -301,24 +303,24 @@ export default function PresentarPage() {
                       
                       {/* Presets Grid */}
                       <div>
-                        <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2.5">
                           Ajustes Rápidos
                         </p>
                         <div className="flex flex-wrap gap-2">
                           {presets.map((preset) => (
-                            <div key={preset.label} className="flex items-center bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
-                              <span className="text-xs font-semibold px-3 py-1.5 text-slate-300 select-none">
+                            <div key={preset.label} className="flex items-center bg-slate-900 border border-slate-800/80 rounded-xl overflow-hidden shadow-xs">
+                              <span className="text-[11px] font-bold px-3 py-1.5 text-slate-300 select-none">
                                 {preset.label}
                               </span>
                               <button
                                 onClick={() => setAdjustment(comp.id, currentAdjustment + preset.value)}
-                                className="bg-slate-750 hover:bg-slate-700 text-green-400 text-xs font-extrabold px-2 py-1.5 transition border-l border-slate-700"
+                                className="bg-slate-850 hover:bg-slate-800 text-emerald-400 text-xs font-black px-2.5 py-1.5 transition border-l border-slate-850"
                               >
                                 +
                               </button>
                               <button
                                 onClick={() => setAdjustment(comp.id, currentAdjustment - preset.value)}
-                                className="bg-slate-750 hover:bg-slate-700 text-red-400 text-xs font-extrabold px-2 py-1.5 transition border-l border-slate-700"
+                                className="bg-slate-850 hover:bg-slate-800 text-rose-455 text-xs font-black px-2.5 py-1.5 transition border-l border-slate-855"
                               >
                                 -
                               </button>
@@ -330,7 +332,7 @@ export default function PresentarPage() {
                       {/* Manual Slider & Manual Input */}
                       <div className="flex flex-col sm:flex-row items-center gap-4">
                         <div className="w-full">
-                          <div className="flex justify-between items-center text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">
+                          <div className="flex justify-between items-center text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
                             <span>Ajuste Personalizado</span>
                             <span className="text-slate-350">USD {currentAdjustment > 0 ? '+' : ''}{fmt(currentAdjustment)}</span>
                           </div>
@@ -341,7 +343,7 @@ export default function PresentarPage() {
                             step="1000"
                             value={currentAdjustment}
                             onChange={(e) => setAdjustment(comp.id, parseInt(e.target.value))}
-                            className="w-full accent-indigo-500 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer"
+                            className="w-full accent-indigo-500 bg-slate-900 border border-slate-800/80 h-1.5 rounded-lg appearance-none cursor-pointer"
                           />
                         </div>
                         
@@ -349,13 +351,13 @@ export default function PresentarPage() {
                           <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5">
                             Valor Exacto
                           </p>
-                          <div className="relative rounded-xl border border-slate-700 bg-slate-800 overflow-hidden">
+                          <div className="relative rounded-xl border border-slate-800 bg-slate-900 overflow-hidden">
                             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-500 font-bold">$</span>
                             <input
                               type="number"
                               value={currentAdjustment}
                               onChange={(e) => setAdjustment(comp.id, parseInt(e.target.value) || 0)}
-                              className="pl-7 pr-3 py-1.5 w-32 bg-transparent text-right text-sm font-semibold text-white focus:outline-none focus:ring-0"
+                              className="pl-7 pr-3.5 py-1.5 w-32 bg-transparent text-right text-xs font-bold text-white focus:outline-none focus:ring-0"
                             />
                           </div>
                         </div>

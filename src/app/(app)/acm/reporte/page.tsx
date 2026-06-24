@@ -77,29 +77,29 @@ export default function ReportePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between font-sans">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Reporte ACM</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight font-heading">Reporte ACM</h1>
+          <p className="text-xs text-slate-450 mt-1 font-medium">
             {subjectProperty.neighborhood}, {subjectProperty.city} ·{' '}
             {getSelectedComparables().length} comparables seleccionados
           </p>
         </div>
         <button
           onClick={() => router.push('/acm/comparables')}
-          className="text-sm text-gray-500 hover:text-blue-600 transition-colors"
+          className="text-xs font-bold text-slate-450 hover:text-indigo-650 transition-colors flex items-center gap-1"
         >
-          ← Editar comparables
+          <span>←</span> Editar comparables
         </button>
       </div>
 
       <ReportView />
 
-      <div className="flex flex-wrap gap-3 justify-between pt-2">
+      <div className="flex flex-wrap gap-3 justify-between pt-2 font-sans">
         {/* Fix #16 — reset store so agentNotes and comparables don't leak into the next session. */}
         <button
           onClick={() => { reset(); router.push('/acm/nuevo'); }}
-          className="text-sm text-gray-500 hover:text-blue-600 transition-colors"
+          className="text-xs font-bold text-slate-450 hover:text-indigo-650 transition-colors"
         >
           + Nueva tasación
         </button>
@@ -107,7 +107,7 @@ export default function ReportePage() {
         <div className="flex gap-3">
           <button
             onClick={() => router.push('/acm/presentar')}
-            className="px-5 py-2.5 text-sm font-semibold rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 transition-colors flex items-center gap-1.5"
+            className="px-5 py-2.5 text-xs font-bold rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-705 hover:bg-indigo-500/15 transition-all flex items-center gap-1.5 shadow-xs"
           >
             <span className="material-symbols-outlined text-[18px]">slideshow</span>
             Presentar
@@ -115,17 +115,17 @@ export default function ReportePage() {
           <button
             onClick={handleSave}
             disabled={saving || saved}
-            className={`px-5 py-2.5 text-sm font-medium rounded-lg border transition-colors ${
+            className={`px-5 py-2.5 text-xs font-bold rounded-xl border transition-all shadow-xs ${
               saved
-                ? 'bg-green-50 border-green-300 text-green-700 cursor-default'
-                : 'border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-600 disabled:opacity-50'
+                ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-705 cursor-default'
+                : 'border-slate-200 bg-white/70 text-slate-700 hover:border-indigo-400 hover:text-indigo-650 disabled:opacity-50'
             }`}
           >
             {saved ? '✓ Guardado' : saving ? 'Guardando...' : 'Guardar ACM'}
           </button>
           <button
             onClick={handleExport}
-            className="px-6 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-650 hover:brightness-110 text-white text-xs font-extrabold uppercase tracking-widest rounded-xl transition-all shadow-md shadow-indigo-100 hover:scale-[0.99] active:scale-[0.97]"
           >
             Exportar PDF →
           </button>

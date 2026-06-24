@@ -67,6 +67,43 @@ export async function createProperty(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('No autorizado');
 
+  // Check subscription limits
+  const { data: profile } = await supabase
+    .from('agent_profiles')
+    .select('subscription_tier, role')
+    .eq('id', user.id)
+    .single();
+
+  const role = profile?.role;
+  const email = user.email || '';
+  const tier = profile?.subscription_tier || 'free';
+
+  const adminEmails = ['lamronfidd@gmail.com', 'jonyocampos@gmail.com', 'lamronfid@gmail.com'];
+  const isAdminOrOwner = 
+    role === 'admin' || 
+    role === 'superadmin' || 
+    role === 'owner' ||
+    adminEmails.includes(email.toLowerCase());
+
+  if (!isAdminOrOwner) {
+    const { count: totalProperties } = await supabase
+      .from('properties')
+      .select('*', { count: 'exact', head: true })
+      .eq('agent_id', user.id);
+
+    const propertiesCount = totalProperties || 0;
+    if ((tier === 'free' || tier === 'standard') && propertiesCount >= 10) {
+      return { 
+        error: 'Límite alcanzado: El Plan Gratuito (Entrada) está limitado a 10 propiedades. Actualizá tu suscripción al Plan Pro o Élite para publicar más.' 
+      };
+    }
+    if (tier === 'pro' && propertiesCount >= 25) {
+      return { 
+        error: 'Límite alcanzado: El Plan Pro está limitado a 25 propiedades. Actualizá tu suscripción al Plan Élite para tener publicaciones ilimitadas.' 
+      };
+    }
+  }
+
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
   const transactionType = formData.get('transaction_type') as string;

@@ -165,6 +165,43 @@ function CheckoutPageContent() {
   }, []);
 
   // Handle Form Submit (Simulate Stripe payment)
+  // Handle real Stripe Checkout redirection
+  // Handle real Pagopar Checkout redirection
+  const handlePagoparCheckout = async () => {
+    try {
+      setErrorMessage('');
+      setPaymentStatus('processing');
+      setProgressText('Generando orden de pago en Pagopar...');
+      
+      const cycle = searchParams.get('cycle') || 'monthly';
+      
+      const response = await fetch('/api/subscripcion/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ plan, cycle }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al iniciar transacción de Pagopar.');
+      }
+      
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No se recibió la URL de redirección de Pagopar.');
+      }
+    } catch (err: any) {
+      console.error('Pagopar error:', err);
+      setErrorMessage(err.message || 'Error al iniciar la pasarela de Pagopar.');
+      setPaymentStatus('error');
+    }
+  };
+
+  // Handle Form Submit (Simulate Stripe payment)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cardNumber.replace(/\s/g, '') !== '4242424242424242') {
@@ -190,7 +227,7 @@ function CheckoutPageContent() {
     // Stage 2: Verification
     await new Promise((resolve) => setTimeout(resolve, 1500));
     setPaymentStatus('activating');
-    setProgressText('Activando tu suscripción Élite y Scraper...');
+    setProgressText('Activando tu suscripción y Scraper...');
 
     // Stage 3: Activation
     const tier = plan === 'elite' ? 'elite' : plan === 'pro' ? 'pro' : 'standard';
@@ -205,6 +242,14 @@ function CheckoutPageContent() {
   };
 
   const planPrice = plan === 'elite' ? 100 : plan === 'pro' ? 30 : 15;
+  const planName = plan === 'elite' ? 'Plan Élite' : plan === 'pro' ? 'Plan Pro' : 'Plan Entrada';
+  
+  const cycle = searchParams.get('cycle') || 'monthly';
+  const planGsPrice = plan === 'elite' 
+    ? (cycle === 'annual' ? 'Gs. 7.000.000' : 'Gs. 730.000') 
+    : plan === 'pro' 
+      ? (cycle === 'annual' ? 'Gs. 2.100.000' : 'Gs. 220.000') 
+      : (cycle === 'annual' ? 'Gs. 1.050.000' : 'Gs. 110.000');
 
   return (
     <div className="min-h-[85vh] bg-[#070913] text-slate-100 rounded-3xl p-6 md:p-12 pt-24 md:pt-32 relative overflow-hidden border border-slate-900 shadow-2xl flex flex-col items-center justify-center font-sans">
@@ -330,7 +375,7 @@ function CheckoutPageContent() {
                 Completa tu Activación
               </h2>
               <p className="text-slate-400 text-xs">
-                Estás adquiriendo el <strong className="text-white">Plan Élite</strong>. Cancela en cualquier momento con un clic.
+                Estás adquiriendo el <strong className="text-white">{planName}</strong>. Cancela en cualquier momento con un clic.
               </p>
             </div>
 
@@ -349,7 +394,7 @@ function CheckoutPageContent() {
                   {/* Top row */}
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col">
-                      <span className="font-heading text-[10px] uppercase tracking-widest text-slate-400 font-bold">RealHub Élite</span>
+                      <span className="font-heading text-[10px] uppercase tracking-widest text-slate-400 font-bold">RealHub {planName}</span>
                       <span className="text-[7px] text-indigo-400 font-medium uppercase tracking-widest">Premium Partner</span>
                     </div>
                     {/* Mock Chip */}
@@ -417,7 +462,7 @@ function CheckoutPageContent() {
 
           {/* Right Column: Checkout Form */}
           <div className="lg:col-span-7">
-            <form onSubmit={handleSubmit} className="bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl relative">
+            <div className="bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl relative">
               
               {errorMessage && (
                 <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs px-4 py-3 rounded-2xl flex items-center gap-2">
@@ -425,6 +470,32 @@ function CheckoutPageContent() {
                   <p>{errorMessage}</p>
                 </div>
               )}
+
+              {/* Option 1: Official Pagopar Checkout */}
+              <div className="space-y-4 pb-6 border-b border-white/[0.06]">
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-black">1</span>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-white">Método Recomendado (Pagopar)</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={handlePagoparCheckout}
+                  className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs md:text-sm uppercase tracking-wider rounded-2xl active:scale-[0.99] transition-all shadow-[0_4px_20px_rgba(99,102,241,0.25)] flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-sm md:text-base font-bold">payment</span>
+                  Pagar de forma segura con Pagopar ({planGsPrice})
+                </button>
+                <p className="text-[10px] text-slate-500 text-center leading-relaxed">
+                  Redirige al checkout oficial de Pagopar en Paraguay. Soporta tarjetas locales de crédito/débito, bocas de cobranza (Pago Móvil, Aquí Pago) y billeteras electrónicas.
+                </p>
+              </div>
+
+              {/* Option 2: Card Simulator */}
+              <form onSubmit={handleSubmit} className="space-y-6 pt-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-5 h-5 rounded-full bg-slate-500/20 text-slate-400 flex items-center justify-center text-xs font-black">2</span>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-white">Simulador Local (Pruebas Rápidas)</h3>
+                </div>
 
               {/* Cardholder Name */}
               <div className="space-y-1.5">
@@ -511,19 +582,23 @@ function CheckoutPageContent() {
               </div>
 
               {/* Price break-down / summary */}
-              <div className="bg-[#05070F] rounded-2xl p-4 border border-white/[0.04] space-y-3">
+              <div className="bg-[#05070F] rounded-2xl p-4 border border-white/[0.04] space-y-3 font-sans">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400 font-medium">Suscripción RealHub Élite</span>
-                  <span className="text-white font-bold">${planPrice}.00 / mes</span>
+                  <span className="text-slate-400 font-medium">Suscripción RealHub {planName.replace('Plan ', '')}</span>
+                  <span className="text-white font-bold">${planPrice}.00 / {searchParams.get('cycle') === 'annual' ? 'año' : 'mes'}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400 font-medium">Equivalente en Guaraníes</span>
+                  <span className="text-indigo-400 font-bold">{planGsPrice} Gs.</span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-slate-400 font-medium">Impuestos / I.V.A (0%)</span>
-                  <span className="text-slate-500">$0.00</span>
+                  <span className="text-slate-500">Gs. 0</span>
                 </div>
                 <div className="h-[1px] bg-white/[0.04]" />
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-300 font-bold">Total a pagar</span>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400 font-black text-sm">${planPrice}.00</span>
+                  <span className="text-slate-350 font-bold">Total a pagar</span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400 font-black text-sm">{planGsPrice} Gs.</span>
                 </div>
               </div>
 
@@ -533,15 +608,16 @@ function CheckoutPageContent() {
                 className="w-full py-4 bg-gradient-to-r from-sky-400 via-indigo-500 to-pink-500 hover:brightness-110 text-white font-black text-xs uppercase tracking-widest rounded-2xl active:scale-[0.99] transition-all shadow-[0_4px_25px_rgba(99,102,241,0.3)] flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-sm">enhanced_encryption</span>
-                Pagar ${planPrice}.00 y Desbloquear Élite
+                Simular Pago y Desbloquear {planName.replace('Plan ', '')}
               </button>
 
               <div className="text-[10px] text-slate-500 text-center flex items-center justify-center gap-1">
                 <span className="material-symbols-outlined text-xs">verified_user</span>
-                <span>Conexión cifrada SSL de Stripe. RealHub no almacena tus datos de pago.</span>
+                <span>Conexión cifrada SSL de Pagopar. RealHub no almacena tus datos de pago.</span>
               </div>
             </form>
           </div>
+        </div>
 
         </div>
       )}

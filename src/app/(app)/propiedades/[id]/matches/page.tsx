@@ -148,7 +148,19 @@ function MatchCard({ match, agentProfile }: { match: any, agentProfile?: any }) 
 
       <div className="flex-1 text-center sm:text-left">
         <h4 className="font-bold text-slate-900 text-lg mb-1">{match.prospect_name}</h4>
-        <p className="text-sm text-slate-500">Agente: <span className="font-medium text-slate-700">{match.agent_name}</span></p>
+        <p className="text-sm text-slate-500">
+          Agente:{' '}
+          {agentProfile?.id ? (
+            <Link 
+              href={`/perfil/${agentProfile.id}`}
+              className="font-bold text-indigo-600 hover:text-indigo-700 hover:underline transition-colors"
+            >
+              {match.agent_name}
+            </Link>
+          ) : (
+            <span className="font-medium text-slate-700">{match.agent_name}</span>
+          )}
+        </p>
       </div>
 
       <div className="shrink-0 flex items-center gap-3 w-full sm:w-auto">

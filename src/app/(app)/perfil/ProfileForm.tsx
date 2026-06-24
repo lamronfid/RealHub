@@ -22,12 +22,17 @@ interface ProfileFormProps {
     whatsapp: string | null;
     avatar_url: string | null;
     agency_name: string | null;
+    agency_office?: string | null;
     bio: string | null;
     license_number?: string | null;
     specialties?: string[] | null;
     coverage_areas?: string[] | null;
     experience_years?: number | null;
     role?: string | null;
+    account_type?: string | null;
+    most_sold_types?: string[] | null;
+    has_developments?: boolean | null;
+    developments_details?: string | null;
   };
 }
 
@@ -39,6 +44,8 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [selectedCoverage, setSelectedCoverage] = useState<string[]>(profile.coverage_areas || []);
+  const [selectedMostSold, setSelectedMostSold] = useState<string[]>(profile.most_sold_types || []);
+  const [hasDevelopments, setHasDevelopments] = useState<boolean>(!!profile.has_developments);
   const supabase = createClient();
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,6 +101,12 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
       formData.append('coverage_areas', dept);
     });
 
+    // Add selected most sold property types to form data
+    selectedMostSold.forEach(type => {
+      formData.append('most_sold_types', type);
+    });
+    formData.set('has_developments', hasDevelopments ? 'true' : 'false');
+
     startTransition(async () => {
       const res = await updateProfile(formData);
       if (res?.error) {
@@ -135,8 +148,20 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
           {/* Display User Role and Admin Panel Link */}
           <div className="flex flex-wrap items-center gap-2 pt-1">
             <span className="bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-slate-200">
+              Cuenta: {profile.account_type === 'agency' ? 'Bienes y Raíces' : 'Agente Independiente'}
+            </span>
+            <span className="bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-slate-200">
               Rol: {profile.role === 'admin' ? 'Administrador' : profile.role === 'superadmin' ? 'Superadmin' : profile.role === 'owner' ? 'Propietario' : 'Agente'}
             </span>
+            {profile.account_type === 'agency' && (
+              <Link 
+                href="/agencia"
+                className="bg-indigo-50 hover:bg-indigo-600 border border-indigo-100 text-indigo-700 hover:text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full transition-all inline-flex items-center gap-1 shadow-sm hover:scale-[0.98]"
+              >
+                <span className="material-symbols-outlined text-[14px] font-bold">corporate_fare</span>
+                Ver Panel de Inmobiliaria
+              </Link>
+            )}
             {(profile.role === 'admin' || profile.role === 'superadmin' || profile.role === 'owner') && (
               <Link 
                 href="/admin"
@@ -156,12 +181,18 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
           <span className="material-symbols-outlined text-base">badge</span>
           Información Personal
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Nombre Completo <span className="text-rose-500">*</span></label>
             <input name="full_name" defaultValue={profile.full_name} required
               className="w-full bg-slate-50/50 border border-slate-205 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
               placeholder="Tu nombre completo" />
+          </div>
+          <div className="space-y-1.5">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Nro. de Licencia</label>
+            <input name="license_number" defaultValue={profile.license_number || ''}
+              className="w-full bg-slate-50/50 border border-slate-205 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
+              placeholder="Ej: M.U.A. 1234" />
           </div>
           <div className="space-y-1.5">
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Agencia / Inmobiliaria</label>
@@ -170,10 +201,10 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
               placeholder="Ej: RE/MAX Paraguay o Independiente" />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Nro. de Licencia</label>
-            <input name="license_number" defaultValue={profile.license_number || ''}
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Oficina / Sucursal</label>
+            <input name="agency_office" defaultValue={profile.agency_office || ''}
               className="w-full bg-slate-50/50 border border-slate-205 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
-              placeholder="Ej: M.U.A. 1234" />
+              placeholder="Ej: Oficina Centro, Sucursal Villa Morra, etc." />
           </div>
         </div>
       </div>
@@ -233,6 +264,83 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
             </select>
           </div>
         </div>
+      </div>
+
+      {/* Tipos de Propiedades de Especialidad */}
+      <div className="space-y-4 pt-6 border-t border-slate-100/80">
+        <h3 className="text-[10px] font-extrabold text-indigo-655 uppercase tracking-widest flex items-center gap-1.5">
+          <span className="material-symbols-outlined text-base">real_estate_agent</span>
+          Tipos de Propiedades de Especialidad (Operaciones más Frecuentes)
+        </h3>
+        
+        <div className="flex flex-wrap gap-2 bg-slate-50/30 p-4 rounded-2xl border border-slate-200/60">
+          {[
+            { value: 'casa', label: 'Casas' },
+            { value: 'departamento', label: 'Departamentos' },
+            { value: 'duplex', label: 'Dúplex' },
+            { value: 'terreno', label: 'Terrenos / Lotes' },
+            { value: 'local_comercial', label: 'Locales Comerciales' },
+            { value: 'oficina', label: 'Oficinas' },
+            { value: 'deposito', label: 'Depósitos' },
+            { value: 'quinta', label: 'Quintas / Countries' },
+            { value: 'campo', label: 'Estancias / Campos' },
+          ].map(opt => {
+            const isSelected = selectedMostSold.includes(opt.value);
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setSelectedMostSold(prev => prev.includes(opt.value) ? prev.filter(v => v !== opt.value) : [...prev, opt.value])}
+                className={`px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-wider border transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isSelected 
+                    ? 'bg-indigo-650 border-indigo-650 text-white shadow-sm' 
+                    : 'bg-white border-slate-200 text-slate-650 hover:bg-slate-50'
+                }`}
+              >
+                {isSelected && <span className="material-symbols-outlined text-[12px] font-bold">check</span>}
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Developments / Emprendimientos */}
+      <div className="space-y-4 pt-6 border-t border-slate-100/80">
+        <div className="flex items-center justify-between">
+          <h3 className="text-[10px] font-extrabold text-indigo-655 uppercase tracking-widest flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-base">home_work</span>
+            ¿Gestionas Emprendimientos / Edificios en Pozo / Desarrollos?
+          </h3>
+          <button
+            type="button"
+            onClick={() => setHasDevelopments(!hasDevelopments)}
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+              hasDevelopments ? 'bg-indigo-600' : 'bg-slate-200'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                hasDevelopments ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
+
+        {hasDevelopments && (
+          <div className="space-y-1.5">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              Detalles de los Emprendimientos
+            </label>
+            <textarea
+              name="developments_details"
+              defaultValue={profile.developments_details || ''}
+              rows={3}
+              className="w-full bg-slate-50/50 border border-slate-205 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none transition-all resize-none leading-relaxed"
+              placeholder="Ej: Edificio More del Sol (unidades de 1 y 2 dorm), Condominio Aqua Village (terrenos y casas)..."
+            />
+          </div>
+        )}
       </div>
 
       {/* Coverage Areas */}

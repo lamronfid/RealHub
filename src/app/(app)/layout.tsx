@@ -30,8 +30,10 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       .from('agent_profiles')
       .insert({
         id: user.id,
-        full_name: user.email?.split('@')[0] || 'Agente',
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Agente',
         role: isAdminEmail ? 'admin' : 'agent',
+        account_type: user.user_metadata?.account_type || 'agent',
+        agency_name: user.user_metadata?.account_type === 'agency' ? user.user_metadata?.agency_name : null,
       })
       .select()
       .single();
@@ -62,7 +64,13 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       <FeedbackButton />
       <RealtimeNotificationToast />
 
-      <Sidebar agentName={agentName} agentAvatar={agentAvatar} isVerified={isVerified} role={profile?.role} />
+      <Sidebar 
+        agentName={agentName} 
+        agentAvatar={agentAvatar} 
+        isVerified={isVerified} 
+        role={profile?.role} 
+        accountType={profile?.account_type}
+      />
 
       <div className="md:ml-[260px] transition-all duration-300 flex flex-col min-h-screen">
         <TopBar agentName={agentName} agentAvatar={agentAvatar} isVerified={isVerified} />

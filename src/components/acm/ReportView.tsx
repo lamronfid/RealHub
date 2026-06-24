@@ -7,22 +7,22 @@ import type { AcmPricePositioning } from '@/types/acm';
 const POSITIONING: Record<AcmPricePositioning, { label: string; cls: string; icon: string }> = {
   within_market: {
     label: 'Tu precio está dentro del mercado',
-    cls: 'bg-green-50 border-green-200 text-green-800',
+    cls: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-800',
     icon: '🟢',
   },
   slightly_above: {
     label: 'Tu precio está levemente por encima del mercado',
-    cls: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+    cls: 'bg-amber-500/10 border-amber-500/20 text-amber-800',
     icon: '🟡',
   },
   significantly_above: {
     label: 'Tu precio está significativamente por encima del mercado',
-    cls: 'bg-red-50 border-red-200 text-red-800',
+    cls: 'bg-rose-500/10 border-rose-500/20 text-rose-800',
     icon: '🔴',
   },
   below_market: {
     label: 'Tu precio está por debajo del mercado — oportunidad de ajuste',
-    cls: 'bg-blue-50 border-blue-200 text-blue-800',
+    cls: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-800',
     icon: '🔵',
   },
 };
@@ -51,7 +51,7 @@ function AdjustmentInput({ id, value }: { id: string; value?: number }) {
       onChange={(e) => setRaw(e.target.value.replace(/[^-\d]/g, ''))}
       onBlur={handleBlur}
       placeholder="0"
-      className="w-24 text-right text-xs border border-gray-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-700"
+      className="w-24 text-right text-xs border border-slate-205/85 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800 bg-white/70 backdrop-blur-xs font-bold transition-all shadow-xs"
     />
   );
 }
@@ -91,75 +91,75 @@ export default function ReportView() {
   return (
     <div className="space-y-6">
       {/* A — Propiedad sujeto */}
-      <section className="bg-white rounded-xl border p-6">
-        <h2 className="text-base font-semibold text-gray-900 mb-4">Propiedad en Análisis</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+      <section className="glass-panel shadow-premium rounded-3xl p-6 md:p-8 space-y-5">
+        <h2 className="text-sm font-extrabold text-slate-900 tracking-tight font-heading mb-4">Propiedad en Análisis</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-xs font-sans">
           {subjectGridItems.map(([label, value]) => (
             <div key={label}>
-              <p className="text-xs text-gray-400">{label}</p>
-              <p className="font-medium text-gray-900 capitalize">{value}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">{label}</p>
+              <p className="font-extrabold text-slate-805 capitalize">{value}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* B — Tabla de comparables */}
-      <section className="bg-white rounded-xl border overflow-hidden">
-        <div className="px-6 py-4 border-b">
-          <h2 className="text-base font-semibold text-gray-900">Tabla de Comparables</h2>
-          <p className="text-xs text-gray-400 mt-0.5">
+      <section className="glass-panel shadow-premium rounded-3xl overflow-hidden">
+        <div className="px-6 py-5 border-b border-slate-100/60 space-y-1">
+          <h2 className="text-sm font-extrabold text-slate-900 tracking-tight font-heading">Tabla de Comparables</h2>
+          <p className="text-[11px] text-slate-450 font-medium">
             Ajuste (+/-) modifica el precio considerado en el análisis.
           </p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+            <thead className="bg-slate-50/50 text-slate-450 text-[10px] font-black uppercase tracking-wider border-b border-slate-100/60">
               <tr>
-                <th className="px-4 py-3 text-left">Propiedad</th>
-                <th className="px-4 py-3 text-right">Precio USD</th>
-                <th className="px-4 py-3 text-right">m²</th>
-                <th className="px-4 py-3 text-right">USD/m²</th>
-                <th className="px-4 py-3 text-center">Dorm.</th>
-                <th className="px-4 py-3 text-center">Año</th>
-                <th className="px-4 py-3 text-center">Similitud</th>
-                <th className="px-4 py-3 text-right">Ajuste USD</th>
+                <th className="px-5 py-4 text-left">Propiedad</th>
+                <th className="px-5 py-4 text-right">Precio USD</th>
+                <th className="px-5 py-4 text-right">m²</th>
+                <th className="px-5 py-4 text-right">USD/m²</th>
+                <th className="px-5 py-4 text-center">Dorm.</th>
+                <th className="px-5 py-4 text-center">Año</th>
+                <th className="px-5 py-4 text-center">Similitud</th>
+                <th className="px-5 py-4 text-right">Ajuste USD</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-slate-100/50">
               {selected.map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900 line-clamp-1">{c.title}</p>
-                    <p className="text-xs text-gray-400">{c.source}</p>
+                <tr key={c.id} className="hover:bg-indigo-50/10 transition-colors font-sans">
+                  <td className="px-5 py-4">
+                    <p className="font-bold text-slate-800 line-clamp-1 leading-snug">{c.title}</p>
+                    <p className="text-[10px] text-slate-400 font-semibold">{c.source}</p>
                   </td>
-                  <td className="px-4 py-3 text-right font-medium">
+                  <td className="px-5 py-4 text-right font-black text-slate-800">
                     USD {fmt(c.price + (c.adjustment ?? 0))}
                     {c.adjustment ? (
-                      <span className={`block text-xs ${c.adjustment > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                      <span className={`block text-[10px] font-bold ${c.adjustment > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
                         base {fmt(c.price)}
                       </span>
                     ) : null}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-600">{c.sqm ?? '—'}</td>
-                  <td className="px-4 py-3 text-right text-gray-600">
+                  <td className="px-5 py-4 text-right text-slate-500 font-bold">{c.sqm ?? '—'}</td>
+                  <td className="px-5 py-4 text-right text-slate-500 font-bold">
                     {c.sqm ? `USD ${fmt(Math.round((c.price + (c.adjustment ?? 0)) / c.sqm))}` : '—'}
                   </td>
-                  <td className="px-4 py-3 text-center text-gray-600">{c.bedrooms ?? '—'}</td>
-                  <td className="px-4 py-3 text-center text-gray-600">{c.yearBuilt ?? '—'}</td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-5 py-4 text-center text-slate-500 font-bold">{c.bedrooms ?? '—'}</td>
+                  <td className="px-5 py-4 text-center text-slate-500 font-bold">{c.yearBuilt ?? '—'}</td>
+                  <td className="px-5 py-4 text-center">
                     <span
-                      className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${
                         c.similarityScore >= 70
-                          ? 'bg-green-100 text-green-700'
+                          ? 'bg-emerald-500/10 text-emerald-700 border border-emerald-500/20'
                           : c.similarityScore >= 50
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : 'bg-red-100 text-red-700'
+                          ? 'bg-amber-500/10 text-amber-700 border border-amber-500/20'
+                          : 'bg-rose-500/10 text-rose-700 border border-rose-500/20'
                       }`}
                     >
                       {c.similarityScore}%
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-5 py-4 text-right">
                     <AdjustmentInput id={c.id} value={c.adjustment} />
                   </td>
                 </tr>
@@ -170,9 +170,9 @@ export default function ReportView() {
       </section>
 
       {/* C — Análisis de mercado */}
-      <section className="bg-white rounded-xl border p-6">
-        <h2 className="text-base font-semibold text-gray-900 mb-5">Análisis de Mercado</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+      <section className="glass-panel shadow-premium rounded-3xl p-6 md:p-8 space-y-6">
+        <h2 className="text-sm font-extrabold text-slate-900 tracking-tight font-heading mb-4">Análisis de Mercado</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { label: 'Precio promedio', value: `USD ${fmt(reportData.averagePrice)}`, highlight: false },
             { label: 'Precio/m² promedio', value: `USD ${fmt(reportData.averagePricePerSqm)}`, highlight: false },
@@ -181,24 +181,24 @@ export default function ReportView() {
           ].map(({ label, value, highlight }) => (
             <div
               key={label}
-              className={`rounded-lg p-4 ${highlight ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'}`}
+              className={`rounded-2xl p-5 transition-all shadow-xs ${highlight ? 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-805' : 'bg-slate-50/50 border border-slate-100/60'}`}
             >
-              <p className={`text-xs mb-1 ${highlight ? 'text-blue-500' : 'text-gray-400'}`}>{label}</p>
-              <p className={`font-bold text-sm ${highlight ? 'text-blue-700' : 'text-gray-900'}`}>{value}</p>
+              <p className={`text-[10px] font-bold uppercase tracking-widest mb-1.5 ${highlight ? 'text-indigo-650' : 'text-slate-400'}`}>{label}</p>
+              <p className={`font-black text-sm tracking-tight ${highlight ? 'text-indigo-750' : 'text-slate-800'}`}>{value}</p>
             </div>
           ))}
         </div>
 
         {reportData.refPricePerSqm && (
-          <div className="bg-slate-50 border border-slate-100 rounded-lg p-4 mb-5 flex flex-col sm:flex-row justify-between sm:items-center gap-2 text-sm text-slate-700">
-            <span className="font-medium">
-              📍 Promedio de referencia histórico para el barrio <span className="font-semibold">{subjectProperty.neighborhood || subjectProperty.city}</span>:
+          <div className="bg-slate-50/50 border border-slate-100/60 rounded-2xl p-5 flex flex-col sm:flex-row justify-between sm:items-center gap-3 text-xs text-slate-750 font-sans">
+            <span className="font-semibold">
+              📍 Promedio de referencia histórico para el barrio <span className="font-extrabold text-slate-850">{subjectProperty.neighborhood || subjectProperty.city}</span>:
             </span>
             <div className="flex items-center gap-3">
-              <span className="font-extrabold text-slate-900">USD {fmt(reportData.refPricePerSqm)}/m²</span>
+              <span className="font-black text-slate-900">USD {fmt(reportData.refPricePerSqm)}/m²</span>
               {reportData.deviationPct !== undefined && reportData.deviationPct !== null && (
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                  reportData.deviationPct > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                  reportData.deviationPct > 0 ? 'bg-amber-500/10 text-amber-800 border border-amber-500/20' : 'bg-emerald-500/10 text-emerald-800 border border-emerald-500/20'
                 }`}>
                   {reportData.deviationPct > 0 ? '▲' : '▼'} {Math.abs(reportData.deviationPct)}% vs calculado
                 </span>
@@ -207,33 +207,33 @@ export default function ReportView() {
           </div>
         )}
 
-        <div className={`border rounded-lg p-4 ${positioning.cls}`}>
-          <p className="font-semibold text-sm">
-            {positioning.icon} {positioning.label}
+        <div className={`border rounded-2xl p-5 font-sans ${positioning.cls}`}>
+          <p className="font-bold text-xs flex items-center gap-2">
+            <span>{positioning.icon}</span> <span>{positioning.label}</span>
           </p>
         </div>
       </section>
 
       {/* D — Conclusión */}
-      <section className="bg-white rounded-xl border p-6 space-y-4">
-        <h2 className="text-base font-semibold text-gray-900">Conclusión</h2>
-        <p className="text-gray-700 text-sm leading-relaxed">{reportData.conclusion}</p>
+      <section className="glass-panel shadow-premium rounded-3xl p-6 md:p-8 space-y-6 font-sans">
+        <h2 className="text-sm font-extrabold text-slate-900 tracking-tight font-heading">Conclusión</h2>
+        <p className="text-slate-600 text-xs leading-relaxed font-semibold">{reportData.conclusion}</p>
 
-        <div className="flex gap-8 text-sm">
+        <div className="flex gap-10 text-xs">
           <div>
-            <p className="text-xs text-gray-400">Precio recomendado de publicación</p>
-            <p className="text-xl font-bold text-blue-700">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Precio recomendado de publicación</p>
+            <p className="text-xl font-black text-indigo-650">
               USD {fmt(reportData.suggestedPrice)}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-400">Tiempo estimado en mercado</p>
-            <p className="font-semibold text-gray-900">{reportData.estimatedDaysOnMarket}</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tiempo estimado en mercado</p>
+            <p className="font-black text-slate-805">{reportData.estimatedDaysOnMarket}</p>
           </div>
         </div>
 
-        <div>
-          <label className="text-xs font-medium text-gray-600 block mb-1.5">
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
             Notas del agente
           </label>
           <textarea
@@ -241,7 +241,7 @@ export default function ReportView() {
             onChange={(e) => setAgentNotes(e.target.value)}
             rows={3}
             placeholder="Agregá observaciones adicionales para el reporte..."
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-gray-700"
+            className="w-full border border-slate-205/85 bg-white/70 backdrop-blur-xs rounded-xl px-4 py-3 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none shadow-xs"
           />
         </div>
       </section>

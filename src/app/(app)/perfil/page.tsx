@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import ProfileForm from './ProfileForm';
 import OwnReviews from './OwnReviews';
 import VerifiedBadge from '@/components/VerifiedBadge';
+import Link from 'next/link';
 
 export default async function PerfilPage() {
   const supabase = await createClient();
@@ -11,12 +12,11 @@ export default async function PerfilPage() {
 
   const { data: profile } = await supabase
     .from('agent_profiles')
-    .select('id, full_name, phone, whatsapp, avatar_url, agency_name, bio, subscription_tier, is_verified, license_number, specialties, coverage_areas, experience_years, role')
+    .select('id, full_name, phone, whatsapp, avatar_url, agency_name, agency_office, bio, subscription_tier, is_verified, license_number, specialties, coverage_areas, experience_years, role, account_type, most_sold_types, has_developments, developments_details')
     .eq('id', user.id)
     .single();
 
   if (!profile) redirect('/login');
-
   return (
     <div className="max-w-3xl mx-auto pb-24 space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -24,7 +24,21 @@ export default async function PerfilPage() {
           <h2 className="font-heading text-2xl font-bold text-slate-900 flex items-center gap-1.5">
             Mi Perfil
           </h2>
-          <p className="text-slate-500 text-sm mt-1">Tu información de contacto visible para otros agentes en el Marketplace</p>
+          <p className="text-slate-500 text-sm mt-1">
+            Tu información de contacto visible para otros agentes en el Marketplace.
+            {profile.role !== 'owner' && (
+              <>
+                {' '}Clic en tu nombre{' '}
+                <Link 
+                  href={`/perfil/${profile.id}`} 
+                  className="text-indigo-600 hover:text-indigo-700 font-bold underline transition-colors"
+                >
+                  {profile.full_name}
+                </Link>{' '}
+                para ver tu perfil público.
+              </>
+            )}
+          </p>
         </div>
         
         {/* Verification status header */}

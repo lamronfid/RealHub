@@ -13,6 +13,9 @@ function RegistrarPageContent() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [agencyName, setAgencyName] = useState('');
+  const [accountType, setAccountType] = useState<'agent' | 'agency'>('agent');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -27,7 +30,12 @@ function RegistrarPageContent() {
       email, 
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/subscripcion/checkout?plan=${plan}`
+        emailRedirectTo: `${window.location.origin}/subscripcion/checkout?plan=${plan}`,
+        data: {
+          full_name: fullName,
+          account_type: accountType,
+          agency_name: accountType === 'agency' ? agencyName : null
+        }
       }
     });
     if (error) {
@@ -61,8 +69,39 @@ function RegistrarPageContent() {
         {/* Form */}
         <div className="bg-white/80 border border-slate-100/80 backdrop-blur-xl rounded-3xl p-8 shadow-premium shadow-lg">
           <h2 className="font-heading text-xl font-black text-slate-850 tracking-tight mb-6">
-            Crear tu Cuenta de Agente
+            Crear tu Cuenta
           </h2>
+
+          {/* Account Type Selector */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <button
+              type="button"
+              onClick={() => setAccountType('agent')}
+              className={`p-4 rounded-2xl border text-left transition-all ${
+                accountType === 'agent'
+                  ? 'bg-indigo-50/50 border-indigo-500 text-indigo-700 shadow-sm'
+                  : 'bg-slate-50/50 border-slate-200 hover:bg-slate-50 text-slate-500'
+              }`}
+            >
+              <span className="material-symbols-outlined text-xl mb-1.5 block">person</span>
+              <p className="text-[11px] font-black uppercase tracking-wider">Agente</p>
+              <p className="text-[9px] font-medium text-slate-400 mt-0.5 leading-tight">Profesional independiente</p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setAccountType('agency')}
+              className={`p-4 rounded-2xl border text-left transition-all ${
+                accountType === 'agency'
+                  ? 'bg-indigo-50/50 border-indigo-500 text-indigo-700 shadow-sm'
+                  : 'bg-slate-50/50 border-slate-200 hover:bg-slate-50 text-slate-500'
+              }`}
+            >
+              <span className="material-symbols-outlined text-xl mb-1.5 block">corporate_fare</span>
+              <p className="text-[11px] font-black uppercase tracking-wider">Inmobiliaria</p>
+              <p className="text-[9px] font-medium text-slate-400 mt-0.5 leading-tight">Empresas o Bienes y Raíces</p>
+            </button>
+          </div>
 
           {error && (
             <div className="mb-4 p-3.5 rounded-xl bg-rose-50 border border-rose-100 text-xs font-semibold text-rose-600">
@@ -76,6 +115,32 @@ function RegistrarPageContent() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1.5">Nombre Completo</label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                placeholder="Juan Pérez"
+                className="w-full bg-slate-50/50 border border-slate-200/80 focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 rounded-2xl py-3 px-4 text-xs font-semibold text-slate-800 focus:outline-none placeholder-slate-400 transition-all"
+              />
+            </div>
+
+            {accountType === 'agency' && (
+              <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1.5">Nombre de la Inmobiliaria</label>
+                <input
+                  type="text"
+                  value={agencyName}
+                  onChange={(e) => setAgencyName(e.target.value)}
+                  required
+                  placeholder="Ej: Inmobiliaria Capital o RE/MAX"
+                  className="w-full bg-slate-50/50 border border-slate-200/80 focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 rounded-2xl py-3 px-4 text-xs font-semibold text-slate-800 focus:outline-none placeholder-slate-400 transition-all"
+                />
+              </div>
+            )}
+
             <div>
               <label className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1.5">Correo Electrónico</label>
               <input

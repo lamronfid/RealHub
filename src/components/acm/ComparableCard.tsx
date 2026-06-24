@@ -15,12 +15,12 @@ const USES_COST_MATRIX: AcmPropertyType[] = ['casa', 'duplex', 'local_comercial'
 function SimilarityBadge({ score }: { score: number }) {
   const cls =
     score >= 70
-      ? 'bg-green-100 text-green-700'
+      ? 'bg-emerald-500/10 text-emerald-700 border border-emerald-500/20'
       : score >= 50
-      ? 'bg-yellow-100 text-yellow-700'
-      : 'bg-red-100 text-red-700';
+      ? 'bg-amber-500/10 text-amber-700 border border-amber-500/20'
+      : 'bg-rose-500/10 text-rose-700 border border-rose-500/20';
   return (
-    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cls}`}>
+    <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${cls}`}>
       {score}% similar
     </span>
   );
@@ -87,28 +87,29 @@ export default function ComparableCard({ comparable: c, subjectPropertyType }: P
 
   return (
     <div
-      className={`relative rounded-xl border-2 bg-white transition-all ${
-        isSelected ? 'border-blue-500 shadow-md' : 'border-gray-200 hover:shadow-sm'
-      } ${isDisabled ? 'opacity-50' : ''}`}
+      className={`relative rounded-3xl overflow-hidden glass-panel shadow-premium shadow-premium-hover transition-all duration-300 ${
+        isSelected ? 'border-indigo-500 scale-[1.01] ring-2 ring-indigo-500/20' : 'border-slate-200/80 hover:scale-[1.01]'
+      } ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
     >
       {/* Image */}
-      <div className="relative h-40 rounded-t-xl overflow-hidden bg-gray-100">
+      <div className="relative h-44 overflow-hidden bg-slate-100/50 group/image">
         {c.photo ? (
-          <img src={c.photo} alt={c.title} className="w-full h-full object-cover" />
+          <img src={c.photo} alt={c.title} className="w-full h-full object-cover transition-transform duration-500 group-hover/image:scale-105" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">
+          <div className="w-full h-full flex items-center justify-center text-slate-350 text-xs font-semibold">
             Sin foto
           </div>
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
 
         {/* Badges top-left */}
-        <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
+        <div className="absolute top-3 left-3 flex gap-1 flex-wrap z-10">
           {c.isInternal ? (
-            <span className="bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+            <span className="bg-indigo-650 text-white text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full">
               RealHub
             </span>
           ) : (
-            <span className="bg-gray-800/80 text-white text-xs px-2 py-0.5 rounded-full">
+            <span className="bg-slate-900/80 text-white text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-xs">
               {c.source}
             </span>
           )}
@@ -116,46 +117,49 @@ export default function ComparableCard({ comparable: c, subjectPropertyType }: P
         </div>
 
         {/* Checkbox top-right */}
-        <label className="absolute top-2 right-2 cursor-pointer">
+        <label className="absolute top-3 right-3 cursor-pointer z-10">
           <input
             type="checkbox"
             checked={isSelected}
             disabled={isDisabled}
             onChange={() => toggleComparable(c.id)}
-            className="w-5 h-5 rounded accent-blue-600 cursor-pointer"
+            className="w-5 h-5 rounded accent-indigo-600 cursor-pointer shadow-md transition-all scale-110"
           />
         </label>
       </div>
 
       {/* Body */}
-      <div className="p-4 space-y-2">
-        <p className="font-medium text-gray-900 text-sm line-clamp-2 leading-snug">{c.title}</p>
-        <p className="text-xs text-gray-400">{c.location}</p>
+      <div className="p-5 space-y-3 font-sans">
+        <p className="font-bold text-slate-800 text-xs line-clamp-2 leading-relaxed">{c.title}</p>
+        <p className="text-[10px] text-slate-450 font-semibold flex items-center gap-1">
+          <span className="material-symbols-outlined text-xs leading-none text-slate-350 shrink-0">location_on</span>
+          <span className="truncate">{c.location}</span>
+        </p>
 
         <div className="flex items-baseline justify-between">
-          <span className="text-base font-bold text-gray-900">
+          <span className="text-sm font-black text-slate-900">
             USD {c.price.toLocaleString('es-PY')}
           </span>
           {c.pricePerSqm ? (
-            <span className="text-xs text-gray-500">
+            <span className="text-[11px] font-bold text-slate-500">
               USD {c.pricePerSqm.toLocaleString('es-PY')}/m²
             </span>
           ) : (
-            <span className="text-xs text-gray-300">Sin datos m²</span>
+            <span className="text-[10px] font-semibold text-slate-350">Sin datos m²</span>
           )}
         </div>
 
-        <div className="flex flex-wrap gap-2 text-xs text-gray-500">
-          {c.sqm && <span>{c.sqm} m²</span>}
-          {c.bedrooms !== undefined && <span>{c.bedrooms} dorm.</span>}
-          {c.yearBuilt && <span>Año {c.yearBuilt}</span>}
+        <div className="flex flex-wrap gap-2 text-[10px] text-slate-500 font-bold">
+          {c.sqm && <span className="bg-slate-50 border border-slate-100 rounded-md px-2 py-0.5">{c.sqm} m²</span>}
+          {c.bedrooms !== undefined && <span className="bg-slate-50 border border-slate-100 rounded-md px-2 py-0.5">{c.bedrooms} dorm.</span>}
+          {c.yearBuilt && <span className="bg-slate-50 border border-slate-100 rounded-md px-2 py-0.5">Año {c.yearBuilt}</span>}
         </div>
 
         <a
           href={c.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block text-xs text-blue-600 hover:underline mt-1"
+          className="inline-block text-[10px] font-black uppercase tracking-wider text-indigo-650 hover:text-indigo-800 transition-colors mt-1"
         >
           Ver propiedad →
         </a>
@@ -166,16 +170,16 @@ export default function ComparableCard({ comparable: c, subjectPropertyType }: P
             <button
               type="button"
               onClick={() => setCostOpen((o) => !o)}
-              className="flex items-center justify-between w-full text-xs text-gray-500 hover:text-blue-600 transition-colors"
+              className="flex items-center justify-between w-full text-[11px] text-slate-500 hover:text-indigo-650 font-bold transition-all py-1"
             >
-              <span className="font-medium">Costo de construcción</span>
+              <span>Costo de construcción</span>
               <span className="flex items-center gap-1">
                 {effectiveCost && cell ? (
-                  <span className="text-blue-700 font-semibold">USD {fmtDots(effectiveCost)}/m²</span>
+                  <span className="text-indigo-650 font-black">USD {fmtDots(effectiveCost)}/m²</span>
                 ) : (
-                  <span className="text-gray-300">Sin datos</span>
+                  <span className="text-slate-350">Sin datos</span>
                 )}
-                <span>{costOpen ? '▲' : '▼'}</span>
+                <span className="text-[9px]">{costOpen ? '▲' : '▼'}</span>
               </span>
             </button>
 

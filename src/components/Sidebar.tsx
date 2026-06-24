@@ -13,9 +13,10 @@ interface SidebarProps {
   agentAvatar?: string | null;
   isVerified?: boolean;
   role?: string | null;
+  accountType?: string | null;
 }
 
-export default function Sidebar({ agentName, agentAvatar, isVerified, role }: SidebarProps) {
+export default function Sidebar({ agentName, agentAvatar, isVerified, role, accountType }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -34,6 +35,14 @@ export default function Sidebar({ agentName, agentAvatar, isVerified, role }: Si
       label: 'Panel Admin',
       href: '/admin',
       icon: 'admin_panel_settings',
+    });
+  }
+
+  if (accountType === 'agency') {
+    navItems.splice(navItems.length - 1, 0, {
+      label: 'Mi Inmobiliaria',
+      href: '/agencia',
+      icon: 'corporate_fare',
     });
   }
 

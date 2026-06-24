@@ -22,7 +22,7 @@ export default async function MarketplacePage() {
     const agentIds = properties.map(p => p.agent_id);
     const { data: profiles } = await supabase
       .from('agent_profiles')
-      .select('id, full_name, avatar_url, phone, agency_name')
+      .select('id, full_name, avatar_url, phone, agency_name, subscription_tier, is_verified')
       .in('id', agentIds);
 
     properties = properties.map(p => ({
@@ -44,7 +44,7 @@ export default async function MarketplacePage() {
     const agentIds = prospects.map(p => p.agent_id);
     const { data: profiles } = await supabase
       .from('agent_profiles')
-      .select('id, full_name, avatar_url, phone, agency_name')
+      .select('id, full_name, avatar_url, phone, agency_name, subscription_tier, is_verified')
       .in('id', agentIds);
 
     prospects = prospects.map(p => ({

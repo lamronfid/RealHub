@@ -61,55 +61,120 @@ export default async function HomePage({
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
 
+  const currentTier = profile?.subscription_tier || 'free';
+  const maxProperties = currentTier === 'elite' ? Infinity : currentTier === 'pro' ? 25 : 10;
+  const currentPropsCount = totalProperties || 0;
+  const progressPct = maxProperties === Infinity ? 100 : Math.min(100, Math.round((currentPropsCount / maxProperties) * 100));
+  const planName = currentTier === 'elite' ? 'Élite' : currentTier === 'pro' ? 'Pro' : 'Gratuito';
+  const barColor = progressPct >= 90 ? 'bg-rose-500' : progressPct >= 70 ? 'bg-amber-500' : 'bg-gradient-to-r from-indigo-500 to-violet-600';
+  const limitLabel = maxProperties === Infinity ? 'Ilimitadas' : `${currentPropsCount} de ${maxProperties}`;
+
   return (
     <div className="space-y-8 max-w-[1400px] mx-auto font-sans">
       
-      {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-50/75 via-sky-50/55 to-pink-50/40 p-6 md:p-8 text-slate-800 border border-indigo-100/60 shadow-premium flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        {/* Background glow effects */}
-        <div className="absolute top-[-45%] right-[-10%] w-[320px] h-[320px] bg-gradient-to-br from-indigo-500/10 to-violet-500/10 rounded-full blur-[70px] pointer-events-none" />
-        <div className="absolute bottom-[-45%] left-[-10%] w-[240px] h-[240px] bg-pink-500/80 rounded-full blur-[50px] pointer-events-none opacity-10" />
-        
-        <div className="relative z-10 space-y-2">
-          <span className="bg-indigo-50 text-indigo-700 border border-indigo-100/80 text-[9px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full">
-            Panel de Control
-          </span>
-          <h2 className="text-2xl md:text-3xl font-black font-heading tracking-tight leading-tight text-slate-900">
-            {greeting}, ¡bienvenido a RealHub! 👋
-          </h2>
-          <p className="text-slate-500 text-xs font-semibold max-w-md leading-relaxed">
-            Aquí tienes el resumen de rendimiento y seguimientos activos de tu portafolio inmobiliario en Paraguay.
-          </p>
+      {/* Top Banner and Limit Indicator */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Welcome Banner */}
+        <div className="lg:col-span-2 relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-50/75 via-sky-50/55 to-pink-50/40 p-6 md:p-8 text-slate-800 border border-indigo-100/60 shadow-premium flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          {/* Background glow effects */}
+          <div className="absolute top-[-45%] right-[-10%] w-[320px] h-[320px] bg-gradient-to-br from-indigo-500/10 to-violet-500/10 rounded-full blur-[70px] pointer-events-none" />
+          <div className="absolute bottom-[-45%] left-[-10%] w-[240px] h-[240px] bg-pink-500/80 rounded-full blur-[50px] pointer-events-none opacity-10" />
+          
+          <div className="relative z-10 space-y-2">
+            <span className="bg-indigo-50 text-indigo-700 border border-indigo-100/80 text-[9px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full">
+              Panel de Control
+            </span>
+            <h2 className="text-2xl md:text-3xl font-black font-heading tracking-tight leading-tight text-slate-900">
+              {greeting}, ¡bienvenido a RealHub! 👋
+            </h2>
+            <p className="text-slate-500 text-xs font-semibold max-w-md leading-relaxed">
+              Aquí tienes el resumen de rendimiento y seguimientos activos de tu portafolio inmobiliario en Paraguay.
+            </p>
+          </div>
+          
+          <div className="relative z-10 flex gap-2.5 shrink-0">
+            <Link href="/propiedades/nueva" className="px-5 py-3.5 bg-indigo-600 text-white font-bold text-xs uppercase tracking-wider rounded-2xl hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-100 transition-all active:scale-[0.98]">
+              Nueva Propiedad
+            </Link>
+          </div>
         </div>
-        
-        <div className="relative z-10 flex gap-2.5 shrink-0">
-          <Link href="/propiedades/nueva" className="px-5 py-3.5 bg-indigo-600 text-white font-bold text-xs uppercase tracking-wider rounded-2xl hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-100 transition-all active:scale-[0.98]">
-            Nueva Propiedad
-          </Link>
+
+        {/* Subscription & Property Limits Indicator */}
+        <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-premium relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute top-[-10%] right-[-10%] w-24 h-24 bg-indigo-500/5 rounded-full blur-xl pointer-events-none" />
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-heading">
+                Mi Plan de Suscripción
+              </span>
+              <span className={`text-[9px] font-black uppercase tracking-widest px-3 py-0.5 rounded-full ${
+                currentTier === 'elite' 
+                  ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 border border-amber-300/30' 
+                  : currentTier === 'pro' 
+                    ? 'bg-indigo-50 text-indigo-700 border border-indigo-100' 
+                    : 'bg-slate-50 text-slate-500 border border-slate-200'
+              }`}>
+                Plan {planName}
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs font-bold">
+                <span className="text-slate-700">Propiedades Activas</span>
+                <span className="text-slate-900">{limitLabel}</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                <div className={`h-full rounded-full transition-all duration-500 ${barColor}`} style={{ width: `${progressPct}%` }} />
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-slate-50 mt-4 flex items-center justify-between gap-4">
+            {currentTier === 'elite' ? (
+              <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                <span className="material-symbols-outlined text-sm font-bold">verified</span>
+                <span>Límite Máximo Activo</span>
+              </div>
+            ) : (
+              <>
+                <p className="text-[10px] text-slate-400 font-semibold leading-tight max-w-[150px]">
+                  {progressPct >= 80 ? '¡Estás cerca del límite! Mejora para no perder oportunidades.' : 'Aumenta tus límites para agregar más propiedades.'}
+                </p>
+                <Link href="/subscripcion/planes" className="px-4 py-2.5 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-700 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center gap-1">
+                  <span className="material-symbols-outlined text-sm font-bold">upgrade</span>
+                  Mejorar Plan
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Synchronization Banner (for agents with 0 properties who skipped the wizard) */}
       {totalProperties === 0 && (
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-sky-400 via-indigo-500 to-pink-500 p-6 text-white border border-indigo-100/20 shadow-premium flex flex-col md:flex-row justify-between items-start md:items-center gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
-          <div className="absolute top-[-45%] right-[-10%] w-[320px] h-[320px] bg-gradient-to-br from-white/10 to-transparent rounded-full blur-[70px] pointer-events-none" />
-          <div className="relative z-10 space-y-1.5">
-            <span className="bg-white/20 text-white border border-white/30 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-50/90 via-indigo-50/75 to-sky-50/60 p-6 md:p-8 text-slate-800 border border-indigo-100/80 shadow-premium flex flex-col md:flex-row justify-between items-start md:items-center gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+          {/* Subtle gradient background glows */}
+          <div className="absolute top-[-45%] right-[-10%] w-[320px] h-[320px] bg-gradient-to-br from-indigo-500/10 to-violet-500/10 rounded-full blur-[70px] pointer-events-none" />
+          
+          <div className="relative z-10 space-y-3">
+            <span className="bg-indigo-100/70 text-indigo-800 border border-indigo-200/50 text-[10px] md:text-[11px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full inline-block">
               Sincronización de Cartera
             </span>
-            <h3 className="text-lg font-black font-heading tracking-tight leading-tight">
+            <h3 className="text-xl md:text-2xl font-black font-heading tracking-tight leading-tight text-slate-900">
               ¿Tenés propiedades publicadas en RE/MAX o Century 21?
             </h3>
-            <p className="text-white/80 text-xs font-semibold max-w-xl leading-relaxed">
+            <p className="text-slate-700 text-xs md:text-sm lg:text-[15px] font-bold max-w-2xl leading-relaxed">
               No las cargues una por una. Nuestro importador automático puede buscar tu perfil de agente y copiar tus publicaciones activas a RealHub en un solo clic.
             </p>
           </div>
+          
           <div className="relative z-10 shrink-0">
             <Link
               href="/?wizard=true"
-              className="inline-flex items-center gap-2 px-5 py-3.5 bg-white text-indigo-600 hover:text-indigo-700 font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-slate-50 transition-all hover:scale-[1.02] shadow-md shadow-black/10 active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-6 py-4 bg-indigo-600 text-white font-extrabold text-xs md:text-sm uppercase tracking-wider rounded-2xl hover:bg-indigo-700 transition-all hover:scale-[1.01] shadow-[0_4px_15px_rgba(99,102,241,0.2)] active:scale-[0.98]"
             >
-              <span className="material-symbols-outlined text-sm">travel_explore</span>
+              <span className="material-symbols-outlined text-sm md:text-base font-bold">travel_explore</span>
               <span>Iniciar Asistente</span>
             </Link>
           </div>
@@ -237,7 +302,7 @@ export default async function HomePage({
       <FeedbackButton />
 
       {/* Portfolio Import Wizard Modal */}
-      {totalProperties === 0 && isWizardActive && (
+      {totalProperties === 0 && isWizardActive && profile?.onboarding_completed && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-300">
           <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl relative animate-in zoom-in-95 duration-300">
             <PortfolioImportWizard profile={profile} />

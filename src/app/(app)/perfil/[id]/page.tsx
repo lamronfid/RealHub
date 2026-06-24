@@ -8,6 +8,39 @@ import { getSubscriptionState } from '@/lib/subscription';
 import VerifiedBadge from '@/components/VerifiedBadge';
 import Link from 'next/link';
 
+const PROPERTY_TYPE_LABELS: Record<string, string> = {
+  casa: 'Casas',
+  departamento: 'Departamentos',
+  duplex: 'Dúplex',
+  terreno: 'Terrenos / Lotes',
+  local_comercial: 'Locales Comerciales',
+  oficina: 'Oficinas',
+  deposito: 'Depósitos',
+  quinta: 'Quintas / Countries',
+  campo: 'Estancias / Campos',
+};
+
+const getExperienceLabel = (years: any) => {
+  if (!years) return 'No especificado';
+  const y = parseInt(years, 10);
+  if (y === 1) return 'Menos de 1 año';
+  if (y === 3) return '1 - 3 años';
+  if (y === 5) return '3 - 5 años';
+  if (y === 10) return '5 - 10 años';
+  if (y === 15) return '10 - 15 años';
+  if (y === 20) return 'Más de 15 años';
+  return `${y} años`;
+};
+
+const getSpecialtyLabel = (specialties: any) => {
+  const spec = Array.isArray(specialties) ? specialties[0] : specialties;
+  if (!spec) return 'Ventas y Alquileres';
+  if (spec === 'venta') return 'Ventas de Inmuebles';
+  if (spec === 'alquiler') return 'Alquileres';
+  if (spec === 'ambos') return 'Ventas y Alquileres';
+  return spec;
+};
+
 export default function AgentPublicProfilePage() {
   const params = useParams();
   const router = useRouter();
@@ -16,6 +49,8 @@ export default function AgentPublicProfilePage() {
   const [agent, setAgent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState<AgentReview[]>([]);
+  const [properties, setProperties] = useState<any[]>([]);
+  const [isOwnerBlocked, setIsOwnerBlocked] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [currentProfile, setCurrentProfile] = useState<any>(null);
 
@@ -61,13 +96,51 @@ export default function AgentPublicProfilePage() {
             id,
             full_name: name,
             agency_name: agency,
+            agency_office: index % 2 === 0 ? 'Sucursal Central' : 'Sucursal Este',
             phone: '+595 981 555 123',
             whatsapp: '+595 981 555 123',
             bio: `Agente inmobiliario profesional con amplia experiencia en el mercado de Asunción y Gran Asunción. Especializado en cierres rápidos y colaboraciones 50/50.`,
             subscription_tier: index === 0 ? 'elite' : 'free',
             is_verified: index === 0,
-            avatar_url: null
+            avatar_url: null,
+            experience_years: index === 0 ? 10 : 3,
+            specialties: ['ambos'],
+            coverage_areas: ['Asunción', 'Fernando de la Mora'],
+            license_number: 'M.U.A. 4832',
+            most_sold_types: ['casa', 'departamento', 'terreno'],
+            has_developments: index === 0,
+            developments_details: index === 0 ? '• Edificio More del Sol: Unidades premium de 1, 2 y 3 dormitorios en preventa.\n• Condominio Aqua Village: Lotes residenciales exclusivos con laguna artificial.' : null
           });
+
+          // Mock properties for the mock agent
+          setProperties([
+            {
+              id: 'mock-prop-1',
+              title: 'Hermoso Departamento en Villa Morra',
+              property_type: 'departamento',
+              transaction_type: 'alquiler',
+              rent_price: 4500000,
+              currency: 'PYG',
+              bedrooms: 2,
+              bathrooms: 2,
+              city: 'Asunción',
+              neighborhood: 'Villa Morra',
+              photos: []
+            },
+            {
+              id: 'mock-prop-2',
+              title: 'Residencia Moderna en Luque',
+              property_type: 'casa',
+              transaction_type: 'venta',
+              sale_price: 185000,
+              currency: 'USD',
+              bedrooms: 3,
+              bathrooms: 3,
+              city: 'Luque',
+              neighborhood: 'Cortijo',
+              photos: []
+            }
+          ]);
         } else {
           const { data: prof, error } = await supabase
             .from('agent_profiles')
@@ -82,19 +155,44 @@ export default function AgentPublicProfilePage() {
               id,
               full_name: 'Agente RealHub',
               agency_name: 'Inmobiliaria Local',
+              agency_office: null,
               phone: '+595 981 000 000',
               whatsapp: '+595 981 000 000',
               bio: 'Agente registrado en RealHub.',
               subscription_tier: 'free',
               is_verified: false,
-              avatar_url: null
+              avatar_url: null,
+              experience_years: 1,
+              specialties: ['ambos'],
+              coverage_areas: ['Asunción'],
+              license_number: 'No registrado',
+              most_sold_types: [],
+              has_developments: false,
+              developments_details: null
             });
           } else {
-            setAgent(prof);
+            // Block Owner accounts
+            if (prof.role === 'owner') {
+              setIsOwnerBlocked(true);
+            } else {
+              setAgent(prof);
+
+              // 3. Fetch agent's properties
+              const { data: props, error: propsErr } = await supabase
+                .from('properties')
+                .select('*')
+                .eq('agent_id', id)
+                .eq('status', 'activa')
+                .order('created_at', { ascending: false });
+
+              if (!propsErr && props) {
+                setProperties(props);
+              }
+            }
           }
         }
 
-        // 3. Fetch reviews for the agent
+        // 4. Fetch reviews for the agent
         const revs = await getAgentReviews(id);
         setReviews(revs);
       } catch (err) {
@@ -151,6 +249,21 @@ export default function AgentPublicProfilePage() {
       setIsSubmitting(false);
     }
   };
+
+  if (isOwnerBlocked) {
+    return (
+      <div className="text-center py-16 space-y-4 font-sans bg-slate-950/5 max-w-md mx-auto rounded-3xl p-8 border border-slate-100/50 mt-12">
+        <span className="material-symbols-outlined text-5xl text-indigo-500">admin_panel_settings</span>
+        <h2 className="text-lg font-bold text-slate-800">Perfil no público</h2>
+        <p className="text-xs text-slate-450 leading-relaxed">
+          Los perfiles de tipo Propietario (Owner) no están disponibles para vista pública de otros agentes.
+        </p>
+        <Link href="/marketplace" className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
+          Ir al Marketplace
+        </Link>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -237,8 +350,12 @@ export default function AgentPublicProfilePage() {
             )}
           </div>
 
-          <p className="text-sm font-semibold text-slate-500">
-            {agent.agency_name || 'Agente Independiente'}
+          <p className="text-sm font-semibold text-slate-500 flex items-center gap-1.5 justify-center md:justify-start">
+            <span className="material-symbols-outlined text-slate-400 text-sm">corporate_fare</span>
+            <span>
+              {agent.agency_name || 'Agente Independiente'}
+              {agent.agency_name && agent.agency_office && ` — ${agent.agency_office}`}
+            </span>
           </p>
 
           {agent.bio && (
@@ -246,6 +363,44 @@ export default function AgentPublicProfilePage() {
               {agent.bio}
             </p>
           )}
+
+          {/* Most Sold Property Types tags */}
+          {agent.most_sold_types && agent.most_sold_types.length > 0 && (
+            <div className="space-y-1.5 pt-2 flex flex-col items-center md:items-start">
+              <span className="text-[10px] text-slate-405 font-bold uppercase tracking-wider block">Propiedades de Especialidad:</span>
+              <div className="flex flex-wrap justify-center md:justify-start gap-1.5">
+                {agent.most_sold_types.map((type: string) => (
+                  <span key={type} className="bg-slate-100 text-slate-700 text-[10px] font-bold px-3 py-1 rounded-full border border-slate-200/40">
+                    {PROPERTY_TYPE_LABELS[type] || type}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Professional Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-3 border-t border-b border-slate-100 my-4 text-left font-sans">
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Experiencia</span>
+              <span className="text-xs font-bold text-slate-700">{getExperienceLabel(agent.experience_years)}</span>
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Especialidad</span>
+              <span className="text-xs font-bold text-slate-700">{getSpecialtyLabel(agent.specialties)}</span>
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Licencia</span>
+              <span className="text-xs font-bold text-slate-700 truncate block">{agent.license_number || 'No especificado'}</span>
+            </div>
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Zonas Cobertura</span>
+              <span className="text-xs font-bold text-slate-700 truncate block" title={agent.coverage_areas?.join(', ')}>
+                {agent.coverage_areas && agent.coverage_areas.length > 0 
+                  ? agent.coverage_areas.join(', ') 
+                  : 'Paraguay'}
+              </span>
+            </div>
+          </div>
 
           {/* Quick Contact Buttons */}
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
@@ -287,6 +442,107 @@ export default function AgentPublicProfilePage() {
           </div>
         </div>
 
+      </div>
+
+      {/* Developments Section */}
+      {agent.has_developments && agent.developments_details && (
+        <div className="bg-gradient-to-br from-slate-900 via-slate-850 to-indigo-950 rounded-3xl p-6 md:p-8 shadow-xl text-white space-y-4 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="flex items-center gap-2.5 border-b border-white/10 pb-4">
+            <span className="material-symbols-outlined text-indigo-400 text-2xl">home_work</span>
+            <h2 className="font-[family-name:var(--font-outfit)] text-lg font-black tracking-wide">
+              Desarrollos y Emprendimientos en Pozo
+            </h2>
+          </div>
+          <p className="text-sm text-slate-300 leading-relaxed font-sans whitespace-pre-line bg-white/5 border border-white/10 rounded-2xl p-4">
+            {agent.developments_details}
+          </p>
+        </div>
+      )}
+
+      {/* Properties Grid Section */}
+      <div className="bg-white rounded-3xl border border-slate-100 p-6 md:p-8 shadow-sm space-y-6">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <h2 className="font-[family-name:var(--font-outfit)] text-lg font-black text-slate-800 flex items-center gap-2">
+            <span className="material-symbols-outlined text-indigo-500 font-bold">domain</span>
+            Propiedades del Agente
+          </h2>
+          <span className="bg-indigo-50 text-indigo-700 text-xs font-black px-3 py-1 rounded-full border border-indigo-100">
+            {properties.length} {properties.length === 1 ? 'Propiedad' : 'Propiedades'}
+          </span>
+        </div>
+
+        {properties.length === 0 ? (
+          <div className="text-center py-12 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 p-6">
+            <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">domain_disabled</span>
+            <p className="text-slate-400 text-xs font-semibold">Este agente no tiene propiedades activas publicadas actualmente.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {properties.map((prop) => {
+              const price = prop.transaction_type === 'venta' ? prop.sale_price : prop.rent_price;
+              const formattedPrice = price ? Math.round(price).toLocaleString('es-PY').replace(/,/g, '.') : 'Consultar';
+              const photoUrl = prop.photos && prop.photos.length > 0 ? prop.photos[0] : null;
+
+              return (
+                <div key={prop.id} className="group bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between font-sans">
+                  <div className="relative aspect-[16/10] bg-slate-100 overflow-hidden shrink-0">
+                    {photoUrl ? (
+                      <img src={photoUrl} alt={prop.title} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300" />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-1.5 bg-slate-50">
+                        <span className="material-symbols-outlined text-3xl">image</span>
+                        <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400">Sin foto</span>
+                      </div>
+                    )}
+                    <span className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-xs text-white text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg">
+                      {prop.transaction_type}
+                    </span>
+                  </div>
+
+                  <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                    <div className="space-y-1 text-left">
+                      <p className="text-indigo-600 font-extrabold text-[13px]">
+                        {prop.currency} {formattedPrice} {prop.transaction_type === 'alquiler' && '/ mes'}
+                      </p>
+                      <h3 className="font-sans font-bold text-xs text-slate-800 line-clamp-1 group-hover:text-indigo-600 transition-colors">
+                        {prop.title}
+                      </h3>
+                      <p className="text-[10px] text-slate-450 font-semibold flex items-center gap-1">
+                        <span className="material-symbols-outlined text-xs">location_on</span>
+                        {prop.neighborhood}, {prop.city}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-2 border-t border-slate-100 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                      <span className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-xs">bed</span>
+                        {prop.bedrooms || 0} Dorms
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-xs">bathtub</span>
+                        {prop.bathrooms || 0} Baños
+                      </span>
+                      <span className="capitalize ml-auto bg-slate-50 text-slate-550 border border-slate-100 px-2 py-0.5 rounded-md">
+                        {prop.property_type}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="px-4 pb-4 shrink-0">
+                    <Link
+                      href={`/propiedades/${prop.id}`}
+                      className="w-full py-2.5 bg-slate-50 hover:bg-indigo-600 border border-slate-100 hover:border-indigo-600 hover:text-white text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-1"
+                    >
+                      Ver Detalles
+                      <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Two columns: Reviews list and Create review form */}
@@ -362,9 +618,15 @@ export default function AgentPublicProfilePage() {
                           )}
                         </div>
                         <div>
+                        {rev.from_agent_id ? (
+                          <Link href={`/perfil/${rev.from_agent_id}`}>
+                            <h4 className="text-xs font-bold text-slate-700 hover:text-indigo-600 hover:underline transition-colors cursor-pointer">{rev.from_agent_name}</h4>
+                          </Link>
+                        ) : (
                           <h4 className="text-xs font-bold text-slate-700">{rev.from_agent_name}</h4>
-                          <span className="text-[9px] text-slate-400 font-semibold">Colega Inmobiliario</span>
-                        </div>
+                        )}
+                        <span className="text-[9px] text-slate-400 font-semibold">Colega Inmobiliario</span>
+                      </div>
                       </div>
                       <div className="text-right">
                         <div className="flex text-amber-400 text-[10px]">

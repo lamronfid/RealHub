@@ -22,8 +22,8 @@ export default async function PublicPropertyPage({
 
   if (!property) return notFound();
 
-  // If a ref is provided, fetch THAT agent's info (Agent B)
-  // We explicitly DO NOT fetch Agent A's info to keep it white-label
+  // If a ref is provided, fetch THAT agent's info (Agent B) to keep it white-label
+  // If no ref is provided, fall back to the owner (Agent A) so we always have contact details.
   let displayAgent = null;
   if (ref) {
     const { data: agentData } = await supabase
@@ -33,6 +33,16 @@ export default async function PublicPropertyPage({
       .single();
     
     if (agentData) displayAgent = agentData;
+  }
+
+  if (!displayAgent && property.agent_id) {
+    const { data: ownerData } = await supabase
+      .from('agent_profiles')
+      .select('full_name, phone, avatar_url, agency_name')
+      .eq('id', property.agent_id)
+      .single();
+    
+    if (ownerData) displayAgent = ownerData;
   }
 
   // Pre-compute basic stats
@@ -171,29 +181,28 @@ export default async function PublicPropertyPage({
 
       {/* Floating Sticky Footer for Contact (Agent B) */}
       {displayAgent && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-200 p-4 z-50 shadow-[0_-10px_40px_rgb(0,0,0,0.05)]">
+        <div className="fixed bottom-0 left-0 right-0 bg-white/85 backdrop-blur-md border-t border-slate-100 p-4 z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] font-sans">
           <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               {displayAgent.avatar_url ? (
-                <img src={displayAgent.avatar_url} alt={displayAgent.full_name} className="w-12 h-12 rounded-full object-cover border border-slate-200" />
+                <img src={displayAgent.avatar_url} alt={displayAgent.full_name} className="w-11 h-11 rounded-full object-cover border border-slate-205/80 ring-2 ring-indigo-50" />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center">
-                  <span className="text-white font-bold">{displayAgent.full_name.substring(0,2).toUpperCase()}</span>
+                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center border border-indigo-100 shadow-inner shrink-0">
+                  <span className="text-white font-bold text-xs">{displayAgent.full_name.substring(0,2).toUpperCase()}</span>
                 </div>
               )}
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tu Agente Inmobiliario</p>
-                <p className="font-bold text-slate-900">{displayAgent.full_name}</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Contacto del Agente</p>
+                <p className="font-bold text-slate-800 text-sm leading-none">{displayAgent.full_name}</p>
               </div>
             </div>
             
             {phoneLink && (
               <a href={phoneLink} target="_blank" rel="noopener noreferrer" 
-                className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-full font-bold flex items-center gap-2 transition-colors shadow-lg shadow-emerald-500/20"
+                className="bg-[#25D366] hover:bg-[#20ba56] text-white px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md shadow-emerald-100 hover:shadow-emerald-250/30 active:scale-98"
               >
-                <span className="material-symbols-outlined">chat</span>
-                <span className="hidden sm:inline">Contactar por WhatsApp</span>
-                <span className="sm:hidden">Contactar</span>
+                <span className="material-symbols-outlined text-sm font-bold">chat</span>
+                <span>WhatsApp Directo</span>
               </a>
             )}
           </div>

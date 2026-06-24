@@ -566,18 +566,18 @@ function BarrioMultiSelect({
         : '';
 
   return (
-    <div className="relative">
+    <div className="relative font-sans">
       <div
-        className={`flex flex-wrap gap-1 min-h-[38px] border rounded-xl px-2.5 py-1.5 bg-slate-50 focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all ${disabled ? 'border-slate-100 cursor-not-allowed opacity-50' : 'border-slate-200 cursor-text'}`}
+        className={`flex flex-wrap gap-1.5 min-h-[38px] border rounded-xl px-2.5 py-1.5 bg-white/70 backdrop-blur-xs focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all shadow-xs ${disabled ? 'border-slate-100/50 cursor-not-allowed opacity-50' : 'border-slate-200/80 cursor-text'}`}
         onClick={() => !disabled && inputRef.current?.focus()}
       >
         {selected.map((b) => (
-          <span key={b} className="inline-flex items-center gap-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded-full font-bold my-0.5">
+          <span key={b} className="inline-flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-750 text-[10px] px-2.5 py-0.5 rounded-full font-bold my-0.5 shadow-3xs animate-fade-in">
             {b}
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); remove(b); }}
-              className="ml-0.5 hover:text-indigo-900 font-black text-sm leading-none"
+              className="ml-0.5 hover:text-indigo-950 font-black text-sm leading-none"
               tabIndex={-1}
             >
               ×
@@ -593,17 +593,17 @@ function BarrioMultiSelect({
           onKeyDown={handleKeyDown}
           disabled={disabled}
           placeholder={placeholderText}
-          className="flex-1 min-w-[80px] outline-none text-xs text-slate-800 bg-transparent placeholder-slate-400 py-0.5"
+          className="flex-1 min-w-[80px] outline-none text-xs text-slate-800 bg-transparent placeholder-slate-400 py-0.5 font-semibold"
         />
       </div>
       {open && !disabled && filtered.length > 0 && (
-        <ul className="absolute left-0 top-full mt-1.5 z-30 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-48 overflow-y-auto w-full overflow-hidden">
+        <ul className="absolute left-0 top-full mt-1.5 z-30 bg-white/95 backdrop-blur-md border border-slate-150 rounded-2xl shadow-premium max-h-48 overflow-y-auto w-full overflow-hidden animate-fade-in">
           {filtered.map((b) => (
             <li key={b.name}>
               <button
                 type="button"
                 onMouseDown={() => add(b.name)}
-                className="w-full text-left px-3 py-2 text-xs text-slate-600 font-semibold hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center justify-between"
+                className="w-full text-left px-3.5 py-2.5 text-xs text-slate-650 font-semibold hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center justify-between"
               >
                 <span>{b.name}</span>
                 {b.count !== undefined && (
@@ -655,10 +655,10 @@ function FilterDropdown({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`flex items-center gap-1.5 border rounded-xl px-3 py-2 text-xs font-bold transition-all whitespace-nowrap ${
+        className={`flex items-center gap-1.5 border rounded-xl px-3 py-2 text-xs font-bold transition-all whitespace-nowrap shadow-xs ${
           activeCount > 0
-            ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-            : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+            ? 'border-indigo-550 bg-indigo-500/10 text-indigo-705'
+            : 'border-slate-205 bg-white/70 backdrop-blur-xs text-slate-600 hover:border-slate-305 hover:bg-white'
         }`}
       >
         {label}
@@ -675,7 +675,7 @@ function FilterDropdown({
       {open && (
         <>
           <div className="fixed inset-0 z-20" onClick={() => { setOpen(false); setSearch(''); }} />
-          <div className="absolute left-0 top-full mt-1.5 z-30 bg-white border border-slate-100 rounded-2xl shadow-xl min-w-[220px] max-w-[280px] overflow-hidden">
+          <div className="absolute left-0 top-full mt-1.5 z-30 bg-white/95 backdrop-blur-md border border-slate-150 rounded-2xl shadow-premium min-w-[220px] max-w-[280px] overflow-hidden animate-fade-in">
             {searchable && (
               <div className="p-2 border-b border-slate-100">
                 <input
@@ -756,8 +756,8 @@ function PropTypeMultiSelect({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`w-full flex items-center justify-between border rounded-xl px-3 py-2 text-xs font-semibold bg-slate-50 text-slate-800 hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none min-h-[38px] transition-all ${
-          selected.length > 0 ? 'border-indigo-400 bg-indigo-50 text-indigo-700' : 'border-slate-200'
+        className={`w-full flex items-center justify-between border rounded-xl px-3 py-2.5 text-xs font-semibold bg-white/70 backdrop-blur-xs text-slate-805 hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none min-h-[38px] transition-all shadow-xs ${
+          selected.length > 0 ? 'border-indigo-450 bg-indigo-500/10 text-indigo-705' : 'border-slate-200/80'
         }`}
       >
         <span className="truncate">{label}</span>
@@ -769,7 +769,7 @@ function PropTypeMultiSelect({
       {open && (
         <>
           <div className="fixed inset-0 z-15" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 top-full mt-1.5 z-25 bg-white border border-slate-100 rounded-2xl shadow-xl min-w-[220px] py-1.5 overflow-hidden">
+          <div className="absolute left-0 top-full mt-1.5 z-25 bg-white/95 backdrop-blur-md border border-slate-150 rounded-2xl shadow-premium min-w-[220px] py-2 overflow-hidden animate-fade-in">
             {Object.entries(PS_PROP_GROUPS).map(([group, types]) => (
               <div key={group}>
                 <p className="px-3 pt-2 pb-0.5 text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">{group}</p>
@@ -853,10 +853,10 @@ function BedroomsMultiSelect({
             key={value}
             type="button"
             onClick={() => toggle(value)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${
               active
-                ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                ? 'border-indigo-550 bg-indigo-500/10 text-indigo-705 shadow-xs'
+                : 'border-slate-200 bg-white/70 backdrop-blur-xs text-slate-605 hover:border-slate-300 hover:bg-white'
             }`}
           >
             {label}
@@ -1120,7 +1120,7 @@ function BulkScraperTab({ incrementSearch }: { incrementSearch: () => void }) {
     setPriceError(null);
   }
 
-  const selectCls = 'w-full bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-2 px-3 text-xs font-semibold text-slate-800 focus:outline-none transition-all min-h-[38px]';
+  const selectCls = 'w-full bg-white/70 backdrop-blur-xs border border-slate-200/80 hover:border-slate-300 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-xl py-2.5 px-3.5 text-xs font-semibold text-slate-800 focus:outline-none transition-all min-h-[38px] shadow-xs';
 
   return (
     <div className="space-y-6">
@@ -1159,7 +1159,7 @@ function BulkScraperTab({ incrementSearch }: { incrementSearch: () => void }) {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSearch} className="bg-white border border-slate-100 rounded-3xl p-6 md:p-8 shadow-sm space-y-5">
+      <form onSubmit={handleSearch} className="glass-panel shadow-premium rounded-3xl p-6 md:p-8 space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <Label required>Operación</Label>
@@ -1243,13 +1243,13 @@ function BulkScraperTab({ incrementSearch }: { incrementSearch: () => void }) {
         <div className="flex flex-wrap items-end gap-4">
           <div>
             <Label>Precio</Label>
-            <div className="flex rounded-xl border border-slate-200 overflow-hidden text-xs font-bold h-[38px] bg-slate-50">
+            <div className="flex rounded-xl border border-slate-200/85 overflow-hidden text-xs font-bold h-[38px] bg-white/70 backdrop-blur-xs shadow-xs">
               {(['USD', 'PYG'] as PsCurrency[]).map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => handleCurrencyToggle(c)}
-                  className={`px-4 transition-colors ${priceCurrency === c ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
+                  className={`px-4 transition-all ${priceCurrency === c ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-150'}`}
                 >
                   {c === 'USD' ? '$ USD' : '₲ PYG'}
                 </button>
@@ -1460,9 +1460,9 @@ function BulkScraperTab({ incrementSearch }: { incrementSearch: () => void }) {
             </div>
 
             {/* Filter / Sort bar */}
-            <div className="bg-white border border-slate-100 rounded-2xl p-3 shadow-sm space-y-3">
+            <div className="glass-panel shadow-premium rounded-2xl p-4 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <div className="flex items-center bg-slate-100 rounded-xl p-0.5 gap-0.5 font-sans">
+                <div className="flex items-center bg-slate-100/80 border border-slate-200/40 rounded-xl p-1 gap-1 font-sans shadow-inner">
                   {([['none', 'Relevancia'], ['asc', 'Precio ↑'], ['desc', 'Precio ↓']] as [SortOrder, string][]).map(([val, label]) => (
                     <button
                       key={val}
@@ -1769,7 +1769,7 @@ function SingleScraperTab({ profile, searchesUsed, setSearchesUsed }: SingleScra
   return (
     <div className="space-y-6">
       {/* Form Box */}
-      <div className="bg-white border border-slate-100 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+      <div className="glass-panel shadow-premium rounded-3xl p-6 md:p-8 space-y-6">
         <div className="flex flex-wrap items-center gap-2 text-xs font-sans">
           <span className="text-slate-400 font-bold">Portales Compatibles:</span>
           <span className="bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
@@ -1794,7 +1794,7 @@ function SingleScraperTab({ profile, searchesUsed, setSearchesUsed }: SingleScra
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="Pega el link de InfoCasas o Clasipar aquí..."
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-2xl py-3.5 pl-11 pr-4 text-xs font-semibold text-slate-800 focus:outline-none placeholder-slate-400 transition-all"
+                  className="w-full bg-white/70 backdrop-blur-xs border border-slate-200/80 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-2xl py-3.5 pl-11 pr-4 text-xs font-semibold text-slate-800 focus:outline-none placeholder-slate-400 transition-all shadow-xs"
                 />
               </div>
               <button
@@ -1848,7 +1848,7 @@ function SingleScraperTab({ profile, searchesUsed, setSearchesUsed }: SingleScra
 
       {/* Scraped Results Preview */}
       {success && scrapedResult && (
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 md:p-8 shadow-sm space-y-6 animate-fade-in relative font-sans">
+        <div className="glass-panel shadow-premium rounded-3xl p-6 md:p-8 space-y-6 animate-fade-in relative font-sans">
           {saveSuccess && (
             <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center z-20 space-y-4">
               <div className="w-16 h-16 bg-emerald-50 text-emerald-500 border border-emerald-100 rounded-full flex items-center justify-center shadow-lg animate-bounce">
@@ -1957,7 +1957,7 @@ function SingleScraperTab({ profile, searchesUsed, setSearchesUsed }: SingleScra
                 <textarea 
                   value={scrapedResult.description}
                   onChange={(e) => setScrapedResult({ ...scrapedResult, description: e.target.value })}
-                  className="w-full text-xs text-slate-500 font-medium bg-slate-50/50 border border-slate-200 rounded-xl p-3 h-28 focus:outline-none focus:border-indigo-500 resize-none leading-relaxed"
+                  className="w-full text-xs text-slate-500 font-medium bg-white/60 border border-slate-200/80 rounded-xl p-3 h-28 focus:outline-none focus:border-indigo-500 resize-none leading-relaxed focus:bg-white focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-xs"
                 />
               </div>
 
