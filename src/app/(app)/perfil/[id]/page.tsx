@@ -464,9 +464,6 @@ export default function AgentPublicProfilePage() {
           <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
             {totalReviews} {totalReviews === 1 ? 'Opinión' : 'Opiniones'}
           </p>
-          <div className="pt-2 text-[10px] text-emerald-600 font-bold bg-emerald-500/5 border border-emerald-500/10 rounded-lg px-2 py-0.5">
-            Comisión Respetada: 100%
-          </div>
         </div>
 
       </div>
