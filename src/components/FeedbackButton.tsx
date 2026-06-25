@@ -1,13 +1,20 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
 export default function FeedbackButton() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [description, setDescription] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  // Hide on ACM pages to prevent overlapping action buttons
+  if (pathname?.startsWith('/acm')) {
+    return null;
+  }
 
   const handleSubmit = () => {
     if (!description.trim()) return;
