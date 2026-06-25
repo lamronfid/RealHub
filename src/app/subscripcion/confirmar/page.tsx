@@ -6,7 +6,6 @@ import Link from 'next/link';
 
 function ConfirmarSuscripcionPageContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const plan = searchParams.get('plan') || 'elite';
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -23,10 +22,6 @@ function ConfirmarSuscripcionPageContent() {
     }
     checkAuth();
   }, []);
-
-  const handleOpenInbox = () => {
-    router.push(`/subscripcion/correo?plan=${plan}`);
-  };
 
   return (
     <div className="min-h-[80vh] bg-[#0A0D1A] text-slate-100 rounded-3xl p-6 md:p-12 pt-24 md:pt-32 relative overflow-hidden border border-slate-900 shadow-2xl flex flex-col justify-center items-center">
@@ -83,22 +78,15 @@ function ConfirmarSuscripcionPageContent() {
           </p>
         </div>
 
-        <div className="bg-indigo-950/20 border border-indigo-500/10 rounded-2xl p-4 text-left space-y-2.5">
-          <h4 className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-sm">info</span> Modo de Simulación Activo
-          </h4>
-          <p className="text-[11px] text-slate-400 leading-normal">
-            Como estás en el entorno de pruebas de <strong>RealHub Localhost</strong>, puedes usar nuestro simulador de correo electrónico para continuar el flujo de pago inmediatamente.
-          </p>
-        </div>
-
-        <button
-          onClick={handleOpenInbox}
+        <a
+          href="https://mail.google.com"
+          target="_blank"
+          rel="noopener noreferrer"
           className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-sky-400 via-indigo-500 to-pink-500 text-white font-extrabold text-xs uppercase tracking-widest hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(99,102,241,0.25)] flex items-center justify-center gap-2"
         >
           <span className="material-symbols-outlined text-base">forward_to_inbox</span>
-          Abrir Simulador de Correo
-        </button>
+          Ir a mi correo (Gmail / Outlook)
+        </a>
 
         <div className="pt-2">
           <Link href="/subscripcion/planes" className="text-xs text-slate-500 hover:text-slate-300 transition-colors flex items-center justify-center gap-1">

@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { STAGE_LABELS, STAGE_COLORS, type PipelineStage } from '@/lib/types';
 import FeedbackButton from '@/components/FeedbackButton';
-import PortfolioImportWizard from '@/components/PortfolioImportWizard';
 import { cookies } from 'next/headers';
 
 export default async function HomePage({
@@ -300,15 +299,6 @@ export default async function HomePage({
       </div>
 
       <FeedbackButton />
-
-      {/* Portfolio Import Wizard Modal */}
-      {totalProperties === 0 && isWizardActive && profile?.onboarding_completed && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-300">
-          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl relative animate-in zoom-in-95 duration-300">
-            <PortfolioImportWizard profile={profile} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

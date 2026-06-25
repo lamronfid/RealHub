@@ -78,9 +78,16 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   // Retrieve subscription state (with local storage override fallbacks)
   const { isVerified } = getSubscriptionState(profile);
 
+  if (needsOnboarding) {
+    return (
+      <div className="min-h-screen bg-slate-50/50 flex items-center justify-center p-4">
+        <OnboardingWrapper profile={profile} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50/50">
-      {needsOnboarding && <OnboardingWrapper />}
       <FeedbackButton />
       <RealtimeNotificationToast />
 
