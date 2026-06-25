@@ -40,7 +40,8 @@ export async function POST(request: Request) {
     const tier = profile.subscription_tier || 'free';
     const searchesUsed = profile.scraper_searches_used || 0;
 
-    // 4. Access Control Gates
+    // 4. Access Control Gates - Bypassed for free launch phase
+    /* 
     if (!isAdminOrOwner) {
       if (tier === 'free' || tier === 'standard') {
         return NextResponse.json({ 
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
         }, { status: 403 });
       }
     }
+    */
 
     // =========================================================================
     // INTEGRACIÓN DEL SCRAPER REAL:
