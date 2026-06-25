@@ -239,10 +239,11 @@ export interface NavItem {
 export const AGENT_NAV_ITEMS: NavItem[] = [
   { label: 'Inicio', href: '/', icon: 'home' },
   { label: 'Propiedades', href: '/propiedades', icon: 'domain' },
-  { label: 'Prospectos', href: '/prospectos', icon: 'people' },
+  { label: 'Búsquedas', href: '/prospectos', icon: 'saved_search' },
   { label: 'Marketplace', href: '/marketplace', icon: 'storefront' },
   { label: 'Scraper', href: '/scraper', icon: 'travel_explore' },
   { label: 'ACM', href: '/acm/nuevo', icon: 'analytics' },
+  { label: 'Calculadora', href: '/calculadora', icon: 'calculate' },
   { label: 'Agenda', href: '/agenda', icon: 'calendar_month' },
   { label: 'Mi Perfil', href: '/perfil', icon: 'person' },
 ];

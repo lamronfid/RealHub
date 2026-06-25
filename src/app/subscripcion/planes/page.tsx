@@ -145,15 +145,28 @@ export default function PlanesPage() {
 
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-4 mb-10 relative z-10">
-        <span className="bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full inline-block">
+        <span className="bg-indigo-50 text-indigo-650 border border-indigo-100 text-[10px] font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full inline-block">
           Suscripciones RealHub
         </span>
         <h1 className="font-heading text-4xl md:text-5xl font-black tracking-tight text-slate-900 leading-none">
-          Eleva tu Negocio al <span className="text-indigo-600">Máximo Nivel</span>
+          Eleva tu Negocio al <span className="text-indigo-650">Máximo Nivel</span>
         </h1>
         <p className="text-slate-500 text-sm leading-relaxed max-w-lg mx-auto font-semibold">
           Publica propiedades sin límites, automatiza tus cargas con Inteligencia Artificial y destaca tu portafolio en Paraguay.
         </p>
+
+        {/* Banner de Acceso Gratuito Élite */}
+        <div className="bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-pink-500/10 border border-indigo-100/60 p-5 rounded-2xl text-left max-w-xl mx-auto mt-6 relative overflow-hidden shadow-sm">
+          <div className="flex items-start gap-3">
+            <span className="material-symbols-outlined text-indigo-600 text-2xl shrink-0 mt-0.5">verified_user</span>
+            <div>
+              <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Acceso Élite Habilitado de forma Gratuita</h4>
+              <p className="text-[11px] text-slate-500 leading-relaxed font-semibold mt-1">
+                Durante esta fase de lanzamiento, hemos habilitado de forma gratuita los beneficios del **Plan Élite** para todos los usuarios. No es necesario realizar ningún pago para publicar propiedades ilimitadas, usar el scraper o tener tu cuenta verificada.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* 🔄 BILLING CYCLE TOGGLE */}

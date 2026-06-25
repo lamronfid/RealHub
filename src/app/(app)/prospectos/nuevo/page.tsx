@@ -130,7 +130,7 @@ export default function NuevoProspecto() {
         <Link href="/prospectos" className="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-full text-slate-500 hover:text-slate-900 hover:border-slate-300 transition-colors">
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
         </Link>
-        <h2 className="font-heading text-2xl font-bold text-slate-900">Nuevo Prospecto</h2>
+        <h2 className="font-heading text-2xl font-bold text-slate-900">Nueva Búsqueda</h2>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-100 p-6 md:p-8 space-y-8 shadow-sm">
@@ -139,7 +139,7 @@ export default function NuevoProspecto() {
         {/* Contact Info */}
         <div className="space-y-4">
           <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-            <span className="material-symbols-outlined text-[18px]">person</span> Datos Personales
+            <span className="material-symbols-outlined text-[18px]">person</span> Datos del Solicitante / Cliente
           </h3>
           <div>
             <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Nombre Completo *</label>
@@ -389,12 +389,12 @@ export default function NuevoProspecto() {
           {isPending ? (
             <>
               <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-              Guardando Prospecto...
+              Guardando Búsqueda...
             </>
           ) : (
             <>
               <span className="material-symbols-outlined text-[20px]">save</span>
-              Guardar Prospecto
+              Guardar Búsqueda
             </>
           )}
         </button>

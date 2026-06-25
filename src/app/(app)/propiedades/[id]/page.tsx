@@ -211,6 +211,17 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
                     {property.currency === 'PYG' ? '₲' : 'U$D'} {Number(property.transaction_type === 'alquiler' ? property.rent_price || 0 : property.sale_price || 0).toLocaleString('es-PY')}
                   </p>
                 )}
+                {property.transaction_type !== 'alquiler' && (
+                  <div className="mt-4">
+                    <Link 
+                      href={`/calculadora?price=${property.transaction_type === 'ambos' ? property.sale_price || 0 : (property.transaction_type === 'compra' ? property.sale_price || 0 : property.rent_price || 0)}&currency=${property.currency}&type=${property.property_type}&title=${encodeURIComponent(property.title || '')}`}
+                      className="w-full flex items-center justify-center gap-1.5 bg-indigo-50 border border-indigo-100 text-indigo-750 hover:bg-indigo-100 py-2.5 rounded-2xl text-xs font-black transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">calculate</span>
+                      Simular Financiación / ROI
+                    </Link>
+                  </div>
+                )}
               </div>
 
               {/* Map Section */}

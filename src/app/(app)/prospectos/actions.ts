@@ -135,3 +135,66 @@ export async function updateProspect(prospectId: string, formData: FormData) {
   revalidatePath('/');
   return { success: true };
 }
+
+export async function saveSearchFromMarketplace(data: {
+  propertyType: string;
+  transactionType: string;
+  roomsMin: number | null;
+  bathroomsMin: number | null;
+  searchText: string;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('No autorizado');
+
+  const formattedType = data.propertyType !== 'all' ? data.propertyType : 'Propiedad';
+  const fullName = `Búsqueda: ${formattedType.toUpperCase()}` + 
+    (data.roomsMin ? ` ${data.roomsMin} Dorms` : '') + 
+    (data.bathroomsMin ? ` ${data.bathroomsMin} Baños` : '') + 
+    (data.searchText ? ` en ${data.searchText}` : '');
+
+  const { data: prospect, error } = await supabase.from('prospects').insert({
+    agent_id: user.id,
+    full_name: fullName,
+    phone: '',
+    email: '',
+    transaction_type: data.transactionType === 'all' ? 'compra' : data.transactionType,
+    price_min: null,
+    price_max: null,
+    currency: 'USD',
+    notes: data.searchText ? `Búsqueda automatizada con término: ${data.searchText}` : 'Búsqueda automatizada guardada',
+    property_types: data.propertyType !== 'all' ? [data.propertyType] : [],
+    departments: [],
+    cities: data.searchText ? [data.searchText] : [],
+    neighborhoods: [],
+    rooms_min: data.roomsMin,
+    bathrooms_min: data.bathroomsMin,
+    garages_min: null,
+    stage: 'nuevo_contacto',
+    visibility: 'marketplace'
+  }).select().single();
+
+  if (error) return { error: error.message };
+
+  if (prospect) {
+    const followUpDate = new Date();
+    followUpDate.setDate(followUpDate.getDate() + 1);
+    await supabase.from('follow_ups').insert({
+      prospect_id: prospect.id,
+      agent_id: user.id,
+      scheduled_at: followUpDate.toISOString(),
+      interval_label: '24h primer contacto',
+      status: 'pending',
+    });
+    await supabase.from('pipeline_events').insert({
+      prospect_id: prospect.id,
+      agent_id: user.id,
+      to_stage: 'nuevo_contacto',
+    });
+  }
+
+  revalidatePath('/prospectos');
+  revalidatePath('/marketplace');
+  revalidatePath('/');
+  return { success: true, prospectId: prospect.id };
+}

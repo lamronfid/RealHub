@@ -30,10 +30,12 @@ function CheckoutPageContent() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
 
-  // Load user profile
+  // Load user profile and auto-activate Elite
   useEffect(() => {
     async function loadUser() {
       try {
+        setPaymentStatus('processing');
+        setProgressText('Verificando tu sesión de agente...');
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
@@ -46,9 +48,26 @@ function CheckoutPageContent() {
           if (prof) {
             setProfile(prof);
           }
+          
+          // Auto-activate free launch pass
+          setPaymentStatus('activating');
+          setProgressText('Activando tu pase Élite Gratuito de Lanzamiento...');
+          
+          const tier = 'elite';
+          await setSubscriptionState(tier, true, user.id);
+          
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          setPaymentStatus('success');
+          setTimeout(() => {
+            startConfetti();
+          }, 100);
+        } else {
+          setPaymentStatus('idle');
         }
       } catch (e) {
         console.error('Error loading user profile in checkout:', e);
+        setPaymentStatus('error');
+        setErrorMessage('Ocurrió un error al autenticar. Por favor inicia sesión nuevamente.');
       }
     }
     loadUser();

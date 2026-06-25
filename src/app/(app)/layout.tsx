@@ -34,20 +34,40 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
         role: isAdminEmail ? 'admin' : 'agent',
         account_type: user.user_metadata?.account_type || 'agent',
         agency_name: user.user_metadata?.account_type === 'agency' ? user.user_metadata?.agency_name : null,
+        subscription_tier: 'elite',
+        is_verified: true,
       })
       .select()
       .single();
     profile = newProfile;
-  } else if (isAdminEmail && profile.role !== 'admin') {
-    // Auto-upgrade existing profile to admin
-    const { data: updatedProfile } = await supabase
-      .from('agent_profiles')
-      .update({ role: 'admin' })
-      .eq('id', user.id)
-      .select()
-      .single();
-    if (updatedProfile) {
-      profile = updatedProfile;
+  } else {
+    // Auto-upgrade existing profiles to Elite and Verified
+    let needsUpdate = false;
+    const updates: any = {};
+    
+    if (profile.subscription_tier !== 'elite') {
+      updates.subscription_tier = 'elite';
+      needsUpdate = true;
+    }
+    if (!profile.is_verified) {
+      updates.is_verified = true;
+      needsUpdate = true;
+    }
+    if (isAdminEmail && profile.role !== 'admin') {
+      updates.role = 'admin';
+      needsUpdate = true;
+    }
+    
+    if (needsUpdate) {
+      const { data: updatedProfile } = await supabase
+        .from('agent_profiles')
+        .update(updates)
+        .eq('id', user.id)
+        .select()
+        .single();
+      if (updatedProfile) {
+        profile = updatedProfile;
+      }
     }
   }
 

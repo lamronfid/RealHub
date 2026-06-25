@@ -6,23 +6,8 @@ export interface SubscriptionState {
 }
 
 export function getSubscriptionState(profile?: any): SubscriptionState {
-  let tier = profile?.subscription_tier || 'free';
-  let isVerified = profile?.is_verified || false;
-
-  if (typeof window !== 'undefined') {
-    const localTier = localStorage.getItem('realhub_subscription_tier');
-    const localVerified = localStorage.getItem('realhub_is_verified');
-    
-    if (localTier) tier = localTier;
-    if (localVerified) isVerified = localVerified === 'true';
-  }
-
-  // Force verified status for Elite tier
-  if (tier === 'elite') {
-    isVerified = true;
-  }
-
-  return { tier, isVerified };
+  // Forzamos el acceso Élite y Verificado de forma gratuita para todos los agentes
+  return { tier: 'elite', isVerified: true };
 }
 
 export async function setSubscriptionState(tier: string, isVerified: boolean, userId?: string): Promise<boolean> {

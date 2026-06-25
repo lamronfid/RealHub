@@ -51,7 +51,7 @@ export default function MarketplaceProspectCard({ prospect, currentAgentId }: Ma
       : 'Cualquier zona';
 
   const agentPhoneLink = prospect.agent_profiles?.phone 
-    ? `https://wa.me/${prospect.agent_profiles.phone.replace(/\D/g, '')}?text=Hola! Vi tu prospecto en RealHub buscando: ${encodeURIComponent(typesText)} en ${encodeURIComponent(locationsText)}. Creo que tengo una propiedad que le puede interesar.`
+    ? `https://wa.me/${prospect.agent_profiles.phone.replace(/\D/g, '')}?text=Hola! Vi tu búsqueda en RealHub de: ${encodeURIComponent(typesText)} en ${encodeURIComponent(locationsText)}. Creo que tengo una propiedad que te puede interesar.`
     : '#';
 
   const totalReviews = reviews.length;
