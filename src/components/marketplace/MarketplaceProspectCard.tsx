@@ -94,7 +94,7 @@ export default function MarketplaceProspectCard({ prospect, currentAgentId }: Ma
               {budgetText}
             </p>
           </div>
-          {!isOwner && prospect.agent_profiles?.phone && (
+          {prospect.agent_profiles?.phone && (
             <a 
               href={agentPhoneLink}
               target="_blank"
