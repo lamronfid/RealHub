@@ -31,10 +31,64 @@ export default function CalculadoraClient({
   propertyType,
   propertyTitle,
 }: CalculadoraClientProps) {
-  const [activeTab, setActiveTab] = useState<'prestamo' | 'roi'>('prestamo');
+  const [activeTab, setActiveTab] = useState<'prestamo' | 'roi' | 'preaprobacion'>('prestamo');
 
   // Exchange rate converter state
   const [useExchangeRate, setUseExchangeRate] = useState(exchangeRate || 7450);
+
+  // ----------------------------------------------------
+  // PREAPROBACION/CALIFICACION STATE
+  // ----------------------------------------------------
+  const [preCurrency, setPreCurrency] = useState<'USD' | 'PYG'>('PYG');
+  const [preIncome, setPreIncome] = useState<number>(12000000);
+  const [preDebts, setPreDebts] = useState<number>(1500000);
+  const [prePropertyValue, setPrePropertyValue] = useState<number>(
+    initialPrice 
+      ? (initialCurrency === 'PYG' ? initialPrice : initialPrice * (exchangeRate || 7450))
+      : 600000000
+  );
+  const [preDownPaymentPercent, setPreDownPaymentPercent] = useState<number>(20);
+  const [preTermYears, setPreTermYears] = useState<number>(20);
+  const [preInterestRate, setPreInterestRate] = useState<number>(8.9);
+  const [isPreCustomRate, setIsPreCustomRate] = useState<boolean>(false);
+
+  // Sync pre-qualification values when currency changes
+  useEffect(() => {
+    if (preCurrency === 'USD') {
+      setPreIncome(prev => prev > 200000 ? Math.round(prev / useExchangeRate) : prev);
+      setPreDebts(prev => prev > 20000 ? Math.round(prev / useExchangeRate) : prev);
+      setPrePropertyValue(prev => prev > 5000000 ? Math.round(prev / useExchangeRate) : prev);
+    } else {
+      setPreIncome(prev => prev < 200000 ? Math.round(prev * useExchangeRate) : prev);
+      setPreDebts(prev => prev < 20000 ? Math.round(prev * useExchangeRate) : prev);
+      setPrePropertyValue(prev => prev < 5000000 ? Math.round(prev * useExchangeRate) : prev);
+    }
+  }, [preCurrency]);
+
+  // Auto-calculate recommended interest rate for pre-qualification when inputs change
+  useEffect(() => {
+    if (!isPreCustomRate) {
+      const PYG_SALARIO_MINIMO = 2798309;
+      const propertyValuePyg = preCurrency === 'PYG' ? prePropertyValue : prePropertyValue * useExchangeRate;
+      const downPaymentPyg = propertyValuePyg * (preDownPaymentPercent / 100);
+      const loanAmountPyg = Math.max(0, propertyValuePyg - downPaymentPyg);
+      const incomePyg = preCurrency === 'PYG' ? preIncome : preIncome * useExchangeRate;
+
+      if (loanAmountPyg <= 452800000 && incomePyg <= (PYG_SALARIO_MINIMO * 4)) {
+        setPreInterestRate(6.9);
+      } else if (loanAmountPyg <= 1000000000 && incomePyg <= (PYG_SALARIO_MINIMO * 7)) {
+        setPreInterestRate(8.9);
+      } else if (loanAmountPyg <= 1500000000) {
+        setPreInterestRate(8.9);
+      } else {
+        if (preCurrency === 'USD') {
+          setPreInterestRate(7.5);
+        } else {
+          setPreInterestRate(10.5);
+        }
+      }
+    }
+  }, [prePropertyValue, preDownPaymentPercent, preIncome, preCurrency, isPreCustomRate, useExchangeRate]);
 
   // ----------------------------------------------------
   // MORTGAGE LOAN CALCULATOR STATE
@@ -279,8 +333,9 @@ export default function CalculadoraClient({
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-slate-100 p-1.5 rounded-2xl max-w-md">
+      <div className="flex bg-slate-100 p-1.5 rounded-2xl max-w-xl">
         <button
+          type="button"
           onClick={() => setActiveTab('prestamo')}
           className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 ${
             activeTab === 'prestamo'
@@ -292,6 +347,7 @@ export default function CalculadoraClient({
           Crédito Hipotecario
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab('roi')}
           className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 ${
             activeTab === 'roi'
@@ -301,6 +357,18 @@ export default function CalculadoraClient({
         >
           <span className="material-symbols-outlined text-base">trending_up</span>
           Rentabilidad (ROI)
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('preaprobacion')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 ${
+            activeTab === 'preaprobacion'
+              ? 'bg-white text-indigo-950 shadow-md shadow-slate-200'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <span className="material-symbols-outlined text-base">verified</span>
+          Calificación AFD
         </button>
       </div>
 
@@ -1041,6 +1109,370 @@ export default function CalculadoraClient({
           </div>
         </div>
       )}
+
+      {/* ----------------------------------------------------
+          AFD PRE-QUALIFICATION TAB
+          ---------------------------------------------------- */}
+      {activeTab === 'preaprobacion' && (() => {
+        // Standard minimum wage in PY
+        const PYG_SALARIO_MINIMO = 2798309;
+        
+        // Values in PYG for limits checks
+        const propertyValuePyg = preCurrency === 'PYG' ? prePropertyValue : prePropertyValue * useExchangeRate;
+        const downPaymentPyg = propertyValuePyg * (preDownPaymentPercent / 100);
+        const loanAmountPyg = Math.max(0, propertyValuePyg - downPaymentPyg);
+        const incomePyg = preCurrency === 'PYG' ? preIncome : preIncome * useExchangeRate;
+        const debtsPyg = preCurrency === 'PYG' ? preDebts : preDebts * useExchangeRate;
+        
+        // Determine AFD program or traditional financing
+        let suggestedLoanType: 'primera_a' | 'primera_b' | 'mi_casa' | 'tradicional' = 'tradicional';
+        
+        if (loanAmountPyg <= 452800000 && incomePyg <= (PYG_SALARIO_MINIMO * 4)) {
+          suggestedLoanType = 'primera_a';
+        } else if (loanAmountPyg <= 1000000000 && incomePyg <= (PYG_SALARIO_MINIMO * 7)) {
+          suggestedLoanType = 'primera_b';
+        } else if (loanAmountPyg <= 1500000000) {
+          suggestedLoanType = 'mi_casa';
+        } else {
+          suggestedLoanType = 'tradicional';
+        }
+
+        const applicableRate = isPreCustomRate ? preInterestRate : (
+          suggestedLoanType === 'primera_a' ? 6.9 :
+          suggestedLoanType === 'primera_b' ? 8.9 :
+          suggestedLoanType === 'mi_casa' ? 8.9 :
+          (preCurrency === 'USD' ? 7.5 : 10.5)
+        );
+        
+        const preLoanAmount = prePropertyValue * (1 - preDownPaymentPercent / 100);
+        const preTotalMonths = preTermYears * 12;
+        const preMonthlyRate = (applicableRate / 100) / 12;
+        
+        // French calculation
+        const prePmtPure = preMonthlyRate === 0 
+          ? (preLoanAmount / preTotalMonths) 
+          : preLoanAmount * (preMonthlyRate * Math.pow(1 + preMonthlyRate, preTotalMonths)) / (Math.pow(1 + preMonthlyRate, preTotalMonths) - 1);
+          
+        // Insurance estimations
+        const firstMonthInterest = preLoanAmount * preMonthlyRate;
+        const preIva = firstMonthInterest * 0.10;
+        const preLifeInsurance = preLoanAmount * 0.0006;
+        const preFireInsurance = prePropertyValue * 0.60 * 0.0002; // estimated construction portion (60% of value)
+        const estimatedInitialCuota = prePmtPure + firstMonthInterest + preIva + preLifeInsurance + preFireInsurance;
+        
+        const netIncomeAvailable = Math.max(0, preIncome - preDebts);
+        const dtiRatio = netIncomeAvailable > 0 ? (estimatedInitialCuota / netIncomeAvailable) * 100 : 100;
+        
+        let eligibilityStatus: 'califica' | 'advertencia' | 'no_califica' = 'califica';
+        let eligibilityReason = '';
+        
+        if (dtiRatio > 35) {
+          eligibilityStatus = 'no_califica';
+          eligibilityReason = 'La cuota estimada supera la afectación máxima recomendada de ingresos.';
+        } else if (dtiRatio > 30) {
+          eligibilityStatus = 'advertencia';
+          eligibilityReason = 'La cuota compromete entre el 30% y 35% de tus ingresos libres disponibles.';
+        } else {
+          eligibilityStatus = 'califica';
+          eligibilityReason = 'La cuota se encuentra en un rango saludable respecto a tus ingresos libres.';
+        }
+        
+        // Proposed down payment to bring DTI down to 30%
+        const neededDtiReduction = dtiRatio - 30;
+        const proposedDownPaymentPercent = Math.min(95, Math.ceil(preDownPaymentPercent + neededDtiReduction));
+
+        // Program name mapping
+        const PROGRAM_NAMES = {
+          primera_a: 'AFD Primera Vivienda - Categoría A (Tasa 6.9%)',
+          primera_b: 'AFD Primera Vivienda - Categoría B (Tasa 8.9%)',
+          mi_casa: 'AFD Mi Casa (Tasa 8.9%)',
+          tradicional: `Crédito Hipotecario Bancario (Tasa ${applicableRate}%)`,
+        };
+
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fade-in">
+            {/* Inputs Column */}
+            <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-8 space-y-6">
+              <h2 className="text-lg font-black text-slate-900 flex items-center gap-1.5 pb-3 border-b border-slate-100">
+                <span className="material-symbols-outlined text-indigo-650">verified_user</span>
+                Pre-calificación AFD & Bancaria
+              </h2>
+
+              {/* Currency choice */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Moneda del Análisis</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPreCurrency('USD')}
+                    className={`py-3.5 border rounded-2xl text-xs font-black tracking-wider uppercase transition-all duration-200 ${
+                      preCurrency === 'USD'
+                        ? 'bg-indigo-50 border-indigo-200 text-indigo-900'
+                        : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                    }`}
+                  >
+                    Dólares (U$D)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreCurrency('PYG')}
+                    className={`py-3.5 border rounded-2xl text-xs font-black tracking-wider uppercase transition-all duration-200 ${
+                      preCurrency === 'PYG'
+                        ? 'bg-indigo-50 border-indigo-200 text-indigo-900'
+                        : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                    }`}
+                  >
+                    Guaraníes (₲)
+                  </button>
+                </div>
+              </div>
+
+              {/* Ingreso Familiar Mensual */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ingreso Familiar Líquido Mensual</label>
+                  <span className="text-xs font-bold text-slate-900">{formatVal(preIncome, preCurrency)}</span>
+                </div>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">
+                    {preCurrency === 'USD' ? 'U$D' : '₲'}
+                  </span>
+                  <input
+                    type="number"
+                    value={preIncome}
+                    onChange={(e) => setPreIncome(Math.max(0, Number(e.target.value)))}
+                    className="w-full border border-slate-250 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold text-slate-900 focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+                <p className="text-[9px] text-slate-400 leading-normal">
+                  Suma de todos los ingresos comprobables de los codeudores solicitantes. En Paraguay, 1 salario mínimo es aprox. ₲ {PYG_SALARIO_MINIMO.toLocaleString('es-PY')}.
+                </p>
+              </div>
+
+              {/* Gastos y Deudas Actuales */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Gastos / Cuotas de Deudas Actuales</label>
+                  <span className="text-xs font-bold text-slate-900">{formatVal(preDebts, preCurrency)}</span>
+                </div>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">
+                    {preCurrency === 'USD' ? 'U$D' : '₲'}
+                  </span>
+                  <input
+                    type="number"
+                    value={preDebts}
+                    onChange={(e) => setPreDebts(Math.max(0, Number(e.target.value)))}
+                    className="w-full border border-slate-250 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold text-slate-900 focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+                <p className="text-[9px] text-slate-400 leading-normal">
+                  Cuotas mensuales vigentes de tarjetas de crédito, préstamos de autos u otros créditos activos.
+                </p>
+              </div>
+
+              {/* Property Value Input */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Valor de la Propiedad a Adquirir</label>
+                  <span className="text-xs font-bold text-slate-900">{formatVal(prePropertyValue, preCurrency)}</span>
+                </div>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">
+                    {preCurrency === 'USD' ? 'U$D' : '₲'}
+                  </span>
+                  <input
+                    type="number"
+                    value={prePropertyValue}
+                    onChange={(e) => setPrePropertyValue(Math.max(0, Number(e.target.value)))}
+                    className="w-full border border-slate-250 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold text-slate-900 focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+
+              {/* Down Payment & Term */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Entrega Inicial ({preDownPaymentPercent}%)</label>
+                    <span className="text-xs font-extrabold text-indigo-650">
+                      {formatVal(prePropertyValue * (preDownPaymentPercent / 100), preCurrency)}
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0}
+                      max={95}
+                      value={preDownPaymentPercent}
+                      onChange={(e) => setPreDownPaymentPercent(Math.min(95, Math.max(0, Number(e.target.value))))}
+                      className="w-full border border-slate-250 rounded-2xl py-3 px-4 text-xs font-bold text-slate-900 focus:outline-none focus:border-indigo-500"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">%</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Plazo del Crédito (Años)</label>
+                    <span className="text-xs font-bold text-slate-900">{preTermYears} años</span>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={5}
+                      max={30}
+                      value={preTermYears}
+                      onChange={(e) => setPreTermYears(Math.min(30, Math.max(5, Number(e.target.value))))}
+                      className="w-full border border-slate-250 rounded-2xl py-3 px-4 text-xs font-bold text-slate-900 focus:outline-none focus:border-indigo-500"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium text-xs">Años</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tasa de Interés */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tasa de Interés Anual (T.N.A)</label>
+                  <button 
+                    type="button"
+                    onClick={() => setIsPreCustomRate(!isPreCustomRate)}
+                    className="text-[9px] font-black uppercase text-indigo-650 hover:underline"
+                  >
+                    {isPreCustomRate ? 'Usar Tasa Automática' : 'Modificar Tasa'}
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.05"
+                    disabled={!isPreCustomRate}
+                    value={preInterestRate}
+                    onChange={(e) => setPreInterestRate(Number(e.target.value))}
+                    className="w-full border border-slate-250 rounded-2xl py-3 px-4 text-xs font-bold text-slate-900 focus:outline-none focus:border-indigo-500 disabled:bg-slate-50 disabled:text-slate-500"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">%</span>
+                </div>
+                {isPreCustomRate && (
+                  <p className="text-[9px] text-amber-600 font-semibold mt-1">
+                    💡 Modificando tasa manualmente. Las deudas e ingresos se calcularán con respecto a esta tasa personalizada de {preInterestRate}%.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Results Column */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="bg-slate-900 text-slate-100 rounded-3xl p-6 md:p-8 border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col">
+                <div className="absolute top-[-20%] right-[-20%] w-[60%] h-[60%] bg-indigo-500/10 rounded-full blur-[60px] pointer-events-none" />
+
+                <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full w-fit">
+                  Resultado de Calificación
+                </span>
+
+                {/* Eligibility Status Alert */}
+                <div className="mt-6 flex flex-col gap-2">
+                  {eligibilityStatus === 'califica' && (
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-2xl flex items-start gap-3">
+                      <span className="material-symbols-outlined text-2xl mt-0.5 text-emerald-400">check_circle</span>
+                      <div>
+                        <p className="font-extrabold text-sm uppercase tracking-wide text-white">🟢 Califica con Éxito</p>
+                        <p className="text-[10px] text-slate-300 mt-1 leading-normal">{eligibilityReason}</p>
+                      </div>
+                    </div>
+                  )}
+                  {eligibilityStatus === 'advertencia' && (
+                    <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-4 rounded-2xl flex items-start gap-3">
+                      <span className="material-symbols-outlined text-2xl mt-0.5 text-amber-400">warning</span>
+                      <div>
+                        <p className="font-extrabold text-sm uppercase tracking-wide text-white"> 🟡 Califica al Límite</p>
+                        <p className="text-[10px] text-slate-350 mt-1 leading-normal">{eligibilityReason}</p>
+                      </div>
+                    </div>
+                  )}
+                  {eligibilityStatus === 'no_califica' && (
+                    <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-2xl flex items-start gap-3">
+                      <span className="material-symbols-outlined text-2xl mt-0.5 text-rose-400">error</span>
+                      <div>
+                        <p className="font-extrabold text-sm uppercase tracking-wide text-white">❌ No Califica</p>
+                        <p className="text-[10px] text-slate-350 mt-1 leading-normal">{eligibilityReason}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Big numbers */}
+                <div className="mt-6 space-y-1">
+                  <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Cuota Mensual Estimada</p>
+                  <h3 className="text-3xl font-heading font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-300 to-indigo-400">
+                    {formatVal(estimatedInitialCuota, preCurrency)}
+                  </h3>
+                </div>
+
+                {/* DTI Gauge bar */}
+                <div className="mt-6 space-y-2">
+                  <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <span>Afectación de Ingresos (DTI)</span>
+                    <span className={dtiRatio > 35 ? 'text-rose-400 font-extrabold' : dtiRatio > 30 ? 'text-amber-400 font-extrabold' : 'text-emerald-450 font-extrabold'}>
+                      {dtiRatio.toFixed(1)}% / 30% Máx
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-850 h-3 rounded-full overflow-hidden border border-white/[0.04] p-0.5">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        dtiRatio > 35 ? 'bg-rose-500' : dtiRatio > 30 ? 'bg-amber-500' : 'bg-emerald-500'
+                      }`}
+                      style={{ width: `${Math.min(100, dtiRatio)}%` }}
+                    />
+                  </div>
+                  <p className="text-[8px] text-slate-450 leading-normal">
+                    Los bancos paraguayos no permiten que la cuota hipotecaria consuma más del 30% del ingreso familiar líquido una vez deducidas las deudas.
+                  </p>
+                </div>
+
+                {/* Suggested Program */}
+                <div className="mt-6 py-4 border-t border-b border-white/[0.05] text-xs">
+                  <span className="text-slate-400 block font-medium uppercase tracking-wider text-[9px] mb-1">Programa Recomendado</span>
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-indigo-400 text-base">domain_verification</span>
+                    <strong className="text-white text-sm font-bold">{PROGRAM_NAMES[suggestedLoanType]}</strong>
+                  </div>
+                </div>
+
+                {/* Recommendations Box */}
+                <div className="mt-6 p-4 bg-white/[0.02] border border-white/[0.05] rounded-2xl text-xs text-slate-350 space-y-2 leading-relaxed">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Sugerencias del Sistema</span>
+                  {eligibilityStatus === 'califica' ? (
+                    <p className="text-emerald-450 font-medium">✓ Tu cliente tiene un perfil crediticio ideal. Podés proceder con la presentación formal al banco.</p>
+                  ) : (
+                    <p className="text-slate-300 font-medium leading-normal">
+                      ⚠ Para calificar con éxito, sugerimos elevar la entrega inicial al <strong className="text-white">{proposedDownPaymentPercent}%</strong> ({formatVal(prePropertyValue * (proposedDownPaymentPercent / 100), preCurrency)}) para reducir la cuota o extender el plazo de amortización a <strong className="text-white">30 años</strong>.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Paraguay Local Rules Details Card */}
+              <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 space-y-3 text-xs leading-relaxed text-slate-650">
+                <h3 className="font-black text-slate-900 uppercase text-[10px] tracking-wider flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[16px] text-indigo-650">gavel</span>
+                  Reglamento de la AFD en Paraguay
+                </h3>
+                <p>
+                  • <strong>Primera Vivienda (Categoría A)</strong>: Límite de monto financiable de ₲ 452.800.000 (160 Salarios Mínimos). Ingreso mensual máximo de 4 salarios mínimos del grupo familiar. Tasa máxima 6.9%.
+                </p>
+                <p>
+                  • <strong>Primera Vivienda (Categoría B)</strong>: Límite de monto financiable de ₲ 1.000.000.000 (350 Salarios Mínimos). Ingreso mensual máximo de 7 salarios mínimos del grupo familiar. Tasa máxima 8.9%.
+                </p>
+                <p>
+                  • <strong>AFD Mi Casa</strong>: Límite de monto financiable de ₲ 1.500.000.000. Sin límite de ingresos del solicitante. Tasa aproximada de 8.9% al 9.9% según la entidad bancaria.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

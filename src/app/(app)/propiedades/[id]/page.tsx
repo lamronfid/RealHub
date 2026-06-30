@@ -71,10 +71,33 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
   // 2. Fetch Matches ONLY if isOwner (agents see matches for their properties)
   let matches: any[] = [];
   if (isOwner) {
-    const { data } = await supabase.rpc('match_prospects_for_property', {
+    const { data: rpcMatches } = await supabase.rpc('match_prospects_for_property', {
       p_property_id: id
     });
-    matches = data || [];
+    if (rpcMatches && rpcMatches.length > 0) {
+      const prospectIds = rpcMatches.map((m: any) => m.prospect_id);
+      const { data: prospects } = await supabase
+        .from('prospects')
+        .select('id, agent_id')
+        .in('id', prospectIds);
+      
+      const agentIds = prospects?.map((p: any) => p.agent_id).filter(Boolean) || [];
+      const { data: profiles } = await supabase
+        .from('agent_profiles')
+        .select('id, phone, avatar_url')
+        .in('id', agentIds);
+      
+      matches = rpcMatches.map((m: any) => {
+        const prospect = prospects?.find((p: any) => p.id === m.prospect_id);
+        const profile = profiles?.find((p: any) => p.id === prospect?.agent_id);
+        return {
+          ...m,
+          agent_phone: profile?.phone || null,
+          agent_avatar_url: profile?.avatar_url || null,
+          agent_id: prospect?.agent_id || null
+        };
+      });
+    }
   }
 
   const images = property.photos || [];
@@ -179,7 +202,7 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
               <h2 className="text-xl font-bold text-indigo-900 mb-2 relative z-10">Matches del Sistema</h2>
               <p className="text-sm text-slate-500 mb-6 relative z-10">Prospectos interesados encontrados en la plataforma</p>
 
-              <MatchesList matches={matches} />
+              <MatchesList matches={matches} property={property} />
             </div>
           )}
 
