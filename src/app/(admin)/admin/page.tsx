@@ -29,13 +29,20 @@ export default function AdminDashboardPage() {
   async function loadData() {
     try {
       setLoading(true);
+
+      const fetchAgents = async () => {
+        const resp = await fetch('/api/admin/agents');
+        if (!resp.ok) throw new Error('Error al obtener agentes');
+        return resp.json();
+      };
+
       const [
-        { data: profilesData },
+        profilesData,
         { data: propertiesData },
         { count: totalProspects },
         { data: featureRequests },
       ] = await Promise.all([
-        supabase.from('agent_profiles').select('*').order('created_at', { ascending: false }),
+        fetchAgents(),
         supabase.from('properties').select('*, agent_profiles(full_name)').order('created_at', { ascending: false }),
         supabase.from('prospects').select('*', { count: 'exact', head: true }),
         supabase.from('feature_requests').select('*, agent_profiles(full_name)').order('created_at', { ascending: false }),
@@ -367,7 +374,12 @@ export default function AdminDashboardPage() {
                                     <span className="material-symbols-outlined text-indigo-500 text-[14px] fill-current" title="Verificado">verified</span>
                                   )}
                                 </p>
-                                <p className="text-[10px] text-slate-400 font-semibold mt-0.5 uppercase tracking-wider">
+                                {agent.email && (
+                                  <p className="text-[10px] text-slate-500 font-medium leading-none mt-0.5 select-all">
+                                    {agent.email}
+                                  </p>
+                                )}
+                                <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-wider">
                                   {agent.role === 'admin' ? 'Administrador' : 'Agente'}
                                 </p>
                               </div>
