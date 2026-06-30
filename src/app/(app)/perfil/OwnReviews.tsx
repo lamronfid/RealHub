@@ -83,7 +83,7 @@ export default function OwnReviews({ agentId, profile }: OwnReviewsProps) {
             <p className="text-[11px] text-slate-450 font-medium mt-0.5">Lo que otros agentes inmobiliarios opinan al colaborar contigo</p>
           </div>
           
-          <div className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-violet-650 px-3.5 py-1.5 rounded-xl text-white shadow-md shadow-indigo-650/15">
+          <div className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 px-3.5 py-1.5 rounded-xl text-white shadow-md shadow-indigo-650/15">
             <span className="material-symbols-outlined text-white fill-current text-sm">star</span>
             <span className="text-xs font-black text-white">{averageRating}</span>
             <span className="text-[10px] text-indigo-150">({totalReviews})</span>

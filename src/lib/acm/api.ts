@@ -90,12 +90,20 @@ export async function fetchExternalComparables(
     };
 
     // Fix #2 — fetch live rate in parallel with the scraper run.
-    const [raw, pygRate] = await Promise.all([
+    let [raw, pygRate] = await Promise.all([
       runSearch(params),
       getUsdToPygRate(),
     ]);
 
-    const data: Record<string, unknown>[] = JSON.parse(raw);
+    let data: Record<string, unknown>[] = JSON.parse(raw);
+
+    // Fallback: if 0 results found for neighborhood, try searching city-wide (without neighborhood constraint)
+    if (data.length === 0 && params.barrios.length > 0) {
+      console.log(`[ACM] No results for neighborhood ${subject.neighborhood}. Falling back to city-wide search in ${subject.city}.`);
+      const fallbackParams = { ...params, barrios: [] };
+      raw = await runSearch(fallbackParams);
+      data = JSON.parse(raw);
+    }
 
     // Fix #15 — cache scraped results in the background; don't await.
     storeListings(data, subject.operationType ?? '', propType).catch(

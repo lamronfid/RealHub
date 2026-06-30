@@ -169,7 +169,7 @@ export default function ComparablesPage() {
         )}
 
         {/* Sticky bottom bar */}
-        <div className="sticky bottom-0 bg-white/80 backdrop-blur-md border-t border-slate-200/60 px-6 py-4.5 -mx-6 flex items-center justify-between z-10 shadow-lg shadow-indigo-100/5">
+        <div className="sticky bottom-0 bg-white border-t border-slate-200 px-6 py-4 flex items-center justify-between z-10 shadow-md">
           <div className="text-xs font-sans text-slate-600">
             <span className={`font-black ${canGenerate ? 'text-indigo-600' : 'text-slate-400'}`}>
               {selectedCount} seleccionados
@@ -179,7 +179,7 @@ export default function ComparablesPage() {
           <button
             onClick={handleGenerateReport}
             disabled={!canGenerate || isCalculating}
-            className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-650 hover:brightness-110 text-white text-xs font-extrabold uppercase tracking-widest rounded-xl transition-all shadow-[0_4px_15px_rgba(99,102,241,0.2)] disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[0.99] active:scale-[0.97]"
+            className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:brightness-110 text-white text-xs font-extrabold uppercase tracking-widest rounded-xl transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[0.99] active:scale-[0.97]"
           >
             Generar Reporte ACM →
           </button>

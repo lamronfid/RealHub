@@ -125,7 +125,7 @@ export default function ReportePage() {
           </button>
           <button
             onClick={handleExport}
-            className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-650 hover:brightness-110 text-white text-xs font-extrabold uppercase tracking-widest rounded-xl transition-all shadow-md shadow-indigo-100 hover:scale-[0.99] active:scale-[0.97]"
+            className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:brightness-110 text-white text-xs font-extrabold uppercase tracking-widest rounded-xl transition-all shadow-md hover:scale-[0.99] active:scale-[0.97]"
           >
             Exportar PDF →
           </button>
