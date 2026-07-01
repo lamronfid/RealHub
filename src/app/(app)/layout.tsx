@@ -30,6 +30,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       .from('agent_profiles')
       .insert({
         id: user.id,
+        email: user.email,
         full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Agente',
         role: isAdminEmail ? 'admin' : 'agent',
         account_type: user.user_metadata?.account_type || 'agent',
@@ -55,6 +56,10 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
     }
     if (isAdminEmail && profile.role !== 'admin') {
       updates.role = 'admin';
+      needsUpdate = true;
+    }
+    if (user.email && profile.email !== user.email) {
+      updates.email = user.email;
       needsUpdate = true;
     }
     

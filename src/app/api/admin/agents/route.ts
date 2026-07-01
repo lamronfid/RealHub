@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       const authUser = users.find((u: any) => u.id === p.id);
       return {
         ...p,
-        email: authUser?.email || null,
+        email: authUser?.email || p.email || null,
       };
     });
 
