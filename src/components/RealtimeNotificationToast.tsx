@@ -18,13 +18,24 @@ export default function RealtimeNotificationToast() {
 
   useEffect(() => {
     let channel: any;
+    let isMounted = true;
 
     async function setupSubscription() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user || !isMounted) return;
+
+      const channelName = `realtime-notifications-${user.id}`;
+
+      // Clean up any existing channel with the same name from cache to avoid duplicate registration
+      const existingChannel = supabase.getChannels().find((c) => c.name === channelName);
+      if (existingChannel) {
+        await supabase.removeChannel(existingChannel);
+      }
+
+      if (!isMounted) return;
 
       channel = supabase
-        .channel(`realtime-notifications-${user.id}`)
+        .channel(channelName)
         .on(
           'postgres_changes',
           {
@@ -50,16 +61,20 @@ export default function RealtimeNotificationToast() {
 
             // Auto-remove toast after 6 seconds
             setTimeout(() => {
-              setToasts((prev) => prev.filter((t) => t.id !== toastId));
+              if (isMounted) {
+                setToasts((prev) => prev.filter((t) => t.id !== toastId));
+              }
             }, 6000);
           }
-        )
-        .subscribe();
+        );
+
+      channel.subscribe();
     }
 
     setupSubscription();
 
     return () => {
+      isMounted = false;
       if (channel) {
         supabase.removeChannel(channel);
       }
