@@ -92,17 +92,17 @@ export async function fetchExternalComparables(
 
     const pygRate = await getUsdToPygRate();
 
-    // 1. Try to fetch from the local database cache first (scraped within last 12 hours)
+    // 1. Try to fetch from the local database cache first (scraped within last 7 days)
     const { createClient } = await import('@/lib/supabase');
     const supabase = createClient();
-    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
     let cacheQuery = supabase
       .from('property_listings')
       .select('*')
       .eq('operation', params.operation)
       .in('prop_type', params.propTypes)
-      .gte('scraped_at', twelveHoursAgo);
+      .gte('scraped_at', sevenDaysAgo);
 
     if (params.barrios.length > 0) {
       const barrioConditions = params.barrios.map((b) => `location.ilike.%${b}%`).join(',');
