@@ -57,12 +57,12 @@ async function storeListings(
       source:     String(r.source ?? ''),
       title:      String(r.title ?? ''),
       price:      String(r.price ?? 'Consultar'),
-      location:   String(r.location ?? ''),
+      location:   r.metros != null ? `${r.location ?? ''} | metros:${r.metros}` : String(r.location ?? ''),
       url:        String(r.url),
       photo:      r.photo ? String(r.photo) : null,
       bedrooms:   r.bedrooms != null ? Number(r.bedrooms) : null,
       operation,
-      prop_type:  propType,
+      prop_type:  String(r.tipo ?? r.prop_type ?? propType),
       scraped_at: new Date().toISOString(),
     }));
   if (rows.length === 0) return;
@@ -74,70 +74,112 @@ export async function fetchExternalComparables(
 ): Promise<AcmComparable[]> {
   try {
     const propType = TYPE_MAP[subject.propertyType ?? 'casa'] ?? 'Casa';
+    const propTypes = (propType === 'Casa' || propType === 'Dúplex') ? ['Casa', 'Dúplex'] : [propType];
     const beds = subject.bedrooms !== undefined ? bedroomRange(subject.bedrooms) : [];
 
     const params = {
       operation:      OP_MAP[subject.operationType ?? 'venta'],
       propType,
-      propTypes:      [propType],
+      propTypes,
       location:       subject.city ?? '',
       barrios:        subject.neighborhood ? [subject.neighborhood] : [],
       bedrooms:       beds,
-      min_price:      subject.priceTarget ? Math.round(subject.priceTarget * 0.6) : undefined,
-      max_price:      subject.priceTarget ? Math.round(subject.priceTarget * 1.4) : undefined,
+      min_price:      undefined, // Price is no longer a factor for the search engine
+      max_price:      undefined,
       currency:       subject.currency === 'GS' ? 'PYG' : 'USD',
       resultsPerSite: 20,
     };
 
-    // Fix #2 — fetch live rate in parallel with the scraper run.
-    let [raw, pygRate] = await Promise.all([
-      runSearch(params),
-      getUsdToPygRate(),
-    ]);
+    const pygRate = await getUsdToPygRate();
 
-    let data: Record<string, unknown>[] = JSON.parse(raw);
+    // 1. Try to fetch from the local database cache first (scraped within last 12 hours)
+    const { createClient } = await import('@/lib/supabase');
+    const supabase = createClient();
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
 
-    // Fallback: if 0 results found for neighborhood, try searching city-wide (without neighborhood constraint)
-    if (data.length === 0 && params.barrios.length > 0) {
-      console.log(`[ACM] No results for neighborhood ${subject.neighborhood}. Falling back to city-wide search in ${subject.city}.`);
-      const fallbackParams = { ...params, barrios: [] };
-      raw = await runSearch(fallbackParams);
-      data = JSON.parse(raw);
+    let cacheQuery = supabase
+      .from('property_listings')
+      .select('*')
+      .eq('operation', params.operation)
+      .in('prop_type', params.propTypes)
+      .gte('scraped_at', twelveHoursAgo);
+
+    if (params.barrios.length > 0) {
+      const barrioConditions = params.barrios.map((b) => `location.ilike.%${b}%`).join(',');
+      cacheQuery = cacheQuery.or(barrioConditions);
+    } else if (params.location) {
+      cacheQuery = cacheQuery.ilike('location', `%${params.location}%`);
     }
 
-    // Fix #15 — cache scraped results in the background; don't await.
-    storeListings(data, subject.operationType ?? '', propType).catch(
-      (e) => console.warn('[ACM] store listings error:', e),
-    );
+    const { data: cachedRows, error: cacheError } = await cacheQuery.limit(100);
+
+    let data: Record<string, unknown>[] = [];
+
+    if (!cacheError && cachedRows && cachedRows.length >= 5) {
+      console.log(`[ACM] Cache hit: found ${cachedRows.length} recent listings in database. Skipping live scrape.`);
+      data = cachedRows;
+    } else {
+      console.log(`[ACM] Cache miss or insufficient data. Running live Python scraper...`);
+      let raw = await runSearch(params);
+      data = JSON.parse(raw);
+
+      // Fallback: if 0 results found for neighborhood, try searching city-wide (without neighborhood constraint)
+      if (data.length === 0 && params.barrios.length > 0) {
+        console.log(`[ACM] No results for neighborhood ${subject.neighborhood}. Falling back to city-wide search in ${subject.city}.`);
+        const fallbackParams = { ...params, barrios: [] };
+        raw = await runSearch(fallbackParams);
+        data = JSON.parse(raw);
+      }
+
+      // Save the newly scraped listings to the database cache in the background
+      if (data.length > 0) {
+        storeListings(data, params.operation, propType).catch((err) =>
+          console.warn('[ACM] Background storeListings error:', err)
+        );
+      }
+    }
 
     return data.flatMap((r, i) => {
       const parsed = parseScraperPrice(String(r.price ?? ''), pygRate);
       if (!parsed) return [];
 
-      const sqmRaw = r.metros != null ? Number(r.metros) : undefined;
+      const locStr = String(r.location ?? '');
+      // Clean up the location string to remove the metros suffix if present
+      const cleanLocStr = locStr.replace(/\s*\|\s*metros:\s*\d*/, '');
+
+      // Retrieve metros (m2) value
+      let sqmRaw = r.metros != null ? Number(r.metros) : undefined;
+      if (sqmRaw === undefined) {
+        const mMatch = locStr.match(/\|\s*metros:\s*(\d+)/);
+        if (mMatch) sqmRaw = Number(mMatch[1]);
+      }
       const sqm = sqmRaw != null && sqmRaw >= 5 ? sqmRaw : undefined;
       const pricePerSqm = calcPricePerSqm(parsed.price, sqm);
 
-      const locStr = String(r.location ?? '');
-      const locParts = locStr.split(',');
+      const locParts = cleanLocStr.split(',');
       const neighborhood = locParts.length > 1 ? locParts[0].trim() : undefined;
 
       const bedrooms =
         r.bedrooms != null && r.bedrooms !== -1 ? Number(r.bedrooms) : undefined;
 
+      // Map capitalized prop_type back to lowercase AcmPropertyType
+      let dbPropType = String(r.prop_type ?? '').toLowerCase();
+      if (dbPropType === 'dúplex') dbPropType = 'duplex';
+      if (dbPropType === 'terreno/lote') dbPropType = 'terreno';
+      const propertyType = (dbPropType || subject.propertyType) as AcmPropertyType | undefined;
+
       return [{
         id:             `ps-${i}-${String(r.source ?? '').replace(/\W/g, '')}`,
         source:         String(r.source ?? 'Propsearch'),
         title:          String(r.title ?? 'Propiedad'),
-        // Fix #5 — propagate property type so similarity score can award its 20 pts.
-        propertyType:   subject.propertyType as AcmPropertyType | undefined,
+        propertyType,
         price:          parsed.price,
         currency:       parsed.currency,
         sqm,
         pricePerSqm,
         bedrooms,
         yearBuilt:      undefined,
-        location:       locStr,
+        location:       cleanLocStr,
         neighborhood,
         url:            String(r.url ?? ''),
         similarityScore: 0,
@@ -158,17 +200,18 @@ export async function fetchInternalComparables(
   const { createClient } = await import('@/lib/supabase');
   const supabase = createClient();
 
-  const priceMin = subject.priceTarget ? subject.priceTarget * 0.6 : 0;
-  const priceMax = subject.priceTarget ? subject.priceTarget * 1.4 : 999_999_999;
-
   let query = supabase
     .from('agent_properties')
     .select('*')
     .or(`visibility.eq.marketplace,agent_id.eq.${agentId}`)
     .eq('operation_type', subject.operationType)
-    .gte('price', priceMin)
-    .lte('price', priceMax)
     .limit(50);
+
+  if (subject.propertyType === 'casa' || subject.propertyType === 'duplex') {
+    query = query.in('property_type', ['casa', 'duplex']);
+  } else if (subject.propertyType) {
+    query = query.eq('property_type', subject.propertyType);
+  }
 
   if (subject.city) {
     query = query.eq('city', subject.city);

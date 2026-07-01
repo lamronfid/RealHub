@@ -26,7 +26,7 @@ def _norm(s: str) -> str:
 
 
 _TIPO_KEYWORDS: dict[str, tuple[str, ...]] = {
-    "casa":              ("casa", "chalet", "bungalow", "residencia", "vivienda", "townhouse", "cabaña"),
+    "casa":              ("casa", "chalet", "bungalow", "residencia", "vivienda", "townhouse", "cabaña", "duplex", "dúplex"),
     "departamento":      ("departamento", "depto", "dpto", "dpt.", "apartamento", "apto", "aptn", "piso",
                           "monoambiente", "studio", "flat", "loft", "suite", "penthouse"),
     "dúplex":            ("dúplex", "duplex"),
@@ -68,6 +68,8 @@ _TIPO_KEYWORDS_NORM: dict[str, tuple[str, ...]] = {
 _TIPO_ALIASES: dict[str, str] = {
     "terreno/lote":    "terreno",
     "local_comercial": "local comercial",
+    "duplex":          "casa",
+    "dúplex":          "casa",
 }
 
 

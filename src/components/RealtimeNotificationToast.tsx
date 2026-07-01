@@ -27,7 +27,7 @@ export default function RealtimeNotificationToast() {
       const channelName = `realtime-notifications-${user.id}`;
 
       // Clean up any existing channel with the same name from cache to avoid duplicate registration
-      const existingChannel = supabase.getChannels().find((c) => c.name === channelName);
+      const existingChannel = supabase.getChannels().find((c) => c.topic === channelName || c.topic.endsWith(channelName));
       if (existingChannel) {
         await supabase.removeChannel(existingChannel);
       }

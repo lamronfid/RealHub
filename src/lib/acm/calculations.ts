@@ -50,11 +50,11 @@ export function calcSimilarityScore(
     if (diff <= 0.15) score += 20;
   }
 
-  // Size within ±15%: 15pts (using resolved comparison area for subject)
+  // Size within ±40%: 15pts (using resolved comparison area for subject)
   const subjectSqm = getComparisonSqm(subject.propertyType, subject.sqmTotal, subject.sqmBuilt);
   if (subjectSqm && comparable.sqm) {
     const diff = Math.abs(subjectSqm - comparable.sqm) / subjectSqm;
-    if (diff <= 0.15) score += 15;
+    if (diff <= 0.40) score += 15;
   }
 
   // Same bedrooms: 15pts
