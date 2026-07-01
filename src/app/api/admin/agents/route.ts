@@ -30,10 +30,13 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // 3. Create the service role client to fetch from auth schema
+    // 3. Create the service role client
     const serviceClient = createServiceClient();
+    
+    // In local dev without service key, use authenticated supabase client to bypass the unauthenticated RLS filter
+    const dbClient = process.env.SUPABASE_SERVICE_ROLE_KEY ? serviceClient : supabase;
 
-    const { data: profiles, error: profilesError } = await serviceClient
+    const { data: profiles, error: profilesError } = await dbClient
       .from('agent_profiles')
       .select('*')
       .order('created_at', { ascending: false });
