@@ -4,6 +4,13 @@ CLI entry point for Next.js: reads JSON params from stdin, writes JSON results t
 All scraper print() logs go to stderr so they don't pollute the JSON output.
 """
 import sys
+if hasattr(sys.stdin, 'reconfigure'):
+    sys.stdin.reconfigure(encoding='utf-8')
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
+
 import json
 import re
 
