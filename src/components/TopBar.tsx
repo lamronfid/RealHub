@@ -5,6 +5,7 @@ import { useAgentUI } from '@/lib/store';
 import NotificationsDropdown from './NotificationsDropdown';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import Link from 'next/link';
 
 import VerifiedBadge from './VerifiedBadge';
 
@@ -91,6 +92,17 @@ export default function TopBar({ agentName, agentAvatar, isVerified }: TopBarPro
                    <p className="text-xs text-slate-400">Agente</p>
                 </div>
                 
+                <div className="px-2 py-1 border-b border-slate-100/60">
+                  <Link
+                    href="/perfil"
+                    onClick={() => setIsProfileOpen(false)}
+                    className="w-full text-left px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg flex items-center gap-2.5 transition-colors font-medium"
+                  >
+                    <span className="material-symbols-outlined text-[20px] text-slate-400">person</span>
+                    Mi Perfil
+                  </Link>
+                </div>
+
                 <div className="px-2 py-1">
                   <button 
                     onClick={handleLogout}

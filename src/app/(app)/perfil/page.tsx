@@ -10,13 +10,37 @@ export default async function PerfilPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from('agent_profiles')
     .select('id, full_name, phone, whatsapp, avatar_url, agency_name, agency_office, bio, subscription_tier, is_verified, license_number, specialties, coverage_areas, experience_years, role, account_type, most_sold_types, has_developments, developments_details')
     .eq('id', user.id)
     .single();
 
-  if (!profile) redirect('/login');
+  if (!profile) {
+    const adminEmails = ['lamronfidd@gmail.com', 'jonyocampos@gmail.com', 'lamronfid@gmail.com'];
+    const isAdminEmail = user.email ? adminEmails.includes(user.email.toLowerCase()) : false;
+
+    const { data: newProfile } = await supabase
+      .from('agent_profiles')
+      .insert({
+        id: user.id,
+        email: user.email,
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Agente',
+        role: isAdminEmail ? 'admin' : 'agent',
+        account_type: user.user_metadata?.account_type || 'agent',
+        agency_name: user.user_metadata?.account_type === 'agency' ? user.user_metadata?.agency_name : null,
+        subscription_tier: 'elite',
+        is_verified: true,
+      })
+      .select('id, full_name, phone, whatsapp, avatar_url, agency_name, agency_office, bio, subscription_tier, is_verified, license_number, specialties, coverage_areas, experience_years, role, account_type, most_sold_types, has_developments, developments_details')
+      .single();
+      
+    profile = newProfile;
+  }
+
+  if (!profile) {
+    redirect('/');
+  }
   return (
     <div className="max-w-3xl mx-auto pb-24 space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
