@@ -25,11 +25,12 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Protect all routes except login, registrar, subscription simulator, and public assets
+  // Protect all routes except login, registrar, subscription simulator, shared properties, and public assets
   const isPublicPage = 
     request.nextUrl.pathname === '/login' || 
     request.nextUrl.pathname === '/registrar' ||
-    request.nextUrl.pathname.startsWith('/subscripcion');
+    request.nextUrl.pathname.startsWith('/subscripcion') ||
+    request.nextUrl.pathname.startsWith('/p/');
 
   const isPublicAsset = request.nextUrl.pathname.startsWith('/_next') ||
     request.nextUrl.pathname.startsWith('/api') ||
