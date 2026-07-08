@@ -10,17 +10,21 @@ export default async function PerfilPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  let { data: profile } = await supabase
+  let { data: profile, error: fetchError } = await supabase
     .from('agent_profiles')
     .select('id, full_name, phone, whatsapp, avatar_url, agency_name, agency_office, bio, subscription_tier, is_verified, license_number, specialties, coverage_areas, experience_years, role, account_type, most_sold_types, has_developments, developments_details')
     .eq('id', user.id)
     .single();
 
+  if (fetchError && fetchError.code !== 'PGL02' && fetchError.code !== 'PGRST116') {
+    console.error('[PerfilPage] Profile fetch error:', fetchError.message, fetchError.details);
+  }
+
   if (!profile) {
     const adminEmails = ['lamronfidd@gmail.com', 'jonyocampos@gmail.com', 'lamronfid@gmail.com'];
     const isAdminEmail = user.email ? adminEmails.includes(user.email.toLowerCase()) : false;
 
-    const { data: newProfile } = await supabase
+    const { data: newProfile, error: insertError } = await supabase
       .from('agent_profiles')
       .insert({
         id: user.id,
@@ -35,6 +39,9 @@ export default async function PerfilPage() {
       .select('id, full_name, phone, whatsapp, avatar_url, agency_name, agency_office, bio, subscription_tier, is_verified, license_number, specialties, coverage_areas, experience_years, role, account_type, most_sold_types, has_developments, developments_details')
       .single();
       
+    if (insertError) {
+      console.error('[PerfilPage] Profile auto-creation error:', insertError.message, insertError.details);
+    }
     profile = newProfile;
   }
 

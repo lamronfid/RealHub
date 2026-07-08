@@ -26,7 +26,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
   // Auto-create profile on first login
   if (!profile) {
-    const { data: newProfile } = await supabase
+    const { data: newProfile, error: insertError } = await supabase
       .from('agent_profiles')
       .insert({
         id: user.id,
@@ -40,6 +40,10 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       })
       .select()
       .single();
+    
+    if (insertError) {
+      console.error('[AuthLayout] Profile auto-creation error:', insertError.message, insertError.details);
+    }
     profile = newProfile;
   } else {
     // Auto-upgrade existing profiles to Elite and Verified
