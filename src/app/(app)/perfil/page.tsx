@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import ProfileForm from './ProfileForm';
 import OwnReviews from './OwnReviews';
@@ -10,9 +11,10 @@ export default async function PerfilPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  let { data: profile, error: fetchError } = await supabase
+  const serviceClient = createServiceClient();
+  let { data: profile, error: fetchError } = await serviceClient
     .from('agent_profiles')
-    .select('id, full_name, phone, whatsapp, avatar_url, agency_name, agency_office, bio, subscription_tier, is_verified, license_number, specialties, coverage_areas, experience_years, role, account_type, most_sold_types, has_developments, developments_details')
+    .select('*')
     .eq('id', user.id)
     .single();
 
@@ -24,7 +26,7 @@ export default async function PerfilPage() {
     const adminEmails = ['lamronfidd@gmail.com', 'jonyocampos@gmail.com', 'lamronfid@gmail.com'];
     const isAdminEmail = user.email ? adminEmails.includes(user.email.toLowerCase()) : false;
 
-    const { data: newProfile, error: insertError } = await supabase
+    const { data: newProfile, error: insertError } = await serviceClient
       .from('agent_profiles')
       .insert({
         id: user.id,
@@ -36,7 +38,7 @@ export default async function PerfilPage() {
         subscription_tier: 'elite',
         is_verified: true,
       })
-      .select('id, full_name, phone, whatsapp, avatar_url, agency_name, agency_office, bio, subscription_tier, is_verified, license_number, specialties, coverage_areas, experience_years, role, account_type, most_sold_types, has_developments, developments_details')
+      .select('*')
       .single();
       
     if (insertError) {

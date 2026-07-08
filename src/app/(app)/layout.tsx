@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import MobileNav from '@/components/MobileNav';
@@ -14,8 +15,9 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
   if (!user) redirect('/login');
 
-  // Get or create agent profile
-  let { data: profile } = await supabase
+  // Get or create agent profile using service client to bypass RLS/policy issues on server
+  const serviceClient = createServiceClient();
+  let { data: profile } = await serviceClient
     .from('agent_profiles')
     .select('*')
     .eq('id', user.id)
@@ -26,7 +28,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
   // Auto-create profile on first login
   if (!profile) {
-    const { data: newProfile, error: insertError } = await supabase
+    const { data: newProfile, error: insertError } = await serviceClient
       .from('agent_profiles')
       .insert({
         id: user.id,
@@ -68,7 +70,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
     }
     
     if (needsUpdate) {
-      const { data: updatedProfile } = await supabase
+      const { data: updatedProfile } = await serviceClient
         .from('agent_profiles')
         .update(updates)
         .eq('id', user.id)
