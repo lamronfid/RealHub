@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
+    const clientSupabase = await createClient();
+    const { data: { user } } = await clientSupabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'No autorizado. Inicie sesión.' }, { status: 401 });
+    }
+
     const { results, operation, propType } = await req.json();
     if (!Array.isArray(results) || results.length === 0) {
       return NextResponse.json({ stored: 0 });

@@ -2,14 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { fetchExternalComparables, fetchInternalComparables } from '@/lib/acm/api';
 import { calcSimilarityScore } from '@/lib/acm/calculations';
 import type { AcmSubjectProperty } from '@/types/acm';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'No autorizado. Inicie sesión.' }, { status: 401 });
+    }
+
     const body = await req.json();
     const subject: Partial<AcmSubjectProperty> = body.subject;
-    const agentId: string = body.agentId;
+    const agentId = user.id;
 
-    if (!subject || !agentId) {
+    if (!subject) {
       return NextResponse.json({ error: 'Parámetros inválidos' }, { status: 400 });
     }
 

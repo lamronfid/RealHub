@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,6 +62,13 @@ const ASUNCION_BARRIOS: BarrioOption[] = [
 ];
 
 export async function GET(req: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'No autorizado. Inicie sesión.' }, { status: 401 });
+  }
+
   const q    = req.nextUrl.searchParams.get('q')    ?? '';
   const city = req.nextUrl.searchParams.get('city') ?? '';
 
