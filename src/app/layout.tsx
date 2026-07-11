@@ -26,6 +26,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${inter.variable} ${outfit.variable}`} data-scroll-behavior="smooth">
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+      </head>
       <body className="font-sans antialiased bg-slate-50/50">
         {children}
       </body>
