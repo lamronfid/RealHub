@@ -26,7 +26,7 @@ export default async function PerfilPage() {
     const adminEmails = ['lamronfidd@gmail.com', 'jonyocampos@gmail.com', 'lamronfid@gmail.com'];
     const isAdminEmail = user.email ? adminEmails.includes(user.email.toLowerCase()) : false;
 
-    const { data: newProfile, error: insertError } = await serviceClient
+    let { data: newProfile, error: insertError } = await serviceClient
       .from('agent_profiles')
       .insert({
         id: user.id,
@@ -43,6 +43,27 @@ export default async function PerfilPage() {
       
     if (insertError) {
       console.error('[PerfilPage] Profile auto-creation error:', insertError.message, insertError.details);
+      // Fallback: retry without account_type column if it's missing in DB schema cache
+      if (insertError.message.includes('account_type') || insertError.message.includes('column')) {
+        const { data: retriedProfile, error: retryError } = await serviceClient
+          .from('agent_profiles')
+          .insert({
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Agente',
+            role: isAdminEmail ? 'admin' : 'agent',
+            agency_name: user.user_metadata?.account_type === 'agency' ? user.user_metadata?.agency_name : null,
+            subscription_tier: 'elite',
+            is_verified: true,
+          })
+          .select('*')
+          .single();
+        if (retryError) {
+          console.error('[PerfilPage] Profile auto-creation retry error:', retryError.message, retryError.details);
+        } else {
+          newProfile = retriedProfile;
+        }
+      }
     }
     profile = newProfile;
   }
