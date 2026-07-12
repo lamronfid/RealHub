@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server';
-import { createServiceClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import MobileNav from '@/components/MobileNav';
@@ -15,9 +14,8 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
   if (!user) redirect('/login');
 
-  // Get or create agent profile using service client to bypass RLS/policy issues on server
-  const serviceClient = createServiceClient();
-  let { data: profile } = await serviceClient
+  // Get or create agent profile using standard client (contains user session for local RLS checks)
+  let { data: profile } = await supabase
     .from('agent_profiles')
     .select('*')
     .eq('id', user.id)
@@ -28,7 +26,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
   // Auto-create profile on first login
   if (!profile) {
-    let { data: newProfile, error: insertError } = await serviceClient
+    let { data: newProfile, error: insertError } = await supabase
       .from('agent_profiles')
       .insert({
         id: user.id,
@@ -47,7 +45,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       console.error('[AuthLayout] Profile auto-creation error:', insertError.message, insertError.details);
       // Fallback: retry without account_type column if it's missing in DB schema cache
       if (insertError.message.includes('account_type') || insertError.message.includes('column')) {
-        const { data: retriedProfile, error: retryError } = await serviceClient
+        const { data: retriedProfile, error: retryError } = await supabase
           .from('agent_profiles')
           .insert({
             id: user.id,
@@ -91,7 +89,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
     }
     
     if (needsUpdate) {
-      const { data: updatedProfile } = await serviceClient
+      const { data: updatedProfile } = await supabase
         .from('agent_profiles')
         .update(updates)
         .eq('id', user.id)

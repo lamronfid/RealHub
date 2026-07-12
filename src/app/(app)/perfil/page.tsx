@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server';
-import { createServiceClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import ProfileForm from './ProfileForm';
 import OwnReviews from './OwnReviews';
@@ -11,8 +10,7 @@ export default async function PerfilPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const serviceClient = createServiceClient();
-  let { data: profile, error: fetchError } = await serviceClient
+  let { data: profile, error: fetchError } = await supabase
     .from('agent_profiles')
     .select('*')
     .eq('id', user.id)
@@ -26,7 +24,7 @@ export default async function PerfilPage() {
     const adminEmails = ['lamronfidd@gmail.com', 'jonyocampos@gmail.com', 'lamronfid@gmail.com'];
     const isAdminEmail = user.email ? adminEmails.includes(user.email.toLowerCase()) : false;
 
-    let { data: newProfile, error: insertError } = await serviceClient
+    let { data: newProfile, error: insertError } = await supabase
       .from('agent_profiles')
       .insert({
         id: user.id,
@@ -45,7 +43,7 @@ export default async function PerfilPage() {
       console.error('[PerfilPage] Profile auto-creation error:', insertError.message, insertError.details);
       // Fallback: retry without account_type column if it's missing in DB schema cache
       if (insertError.message.includes('account_type') || insertError.message.includes('column')) {
-        const { data: retriedProfile, error: retryError } = await serviceClient
+        const { data: retriedProfile, error: retryError } = await supabase
           .from('agent_profiles')
           .insert({
             id: user.id,
