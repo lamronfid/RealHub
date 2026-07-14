@@ -54,24 +54,56 @@ export async function POST(request: Request) {
       console.log(`Pedido ${idPedidoComercio} verificado correctamente. Estado pagado: ${pagado}, Monto: ${monto}`);
 
       if (pagado) {
-        // Format of order ID: RH-<userIdPrefix>-<timestamp>
-        const parts = idPedidoComercio.split('-');
-        if (parts[0] === 'RH' && parts[1]) {
-          const shortId = parts[1]; // first 8 characters of UUID
+        // Try parsing the new format: RH_${userId}_${timestamp}
+        let userId: string | null = null;
+        let isShortId = false;
 
-          // 2. Look up the agent profile by the short ID prefix of their UUID
-          const { data: users, error: searchError } = await supabaseAdmin
-            .from('agent_profiles')
-            .select('id, subscription_tier')
-            .like('id', `${shortId}%`);
+        if (idPedidoComercio.includes('_')) {
+          const parts = idPedidoComercio.split('_');
+          if (parts[0] === 'RH' && parts[1]) {
+            userId = parts[1];
+          }
+        } else {
+          // Fallback backward compatibility for older hyphenated format: RH-<userIdPrefix>-<timestamp>
+          const parts = idPedidoComercio.split('-');
+          if (parts[0] === 'RH' && parts[1]) {
+            userId = parts[1];
+            isShortId = true;
+          }
+        }
 
-          if (searchError || !users || users.length === 0) {
-            console.error(`No se encontró ningún agente en Supabase con el prefijo UUID: ${shortId}`);
+        if (userId) {
+          let targetUser: { id: string; subscription_tier: string } | null = null;
+
+          if (isShortId) {
+            // Backward compatibility lookup via prefix LIKE match
+            const { data: users, error: searchError } = await supabaseAdmin
+              .from('agent_profiles')
+              .select('id, subscription_tier')
+              .like('id', `${userId}%`);
+
+            if (!searchError && users && users.length > 0) {
+              targetUser = users[0];
+            }
+          } else {
+            // Safe, exact match using full UUID
+            const { data: profile, error: searchError } = await supabaseAdmin
+              .from('agent_profiles')
+              .select('id, subscription_tier')
+              .eq('id', userId)
+              .single();
+
+            if (!searchError && profile) {
+              targetUser = profile;
+            }
+          }
+
+          if (!targetUser) {
+            console.error(`No se encontró ningún agente en Supabase para el ID/prefijo de pedido: ${userId}`);
             continue;
           }
 
-          const targetUser = users[0];
-          const userId = targetUser.id;
+          const targetUserId = targetUser.id;
 
           // 3. Map amount paid directly to plan tier
           // Entrada: 110.000 / 1.050.000 Gs. -> 'standard'
@@ -84,7 +116,7 @@ export async function POST(request: Request) {
             tier = 'elite';
           }
 
-          console.log(`Activando plan '${tier}' para el usuario ${userId} en Supabase...`);
+          console.log(`Activando plan '${tier}' para el usuario ${targetUserId} en Supabase...`);
 
           // 4. Update the agent profile in Supabase securely
           const { error: updateError } = await supabaseAdmin
@@ -93,12 +125,12 @@ export async function POST(request: Request) {
               subscription_tier: tier,
               is_verified: tier === 'elite', // Elite automatically gets verification badge
             })
-            .eq('id', userId);
+            .eq('id', targetUserId);
 
           if (updateError) {
-            console.error(`Error al actualizar perfil para el usuario ${userId}:`, updateError.message);
+            console.error(`Error al actualizar perfil para el usuario ${targetUserId}:`, updateError.message);
           } else {
-            console.log(`Suscripción activada con éxito para ${userId}.`);
+            console.log(`Suscripción activada con éxito para ${targetUserId}.`);
             
             // Insert real-time notification
             const planNames: Record<string, string> = {
@@ -111,7 +143,7 @@ export async function POST(request: Request) {
             const { error: notifError } = await supabaseAdmin
               .from('notifications')
               .insert({
-                user_id: userId,
+                user_id: targetUserId,
                 title: '¡Suscripción Activada! 🎉',
                 body: `Tu cuenta ha sido actualizada con éxito al plan ${planName}. ¡Gracias por confiar en RealHub!`,
                 type: 'system',
@@ -120,9 +152,9 @@ export async function POST(request: Request) {
               });
 
             if (notifError) {
-              console.error(`Error al insertar notificación para el usuario ${userId}:`, notifError.message);
+              console.error(`Error al insertar notificación para el usuario ${targetUserId}:`, notifError.message);
             } else {
-              console.log(`Notificación de pago enviada para el usuario ${userId}.`);
+              console.log(`Notificación de pago enviada para el usuario ${targetUserId}.`);
             }
           }
         }

@@ -15,8 +15,32 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { url } = body;
 
-    if (!url) {
+    if (!url || typeof url !== 'string') {
       return NextResponse.json({ error: 'Se requiere la URL de la propiedad.' }, { status: 400 });
+    }
+
+    // SSRF and input validation: ensure it's a valid http/https URL pointing to a allowed/known domain
+    try {
+      const parsedUrl = new URL(url);
+      if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+        return NextResponse.json({ error: 'Esquema de URL no válido. Solo se permiten http o https.' }, { status: 400 });
+      }
+      
+      // Simple sanity checks: avoid localhost or loopback requests
+      const hostname = parsedUrl.hostname.toLowerCase();
+      if (
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname === '0.0.0.0' ||
+        hostname.startsWith('192.168.') ||
+        hostname.startsWith('10.') ||
+        hostname.startsWith('172.16.') ||
+        hostname.startsWith('169.254.')
+      ) {
+        return NextResponse.json({ error: 'Acceso a direcciones locales o privadas no permitido.' }, { status: 400 });
+      }
+    } catch {
+      return NextResponse.json({ error: 'La URL proporcionada no es válida.' }, { status: 400 });
     }
 
     // 3. Get User Profile and Subscription Limits
@@ -94,22 +118,49 @@ export async function POST(request: Request) {
       // Local development child_process fallback
       console.log('No PROPSEARCH_URL environment variable found. Falling back to local python execution...');
       try {
-        const { execSync } = require('child_process');
+        const { spawn } = require('child_process');
         const path = require('path');
         const propsearchPath = path.join(process.cwd(), 'scraper');
         
-        // Escape the URL for PowerShell/cmd execution
-        const escapedUrl = url.replace(/"/g, '\\"');
+        // Python code executed via -c argument. Safe because we don't pass arguments through shell.
+        const pythonCode = `import sys, asyncio, json; sys.path.append(sys.argv[1]); from single_scraper import scrape_single_url; sys.stdout.reconfigure(encoding='utf-8'); res = asyncio.run(scrape_single_url(sys.argv[2])); sys.stdout.write(json.dumps(res, ensure_ascii=False))`;
         
-        // Invoke single_scraper via python CLI
-        const pythonCommand = `python -c "import sys, asyncio, json; sys.path.append(r'${propsearchPath}'); from single_scraper import scrape_single_url; sys.stdout.reconfigure(encoding='utf-8'); res = asyncio.run(scrape_single_url(sys.argv[1])); sys.stdout.write(json.dumps(res, ensure_ascii=False))" "${escapedUrl}"`;
+        const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
         
-        const output = execSync(pythonCommand, {
-          cwd: propsearchPath,
-          encoding: 'utf-8',
+        // Use Promise to run spawn asynchronously and safely (shell: false)
+        scrapedData = await new Promise((resolve, reject) => {
+          const child = spawn(pythonCmd, ['-c', pythonCode, propsearchPath, url], {
+            cwd: propsearchPath,
+            shell: false,
+          });
+          
+          let stdout = '';
+          let stderr = '';
+          
+          child.stdout.on('data', (d: Buffer) => {
+            stdout += d.toString();
+          });
+          
+          child.stderr.on('data', (d: Buffer) => {
+            stderr += d.toString();
+          });
+          
+          child.on('close', (code: number) => {
+            if (code !== 0) {
+              reject(new Error(`Python process exited with code ${code}. Error: ${stderr}`));
+            } else {
+              try {
+                resolve(JSON.parse(stdout));
+              } catch (e) {
+                reject(new Error(`Failed to parse Python output: ${stdout}`));
+              }
+            }
+          });
+          
+          child.on('error', (err: any) => {
+            reject(err);
+          });
         });
-        
-        scrapedData = JSON.parse(output);
       } catch (err: any) {
         console.error('Error running local Python scraper:', err);
         return NextResponse.json({ 

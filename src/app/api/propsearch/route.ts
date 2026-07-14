@@ -67,10 +67,25 @@ export async function POST(req: NextRequest) {
         console.warn('Error al actualizar el contador de búsquedas:', updateError.message);
       }
 
+      // Generate a signed temporary token to avoid exposing PROPSEARCH_SECRET to the client.
+      // Format: expiresAt:userId:signature
+      // Valid for 5 minutes (300 seconds).
+      const crypto = require('crypto');
+      const expiresAt = Math.floor(Date.now() / 1000) + 300;
+      const message = `${expiresAt}:${user.id}`;
+      const secret = process.env.PROPSEARCH_SECRET || '';
+      
+      const signature = crypto
+        .createHmac('sha256', secret)
+        .update(message)
+        .digest('hex');
+      
+      const tempToken = `${expiresAt}:${user.id}:${signature}`;
+
       return NextResponse.json({
         direct: true,
         apiUrl: apiUrl.replace(/\/$/, ''),
-        apiSecret: process.env.PROPSEARCH_SECRET || ''
+        apiSecret: tempToken
       });
     }
 

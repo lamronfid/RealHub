@@ -32,11 +32,25 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/subscripcion') ||
     request.nextUrl.pathname.startsWith('/p/');
 
-  const isPublicAsset = request.nextUrl.pathname.startsWith('/_next') ||
-    request.nextUrl.pathname.startsWith('/api') ||
+  const isPublicApi =
+    request.nextUrl.pathname === '/api/subscripcion/webhook' ||
+    request.nextUrl.pathname === '/api/scraper/cron';
+
+  const isPublicAsset = 
+    request.nextUrl.pathname.startsWith('/_next') ||
+    isPublicApi ||
     request.nextUrl.pathname.match(/\.(svg|png|jpg|jpeg|gif|webp|ico)$/);
 
+  // If unauthenticated and trying to access a protected route
   if (!user && !isPublicPage && !isPublicAsset) {
+    // If it's a backend API endpoint, return 401 Unauthorized directly instead of redirecting
+    if (request.nextUrl.pathname.startsWith('/api')) {
+      return new NextResponse(
+        JSON.stringify({ error: 'No autorizado. Inicie sesión.' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const url = request.nextUrl.clone();
     url.pathname = '/subscripcion/planes';
     return NextResponse.redirect(url);

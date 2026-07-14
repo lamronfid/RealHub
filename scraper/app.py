@@ -28,13 +28,42 @@ CORS(app)
 _SECRET = os.getenv("PROPSEARCH_SECRET", "")
 
 
-# ── Auth helper ───────────────────────────────────────────────────────────────
-
 def _authorized() -> bool:
     if not _SECRET:
         return True  # local dev without a secret configured
     auth = request.headers.get("Authorization", "")
-    return auth == f"Bearer {_SECRET}"
+    if not auth or not auth.startswith("Bearer "):
+        return False
+    
+    token = auth[7:]
+    
+    # 1. Master token check (direct match)
+    import hmac
+    if hmac.compare_digest(token, _SECRET):
+        return True
+        
+    # 2. Signed temporary token check: expiresAt:userId:signature
+    try:
+        parts = token.split(":")
+        if len(parts) != 3:
+            return False
+            
+        expires_at_str, user_id, signature = parts
+        
+        # Verify expiration
+        import time
+        expires_at = int(expires_at_str)
+        if time.time() > expires_at:
+            return False
+            
+        # Recompute signature
+        import hashlib
+        msg = f"{expires_at_str}:{user_id}".encode("utf-8")
+        expected_sig = hmac.new(_SECRET.encode("utf-8"), msg, hashlib.sha256).hexdigest()
+        
+        return hmac.compare_digest(expected_sig, signature)
+    except Exception:
+        return False
 
 
 # ── Deduplication (mirrors runner.py logic) ───────────────────────────────────

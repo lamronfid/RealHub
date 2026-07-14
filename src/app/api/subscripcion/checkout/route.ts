@@ -81,8 +81,9 @@ export async function POST(request: Request) {
     }
 
     // Create unique commercial order ID
-    // Format: RH-<userId>-<timestamp>
-    const idPedidoComercio = `RH-${user.id.slice(0, 8)}-${Date.now()}`;
+    // Format: RH_${userId}_${timestamp}
+    // We use underscores because UUIDs contain hyphens. This lets us extract the full UUID securely in the webhook.
+    const idPedidoComercio = `RH_${user.id}_${Date.now()}`;
     const planName = PLAN_NAMES[plan] || 'Suscripción RealHub';
     const descripcion = `${planName} (${cycle === 'annual' ? 'Anual' : 'Mensual'})`;
 

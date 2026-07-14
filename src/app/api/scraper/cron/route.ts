@@ -20,7 +20,13 @@ export async function POST(req: NextRequest) {
     const authHeader = req.headers.get('Authorization');
     const cronSecret = process.env.CRON_SECRET;
     
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    if (!cronSecret) {
+      console.error('[Cron Scraper] ERROR: CRON_SECRET is not configured in environment variables.');
+      return NextResponse.json({ error: 'Servidor mal configurado. Falta la clave del cron.' }, { status: 500 });
+    }
+
+    // Constant-time check or simple safe verification
+    if (authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'No autorizado.' }, { status: 401 });
     }
 
@@ -116,7 +122,12 @@ export async function GET(req: NextRequest) {
   const secret = searchParams.get('secret');
   const cronSecret = process.env.CRON_SECRET;
 
-  if (cronSecret && secret !== cronSecret) {
+  if (!cronSecret) {
+    console.error('[Cron Scraper] ERROR: CRON_SECRET is not configured in environment variables.');
+    return NextResponse.json({ error: 'Servidor mal configurado. Falta la clave del cron.' }, { status: 500 });
+  }
+
+  if (secret !== cronSecret) {
     return NextResponse.json({ error: 'No autorizado.' }, { status: 401 });
   }
 
