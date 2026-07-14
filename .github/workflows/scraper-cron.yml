@@ -1,0 +1,26 @@
+name: 72h Scraper Auto Crawl
+
+on:
+  schedule:
+    # Run every 72 hours (at 00:00 every 3 days)
+    - cron: '0 0 */3 * *'
+  workflow_dispatch: # Allows manual run from GitHub actions tab
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Scraper API Route
+        run: |
+          URL="${{ secrets.PRODUCTION_URL }}"
+          if [ -z "$URL" ]; then
+            URL="https://realhub.com.py"
+          fi
+          echo "Triggering scraper crawl at: $URL/api/scraper/cron"
+          
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            --fail \
+            "$URL/api/scraper/cron"
