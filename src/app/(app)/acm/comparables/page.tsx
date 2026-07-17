@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAcmStore } from '@/store/acm-store';
 import ComparableCard from '@/components/acm/ComparableCard';
@@ -30,6 +30,11 @@ export default function ComparablesPage() {
   const selectedCount = selectedIds.size;
   const canGenerate = selectedCount >= 3;
 
+  // Reset calculating state on mount/return
+  useEffect(() => {
+    setIsCalculating(false);
+  }, [setIsCalculating]);
+
   async function handleGenerateReport() {
     setCalcError(null);
     setIsCalculating(true);
@@ -51,7 +56,6 @@ export default function ComparablesPage() {
       router.push('/acm/reporte');
     } catch {
       setCalcError('Error al calcular el reporte. Intentá de nuevo.');
-    } finally {
       setIsCalculating(false);
     }
   }

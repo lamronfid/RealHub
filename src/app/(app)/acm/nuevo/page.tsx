@@ -331,8 +331,23 @@ export default function NuevoAcmPage() {
     }
   }, [form.yearBuilt]);
 
+  // Reset loading states on mount/return to page
+  useEffect(() => {
+    setLoading(false);
+    setIsSearching(false);
+  }, [setIsSearching]);
+
+  // Derive initial values and fallbacks when selecting from agent properties
   function selectMyProperty(p: AgentProperty) {
-    setForm(propertyToFormData(p));
+    const data = propertyToFormData(p);
+    // Provide safe defaults for required validation fields if not set in property
+    if (!data.propertyCondition) {
+      data.propertyCondition = 'terminado';
+    }
+    if (data.propertyType && TYPES_WITH_BEDROOMS.includes(data.propertyType) && data.bedrooms === undefined) {
+      data.bedrooms = 0;
+    }
+    setForm(data);
     setErrors({});
     setPickerOpen(false);
   }
@@ -385,16 +400,16 @@ export default function NuevoAcmPage() {
       const data = await res.json();
       setComparables(data.comparables);
       setSearchError(null);
+      clearTimeout(timeout);
       router.push('/acm/comparables');
     } catch (err) {
+      clearTimeout(timeout);
       if (err instanceof DOMException && err.name === 'AbortError') {
         setSearchError('La búsqueda tardó demasiado. Intentá de nuevo.');
       } else {
         setSearchError('No se pudo completar la búsqueda. Intentá de nuevo.');
       }
       console.error(err);
-    } finally {
-      clearTimeout(timeout);
       setLoading(false);
       setIsSearching(false);
     }
