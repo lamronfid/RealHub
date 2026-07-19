@@ -22,7 +22,7 @@ export default async function HomePage({
   const skipWizard = cookieStore.get('skip_import_wizard')?.value === 'true';
 
   const [
-    { count: totalProperties },
+    { data: agentPropsRaw },
     { count: marketplaceProperties },
     { count: totalProspects },
     { data: prospectsByStage },
@@ -31,7 +31,7 @@ export default async function HomePage({
     { count: closedThisMonth },
     { data: profile },
   ] = await Promise.all([
-    supabase.from('properties').select('*', { count: 'exact', head: true }).eq('agent_id', agentId),
+    supabase.from('properties').select('transaction_type, property_type').eq('agent_id', agentId),
     supabase.from('properties').select('*', { count: 'exact', head: true }).eq('agent_id', agentId).eq('visibility', 'marketplace'),
     supabase.from('prospects').select('*', { count: 'exact', head: true }).eq('agent_id', agentId),
     supabase.from('prospects').select('stage').eq('agent_id', agentId),
@@ -41,7 +41,34 @@ export default async function HomePage({
     supabase.from('agent_profiles').select('*').eq('id', agentId).single(),
   ]);
 
+  const agentPropertiesList = agentPropsRaw || [];
+  const totalProperties = agentPropertiesList.length;
   const isWizardActive = showWizardParam || (totalProperties === 0 && !skipWizard);
+
+  // Calculate sales/rent metrics
+  let salesCount = 0;
+  let rentCount = 0;
+  agentPropertiesList.forEach((p) => {
+    if (p.transaction_type === 'venta') salesCount++;
+    else if (p.transaction_type === 'alquiler') rentCount++;
+  });
+
+  // Calculate category distribution
+  let residentialCount = 0;
+  let commercialCount = 0;
+  let landCount = 0;
+  agentPropertiesList.forEach((p) => {
+    const t = (p.property_type || '').toLowerCase();
+    if (['casa', 'departamento', 'duplex', 'quinta', 'quinta_country'].includes(t)) {
+      residentialCount++;
+    } else if (['local_comercial', 'oficina', 'deposito', 'deposito_tinglado', 'edificio', 'comercial'].includes(t)) {
+      commercialCount++;
+    } else if (['terreno', 'terreno_lote', 'campo', 'estancia_campo'].includes(t)) {
+      landCount++;
+    } else {
+      residentialCount++; // fallback
+    }
+  });
 
   const stageCounts: Record<string, number> = {};
   (prospectsByStage || []).forEach((p) => {
@@ -196,6 +223,75 @@ export default async function HomePage({
           </Link>
         ))}
       </div>
+
+      {/* Analytics Charts */}
+      {totalProperties > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Card 1: Venta vs Alquiler */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-premium flex flex-col justify-between">
+            <div>
+              <h3 className="text-sm font-black text-slate-805 uppercase tracking-widest font-heading mb-1 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-indigo-500 text-lg">compare_arrows</span>
+                Distribución de Operaciones
+              </h3>
+              <p className="text-slate-400 text-xs font-semibold">Proporción de tus propiedades captadas para venta y alquiler.</p>
+            </div>
+            <div className="mt-6 space-y-4">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-indigo-500" /> Venta ({salesCount})</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-violet-400" /> Alquiler ({rentCount})</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-4 overflow-hidden flex">
+                <div 
+                  className="bg-gradient-to-r from-indigo-500 to-indigo-650 h-full transition-all duration-500" 
+                  style={{ width: `${totalProperties > 0 ? (salesCount / totalProperties) * 100 : 0}%` }} 
+                  title={`Venta: ${totalProperties > 0 ? Math.round((salesCount / totalProperties) * 100) : 0}%`}
+                />
+                <div 
+                  className="bg-gradient-to-r from-violet-400 to-violet-500 h-full transition-all duration-500" 
+                  style={{ width: `${totalProperties > 0 ? (rentCount / totalProperties) * 100 : 0}%` }}
+                  title={`Alquiler: ${totalProperties > 0 ? Math.round((rentCount / totalProperties) * 100) : 0}%`}
+                />
+              </div>
+              <div className="flex justify-between text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                <span>{totalProperties > 0 ? Math.round((salesCount / totalProperties) * 100) : 0}% Ventas</span>
+                <span>{totalProperties > 0 ? Math.round((rentCount / totalProperties) * 100) : 0}% Alquileres</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Categorías de Inmuebles */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-premium flex flex-col justify-between">
+            <div>
+              <h3 className="text-sm font-black text-slate-805 uppercase tracking-widest font-heading mb-1 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-indigo-500 text-lg">holiday_village</span>
+                Categorías de Inmuebles
+              </h3>
+              <p className="text-slate-400 text-xs font-semibold">Segmentación de tu cartera por tipo de inmueble.</p>
+            </div>
+            <div className="mt-5 space-y-3">
+              {[
+                { label: 'Residencial', count: residentialCount, color: 'bg-emerald-500' },
+                { label: 'Comercial', count: commercialCount, color: 'bg-blue-500' },
+                { label: 'Terrenos', count: landCount, color: 'bg-amber-500' },
+              ].map((cat) => {
+                const pct = totalProperties > 0 ? Math.round((cat.count / totalProperties) * 100) : 0;
+                return (
+                  <div key={cat.label} className="space-y-1">
+                    <div className="flex justify-between text-xs font-bold text-slate-700">
+                      <span>{cat.label} ({cat.count})</span>
+                      <span>{pct}%</span>
+                    </div>
+                    <div className="w-full bg-slate-105 rounded-full h-2 overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-500 ${cat.color}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pipeline + Follow-ups */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

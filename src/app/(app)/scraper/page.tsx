@@ -921,10 +921,12 @@ function BulkScraperTab({ incrementSearch }: { incrementSearch: () => void }) {
   const [liked, setLiked] = useState<Record<string, FlaskResult>>({});
   const [currentPage, setCurrentPage] = useState(_psCache.currentPage);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
+  const [recentSearches, setRecentSearches] = useState<SavedSearch[]>([]);
 
   useEffect(() => {
     setLiked(lsGet('ps_liked', {}));
     setSavedSearches(lsGet('ps_saved_searches', []));
+    setRecentSearches(lsGet('ps_recent_searches', []));
   }, []);
 
   useEffect(() => { lsSet('ps_liked', liked); }, [liked]);
@@ -1041,6 +1043,41 @@ function BulkScraperTab({ incrementSearch }: { incrementSearch: () => void }) {
     setDispSources([]);
     setCurrentPage(0);
 
+    // Save recent search automatically
+    const loc = [...selectedBarrios, form.city, form.department].filter(Boolean).join(', ') || 'Paraguay';
+    const typesStr = selectedPropTypes.length > 0 ? selectedPropTypes.join('/') : 'Cualquier tipo';
+    const searchName = `${form.operation} ${typesStr} · ${loc}`;
+
+    const queryEntry: SavedSearch = {
+      id: Date.now().toString(),
+      name: searchName,
+      savedAt: new Date().toISOString(),
+      filters: {
+        ...form,
+        bedrooms: selectedBedrooms,
+        propType: selectedPropTypes[0] || '',
+        propTypes: selectedPropTypes,
+        estadoObra,
+        m2ConstruidoMin,
+        m2ConstruidoMax,
+        m2TerrenoMin,
+        m2TerrenoMax,
+        neighborhoods: selectedBarrios,
+        priceCurrency,
+        priceMin,
+        priceMax,
+        sources,
+      },
+      results: [],
+    };
+
+    setRecentSearches((prev) => {
+      const filtered = prev.filter((s) => s.name !== searchName);
+      const updated = [queryEntry, ...filtered].slice(0, 3);
+      lsSet('ps_recent_searches', updated);
+      return updated;
+    });
+
     startSearch({
       operation: form.operation,
       propType: selectedPropTypes[0] || '',
@@ -1124,37 +1161,71 @@ function BulkScraperTab({ incrementSearch }: { incrementSearch: () => void }) {
 
   return (
     <div className="space-y-6">
-      {/* Saved searches */}
-      {savedSearches.length > 0 && (
-        <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
-            Búsquedas guardadas
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {savedSearches.map((s) => (
-              <div key={s.id} className="flex items-center gap-1 border border-slate-100 rounded-full px-3.5 py-1.5 text-xs bg-slate-50/50 hover:border-indigo-300 transition-colors group font-sans">
-                <button
-                  type="button"
-                  onClick={() => loadSearch(s)}
-                  className="text-slate-700 hover:text-indigo-600 font-bold"
-                >
-                  {s.name}
-                </button>
-                <span className="text-slate-300 mx-1.5">·</span>
-                <span className="text-[10px] text-slate-400 font-semibold">
-                  {new Date(s.savedAt).toLocaleDateString('es-PY', { day: 'numeric', month: 'short' })}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => deleteSearch(s.id)}
-                  className="ml-1 text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100 font-black text-sm leading-none"
-                  title="Eliminar búsqueda"
-                >
-                  ×
-                </button>
+      {/* Searches Dashboard (Saved & Recent) */}
+      {(savedSearches.length > 0 || recentSearches.length > 0) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Saved Searches */}
+          {savedSearches.length > 0 ? (
+            <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-xs">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[14px]">bookmark</span>
+                Búsquedas guardadas
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {savedSearches.map((s) => (
+                  <div key={s.id} className="flex items-center gap-1 border border-slate-100 rounded-full px-3 py-1.5 text-xs bg-slate-50/50 hover:border-indigo-300 transition-colors group font-sans">
+                    <button
+                      type="button"
+                      onClick={() => loadSearch(s)}
+                      className="text-slate-700 hover:text-indigo-650 font-bold"
+                    >
+                      {s.name}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteSearch(s.id)}
+                      className="ml-1 text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100 font-black text-sm leading-none"
+                      title="Eliminar"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="bg-slate-50/30 border border-dashed border-slate-200 rounded-3xl p-5 flex flex-col items-center justify-center text-center">
+              <span className="material-symbols-outlined text-slate-300 text-lg mb-1">bookmark_border</span>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Sin búsquedas guardadas</p>
+            </div>
+          )}
+
+          {/* Recent Searches */}
+          {recentSearches.length > 0 ? (
+            <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-xs">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[14px]">history</span>
+                Búsquedas recientes
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {recentSearches.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => loadSearch(s)}
+                    className="flex items-center gap-1 border border-slate-100 hover:border-indigo-300 rounded-full px-3.5 py-1.5 text-xs bg-slate-50/50 text-slate-700 hover:text-indigo-650 font-bold transition-colors text-left font-sans"
+                  >
+                    <span>{s.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-slate-50/30 border border-dashed border-slate-200 rounded-3xl p-5 flex flex-col items-center justify-center text-center">
+              <span className="material-symbols-outlined text-slate-300 text-lg mb-1">history</span>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Historial vacío</p>
+            </div>
+          )}
         </div>
       )}
 

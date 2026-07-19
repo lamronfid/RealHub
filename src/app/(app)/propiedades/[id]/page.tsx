@@ -112,7 +112,7 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
         <div className="flex items-center gap-3">
           {isOwner && (
             <>
-              <ShareButton propertyId={property.id} userId={user.id} />
+              <ShareButton property={property} userId={user.id} />
               <Link href={`/propiedades/${property.id}/editar`}
                 className="text-sm font-bold text-slate-600 hover:text-indigo-650 flex items-center gap-1 bg-white px-4 py-1.5 rounded-full border border-slate-200 transition">
                 <span className="material-symbols-outlined text-[16px]">edit</span> Editar

@@ -48,6 +48,30 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
   const [hasDevelopments, setHasDevelopments] = useState<boolean>(!!profile.has_developments);
   const supabase = createClient();
 
+  const getProfileStrength = () => {
+    let score = 0;
+    const items: Array<{ label: string; field: string; weight: number; completed: boolean }> = [
+      { label: 'Foto de Perfil', field: 'avatar_url', weight: 15, completed: !!avatarUrl },
+      { label: 'Nombre Completo', field: 'full_name', weight: 15, completed: !!profile.full_name?.trim() },
+      { label: 'Teléfono Celular', field: 'phone', weight: 10, completed: !!profile.phone?.trim() },
+      { label: 'WhatsApp', field: 'whatsapp', weight: 10, completed: !!profile.whatsapp?.trim() },
+      { label: 'Nro. de Licencia (M.U.A.)', field: 'license_number', weight: 15, completed: !!profile.license_number?.trim() },
+      { label: 'Nombre de Agencia', field: 'agency_name', weight: 10, completed: !!profile.agency_name?.trim() },
+      { label: 'Biografía / Presentación', field: 'bio', weight: 10, completed: !!profile.bio?.trim() },
+      { label: 'Zonas de Cobertura', field: 'coverage_areas', weight: 10, completed: selectedCoverage.length > 0 },
+      { label: 'Especialidades', field: 'most_sold_types', weight: 5, completed: selectedMostSold.length > 0 },
+    ];
+    
+    items.forEach(i => {
+      if (i.completed) score += i.weight;
+    });
+
+    return { score, items };
+  };
+
+  const { score: profileScore, items: strengthItems } = getProfileStrength();
+  const pendingItems = strengthItems.filter(i => !i.completed);
+
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -123,8 +147,74 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
       {error && <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-2xl text-xs font-semibold">{error}</div>}
       {success && <div className="bg-emerald-50 border border-emerald-100 text-emerald-600 p-4 rounded-2xl text-xs font-semibold flex items-center gap-2"><span className="material-symbols-outlined text-lg">check_circle</span>{success}</div>}
 
+      {/* Profile Strength Indicator */}
+      {profileScore < 100 && (
+        <div className="bg-gradient-to-br from-indigo-500/5 via-violet-500/5 to-transparent border border-indigo-100/50 rounded-3xl p-5 md:p-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-305">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-1 text-left">
+              <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest font-heading flex items-center gap-1.5 leading-none">
+                <span className="material-symbols-outlined text-indigo-500 text-base">dashboard_customize</span>
+                Fortaleza de tu Perfil ({profileScore}%)
+              </h4>
+              <p className="text-slate-400 text-[11px] font-semibold leading-relaxed">
+                Un perfil 100% completo genera hasta **5 veces más confianza** al coordinar visitas co-broke en Paraguay.
+              </p>
+            </div>
+            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shrink-0 self-start sm:self-center ${
+              profileScore >= 80 
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-150' 
+                : profileScore >= 50 
+                  ? 'bg-amber-50 text-amber-700 border border-amber-150' 
+                  : 'bg-rose-50 text-rose-700 border border-rose-150'
+            }`}>
+              {profileScore >= 80 ? 'Perfil Fuerte' : profileScore >= 50 ? 'Perfil Medio' : 'Perfil Incompleto'}
+            </span>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+            <div 
+              className={`h-full rounded-full transition-all duration-700 ${
+                profileScore >= 80 
+                  ? 'bg-gradient-to-r from-emerald-400 to-emerald-500' 
+                  : profileScore >= 50 
+                    ? 'bg-gradient-to-r from-amber-400 to-amber-550' 
+                    : 'bg-gradient-to-r from-indigo-500 to-violet-600'
+              }`} 
+              style={{ width: `${profileScore}%` }} 
+            />
+          </div>
+
+          {/* Pending Tasks Badges */}
+          {pendingItems.length > 0 && (
+            <div className="space-y-2 pt-1">
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Pendientes por completar:</span>
+              <div className="flex flex-wrap gap-1.5">
+                {pendingItems.map((item) => (
+                  <button 
+                    key={item.field} 
+                    type="button"
+                    className="inline-flex items-center gap-1 bg-white border border-slate-150 hover:border-indigo-405 hover:text-indigo-650 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full transition-colors shadow-3xs cursor-pointer"
+                    onClick={() => {
+                      const element = document.getElementsByName(item.field)[0] || document.querySelector(`[name="${item.field}"]`);
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        (element as HTMLInputElement).focus?.();
+                      }
+                    }}
+                  >
+                    <span>+</span>
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Avatar Section */}
-      <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-100/85 bg-slate-50/50 p-6 rounded-2xl">
+      <div id="avatar_url" className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-100/85 bg-slate-50/50 p-6 rounded-2xl">
         <div className="relative group">
           {avatarPreview ? (
             <img src={avatarPreview} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-2 border-slate-200 shadow-md ring-4 ring-indigo-500/5" />
@@ -267,7 +357,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
       </div>
 
       {/* Tipos de Propiedades de Especialidad */}
-      <div className="space-y-4 pt-6 border-t border-slate-100/80">
+      <div id="most_sold_types" className="space-y-4 pt-6 border-t border-slate-100/80">
         <h3 className="text-[10px] font-extrabold text-indigo-655 uppercase tracking-widest flex items-center gap-1.5">
           <span className="material-symbols-outlined text-base">real_estate_agent</span>
           Tipos de Propiedades de Especialidad (Operaciones más Frecuentes)
@@ -344,7 +434,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
       </div>
 
       {/* Coverage Areas */}
-      <div className="space-y-4 pt-6 border-t border-slate-100/80">
+      <div id="coverage_areas" className="space-y-4 pt-6 border-t border-slate-100/80">
         <h3 className="text-[10px] font-extrabold text-indigo-655 uppercase tracking-widest flex items-center gap-1.5">
           <span className="material-symbols-outlined text-base">map</span>
           Departamentos de Cobertura (Paraguay)
